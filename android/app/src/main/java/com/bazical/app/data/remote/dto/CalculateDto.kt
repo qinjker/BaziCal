@@ -4,12 +4,20 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
+data class ApiResponse<T>(
+    @Json(name = "code") val code: Int,
+    @Json(name = "message") val message: String,
+    @Json(name = "data") val data: T?
+)
+
+@JsonClass(generateAdapter = true)
 data class CalculateRequest(
     @Json(name = "name") val name: String,
     @Json(name = "birthday") val birthday: String,
     @Json(name = "hour") val hour: Int,
     @Json(name = "minute") val minute: Int,
-    @Json(name = "gender") val gender: String
+    @Json(name = "gender") val gender: String,
+    @Json(name = "device_id") val deviceId: String
 )
 
 @JsonClass(generateAdapter = true)

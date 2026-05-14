@@ -14,6 +14,7 @@ import com.bazical.app.domain.model.ShiShen
 import com.bazical.app.domain.model.User
 import com.bazical.app.domain.model.WuXing
 import com.bazical.app.domain.repository.BaziRepository
+import com.bazical.app.utils.DeviceId
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,9 +30,11 @@ class BaziRepositoryImpl @Inject constructor(
                 birthday = user.birthday,
                 hour = user.hour,
                 minute = user.minute,
-                gender = if (user.gender == Gender.MALE) "男" else "女"
+                gender = if (user.gender == Gender.MALE) "男" else "女",
+                deviceId = DeviceId.getDeviceId()
             )
-            val response = api.calculateBazi(request)
+            val apiResponse = api.calculateBazi(request)
+            val response = apiResponse.data ?: throw Exception(apiResponse.message)
             val bazi = BaZi(
                 year = Pillars(response.bazi.year.stem, response.bazi.year.branch),
                 month = Pillars(response.bazi.month.stem, response.bazi.month.branch),
@@ -59,7 +62,8 @@ class BaziRepositoryImpl @Inject constructor(
 
     override suspend fun getCalendar(userId: String, year: Int, month: Int): Result<CalendarMonth> {
         return try {
-            val response = api.getCalendar(userId, year, month)
+            val apiResponse = api.getCalendar(userId, year, month)
+            val response = apiResponse.data ?: throw Exception(apiResponse.message)
             val days = response.days.map { dto ->
                 CalendarDay(
                     date = dto.date,
@@ -79,7 +83,8 @@ class BaziRepositoryImpl @Inject constructor(
 
     override suspend fun solarToLunar(date: String): Result<LunarDate> {
         return try {
-            val response = api.solarToLunar(date)
+            val apiResponse = api.solarToLunar(date)
+            val response = apiResponse.data ?: throw Exception(apiResponse.message)
             Result.success(LunarDate(response.lunarYear, response.lunarMonth, response.lunarDay, response.isLeapMonth))
         } catch (e: Exception) {
             Result.failure(e)

@@ -1,6 +1,5 @@
 package com.bazical.app.data.remote.interceptor
 
-import com.bazical.app.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
@@ -12,7 +11,7 @@ import javax.inject.Inject
 class SignatureInterceptor @Inject constructor() : Interceptor {
 
     companion object {
-        private const val APP_KEY = "bazical-app-key-2024"
+        private const val APP_KEY = "apkey20260315"
         private const val HEADER_APP_KEY = "X-App-Key"
         private const val HEADER_TIMESTAMP = "X-Timestamp"
         private const val HEADER_SIGNATURE = "X-Signature"

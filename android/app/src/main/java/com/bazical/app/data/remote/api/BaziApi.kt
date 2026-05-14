@@ -1,5 +1,6 @@
 package com.bazical.app.data.remote.api
 
+import com.bazical.app.data.remote.dto.ApiResponse
 import com.bazical.app.data.remote.dto.CalculateRequest
 import com.bazical.app.data.remote.dto.CalculateResponse
 import com.bazical.app.data.remote.dto.CalendarResponse
@@ -12,15 +13,15 @@ import retrofit2.http.Query
 interface BaziApi {
 
     @POST("api/v1/bazi/calculate")
-    suspend fun calculateBazi(@Body request: CalculateRequest): CalculateResponse
+    suspend fun calculateBazi(@Body request: CalculateRequest): ApiResponse<CalculateResponse>
 
     @GET("api/v1/bazi/calendar")
     suspend fun getCalendar(
         @Query("userId") userId: String,
         @Query("year") year: Int,
         @Query("month") month: Int
-    ): CalendarResponse
+    ): ApiResponse<CalendarResponse>
 
     @GET("api/v1/bazi/solar-to-lunar")
-    suspend fun solarToLunar(@Query("date") date: String): SolarToLunarResponse
+    suspend fun solarToLunar(@Query("date") date: String): ApiResponse<SolarToLunarResponse>
 }
