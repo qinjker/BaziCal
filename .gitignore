@@ -1,0 +1,43 @@
+# Environment variables
+.env
+.env.development
+.env.production
+
+# Node modules
+node_modules/
+dist/
+
+# Test coverage
+coverage/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/*.apk
+android/*.aab
+android/local.properties
+
+# Web build
+web/dist/
+
+# Backup files
+*.zip
+!android.zip
+
+# Claude
+.claude/

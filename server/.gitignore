@@ -1,0 +1,25 @@
+# 环境变量文件 - 不提交到仓库
+.env
+.env.development
+.env.production
+
+# Node modules
+node_modules/
+dist/
+
+# 测试覆盖率
+coverage/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
