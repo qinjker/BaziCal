@@ -35,6 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -331,11 +333,10 @@ private fun CalendarDayCell(
             .aspectRatio(1f)
             .clip(RoundedCornerShape(12.dp))
             .background(
-                when {
-                    isToday -> androidx.compose.ui.graphics.Brush.linearGradient(
-                        colors = listOf(Primary, PrimaryVariant)
-                    )
-                    else -> Color(0xFFFAFAF8)
+                if (isToday) {
+                    Brush.linearGradient(colors = listOf(Primary, PrimaryVariant))
+                } else {
+                    SolidColor(Color(0xFFFAFAF8))
                 }
             )
             .clickable(onClick = onClick)
