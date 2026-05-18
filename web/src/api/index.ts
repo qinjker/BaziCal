@@ -10,6 +10,8 @@ import type {
   CalculateRequest,
   CalculateResponse,
   CalendarResponse,
+  User,
+  DailyDetailResponse,
 } from '../types';
 
 const APP_KEY = import.meta.env.VITE_APP_KEY || 'dev-app-key-12345';
@@ -78,6 +80,22 @@ class ApiService {
   async solarToLunar(date: string): Promise<ApiResponse<{ year: number; month: number; day: number }>> {
     return this.client.get('/v1/bazi/solar-to-lunar', {
       params: { date },
+    });
+  }
+
+  /**
+   * 获取用户信息
+   */
+  async getUserById(userId: string): Promise<ApiResponse<User>> {
+    return this.client.get(`/v1/bazi/user/${userId}`);
+  }
+
+  /**
+   * 获取每日详情
+   */
+  async getDailyDetail(userId: string, date: string): Promise<ApiResponse<DailyDetailResponse>> {
+    return this.client.get(`/v1/bazi/daily/${date}`, {
+      params: { userId },
     });
   }
 

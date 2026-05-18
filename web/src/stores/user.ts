@@ -34,18 +34,19 @@ export const useUserStore = defineStore('user', {
     },
 
     // 计算八字
-    async calculate(name: string, birthday: string, hour: number, minute: number, gender: '男' | '女') {
+    async calculate(name: string, birthday: string, birthday_type: 'solar' | 'lunar', hour: number, minute: number, gender: '男' | '女') {
       this.loading = true;
       this.error = null;
 
       try {
-        const response = await apiService.calculate({ name, birthday, hour, minute, gender });
+        const response = await apiService.calculate({ name, birthday, birthday_type, hour, minute, gender });
 
         if (response.code === 0 && response.data) {
           this.user = {
             userId: response.data.userId,
             name,
             birthday,
+            birthday_type,
             hour,
             minute,
             gender,

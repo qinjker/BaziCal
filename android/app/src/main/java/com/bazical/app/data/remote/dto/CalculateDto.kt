@@ -14,6 +14,7 @@ data class ApiResponse<T>(
 data class CalculateRequest(
     @Json(name = "name") val name: String,
     @Json(name = "birthday") val birthday: String,
+    @Json(name = "birthday_type") val birthdayType: String, // solar or lunar
     @Json(name = "hour") val hour: Int,
     @Json(name = "minute") val minute: Int,
     @Json(name = "gender") val gender: String,
@@ -44,11 +45,11 @@ data class PillarsDto(
 
 @JsonClass(generateAdapter = true)
 data class WuXingDto(
-    @Json(name = "mu") val mu: Int,
-    @Json(name = "huo") val huo: Int,
-    @Json(name = "tu") val tu: Int,
-    @Json(name = "jin") val jin: Int,
-    @Json(name = "shui") val shui: Int
+    @Json(name = "木") val mu: Int,
+    @Json(name = "火") val huo: Int,
+    @Json(name = "土") val tu: Int,
+    @Json(name = "金") val jin: Int,
+    @Json(name = "水") val shui: Int
 )
 
 @JsonClass(generateAdapter = true)

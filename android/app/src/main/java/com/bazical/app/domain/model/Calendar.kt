@@ -7,7 +7,12 @@ data class CalendarDay(
     val yi: List<String>,
     val ji: List<String>,
     val star: String,
-    val luck: String
+    val luck: String,
+    val shishen: String,
+    val jieqi: String?,
+    val lunarDate: String?,
+    val holiday: String?,
+    val branchShishen: String
 )
 
 data class CalendarMonth(

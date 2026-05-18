@@ -46,17 +46,27 @@ export interface DailyResult {
 
 /**
  * 根据出生时间计算八字
- * @param birthday 阴历出生日期 (格式: YYYY-MM-DD)
+ * @param birthday 出生日期 (格式: YYYY-MM-DD)
  * @param hour 小时 (0-23)
  * @param minute 分钟 (0-59)
+ * @param birthdayType 生日类型：solar=阳历，lunar=阴历（默认阴历）
  */
 export const calculateBazi = (
   birthday: string,
   hour: number,
-  minute: number = 0
+  minute: number = 0,
+  birthdayType: 'solar' | 'lunar' = 'lunar'
 ): BaziResult => {
+  let lunarBirthday = birthday;
+
+  // 如果是阳历，先转换为阴历
+  if (birthdayType === 'solar') {
+    const lunar = solarToLunar(birthday);
+    lunarBirthday = `${lunar.year}-${String(lunar.month).padStart(2, '0')}-${String(lunar.day).padStart(2, '0')}`;
+  }
+
   // 解析阴历生日 (格式: YYYY-MM-DD)
-  const [year, month, day] = birthday.split('-').map(Number);
+  const [year, month, day] = lunarBirthday.split('-').map(Number);
 
   // 验证并调整日期（某些农历月份可能没有31天）
   const lunarMonth = LunarMonth.fromYm(year, month);
@@ -540,6 +550,183 @@ const getStar = (day: number): string => {
     '井宿', '鬼宿', '柳宿', '星宿', '张宿', '翼宿', '轸宿',
   ];
   return stars[(day - 1) % 28];
+};
+
+/**
+ * 获取指定日期的详细信息
+ */
+export const getDailyDetail = (
+  userBazi: BaziResult,
+  date: string
+): {
+  date: string;
+  ganzhi: string;
+  shishen: string;
+  branchShishen: string;
+  energy: { level: number; description: string };
+  lucky: { direction: string; time: string; color: string; number: number };
+  messages: string[];
+  tags: string[];
+} => {
+  const [year, month, day] = date.split('-').map(Number);
+
+  // 获取当天的干支
+  const solarDay = SolarDay.fromYmd(year, month, day);
+  const lunarDay = solarDay.getLunarDay();
+  const todayGanzhi = lunarDay.getSixtyCycle().toString();
+
+  // 获取当天的日干索引 (用于计算十神)
+  const dayStemNames = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+  const dayStem = lunarDay.getSixtyCycle().getHeavenStem();
+  const dayStemIdx = dayStem.getIndex();
+  const userDayStemIdx = dayStemNames.indexOf(userBazi.day.stem);
+
+  // 计算天干十神
+  const shishen = getTraditionalTenStar(userDayStemIdx, dayStemIdx);
+
+  // 获取地支的十神
+  const earthBranch = lunarDay.getSixtyCycle().getEarthBranch();
+  const branchStem = earthBranch.getHideHeavenStemMain();
+  const branchStemIdx = branchStem.getIndex();
+  const branchShishen = getTraditionalTenStar(userDayStemIdx, branchStemIdx);
+
+  // 计算能量等级 (简化版)
+  const nineStarIndex = lunarDay.getNineStar().getIndex();
+  const energyLevel = [0, 5, 7, 8].includes(nineStarIndex) ? 4 : 3;
+
+  // 获取宜忌
+  const { yi, ji } = getYiji(todayGanzhi);
+
+  // 生成寄语
+  const messages = generateDailyMessages(shishen, energyLevel);
+
+  // 生成标签
+  const tags = generateTags(shishen, branchShishen, energyLevel);
+
+  return {
+    date,
+    ganzhi: todayGanzhi,
+    shishen,
+    branchShishen,
+    energy: {
+      level: energyLevel,
+      description: getEnergyDescription(shishen, energyLevel),
+    },
+    lucky: {
+      direction: getLuckyDirection(dayStemIdx),
+      time: getLuckyTime(dayStemIdx),
+      color: getLuckyColor(dayStemIdx),
+      number: getLuckyNumber(dayStemIdx),
+    },
+    messages,
+    tags,
+  };
+};
+
+/**
+ * 获取能量描述
+ */
+const getEnergyDescription = (shishen: string, level: number): string => {
+  if (level >= 4) {
+    return '贵人运不错，适合推进项目';
+  }
+  return '今日宜稳中求进，保守行事';
+};
+
+/**
+ * 获取幸运方向
+ */
+const getLuckyDirection = (dayStemIdx: number): string => {
+  const directions = ['东', '南', '南', '西', '西', '北', '北', '东', '东', '南'];
+  return directions[dayStemIdx % 10];
+};
+
+/**
+ * 获取幸运时间
+ */
+const getLuckyTime = (dayStemIdx: number): string => {
+  const times = [
+    '卯时(5-7点)',
+    '辰时(7-9点)',
+    '巳时(9-11点)',
+    '午时(11-13点)',
+    '未时(13-15点)',
+    '申时(15-17点)',
+    '酉时(17-19点)',
+    '戌时(19-21点)',
+    '亥时(21-23点)',
+    '子时(23-1点)',
+  ];
+  return times[dayStemIdx % 10];
+};
+
+/**
+ * 获取幸运颜色
+ */
+const getLuckyColor = (dayStemIdx: number): string => {
+  const colors = ['绿色', '红色', '黄色', '白色', '黑色', '金色', '银色', '粉色', '紫色', '蓝色'];
+  return colors[dayStemIdx % 10];
+};
+
+/**
+ * 获取幸运数字
+ */
+const getLuckyNumber = (dayStemIdx: number): number => {
+  return (dayStemIdx * 3 + 1) % 9 + 1;
+};
+
+/**
+ * 生成每日寄语
+ */
+const generateDailyMessages = (shishen: string, level: number): string[] => {
+  const baseMessages = [
+    '今日宜稳中求进',
+    '贵人运不错，适合推进项目',
+    '保持平和心态，好事即将发生',
+  ];
+
+  if (level >= 4) {
+    return baseMessages;
+  }
+
+  return [
+    '今日宜保守行事',
+    '注意细节，避免粗心',
+    '保持专注，工作顺利',
+  ];
+};
+
+/**
+ * 生成标签
+ */
+const generateTags = (shishen: string, branchShishen: string, level: number): string[] => {
+  const tags: string[] = [];
+
+  // 基于十神添加标签
+  if (shishen.includes('官') || shishen.includes('杀')) {
+    tags.push('事业运');
+  }
+  if (shishen.includes('印')) {
+    tags.push('学习运');
+  }
+  if (shishen.includes('食') || shishen.includes('伤')) {
+    tags.push('表达运');
+  }
+  if (shishen.includes('财')) {
+    tags.push('财运');
+  }
+  if (shishen.includes('比') || shishen.includes('劫')) {
+    tags.push('人际运');
+  }
+
+  // 基于能量等级添加标签
+  if (level >= 4) {
+    tags.push('贵人运');
+  } else {
+    tags.push('平稳运');
+  }
+
+  return tags.slice(0, 3);
 };
 
 /**

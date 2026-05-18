@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>送礼 - 十神能量日历</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #F7F4EF;
+        }
+
+        .phone-container {
+            width: 100%;
+            max-width: 390px;
+            min-height: 100vh;
+            margin: 0 auto;
+            background: #F7F4EF;
+            padding-bottom: 100px;
+        }
+
+        /* 顶部区域 */
+        .gift-header {
+            padding: 50px 24px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .gift-icon {
+            width: 110px;
+            height: 110px;
+            background: linear-gradient(145deg, #E0B850 0%, #C49A3A 100%);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 52px;
+            margin-bottom: 28px;
+            box-shadow: 0 10px 36px rgba(212, 168, 67, 0.32);
+        }
+
+        .gift-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 28px;
+            color: #2C1810;
+            margin-bottom: 10px;
+        }
+
+        .gift-subtitle {
+            font-size: 15px;
+            color: #8B7355;
+        }
+
+        /* 表单卡片 */
+        .gift-form {
+            margin: 0 24px;
+            background: #FFFFFF;
+            border-radius: 22px;
+            padding: 28px 26px;
+            box-shadow: 0 4px 20px rgba(44, 24, 16, 0.08);
+            border: 1px solid rgba(232, 224, 213, 0.6);
+        }
+
+        .form-title {
+            font-size: 15px;
+            color: #5A4A3A;
+            margin-bottom: 20px;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 58px;
+            background: #FAF6F0;
+            border: 1.5px solid #E8E0D5;
+            border-radius: 14px;
+            padding: 0 18px;
+            font-size: 16px;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #2C1810;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #C84A3E;
+            box-shadow: 0 0 0 4px rgba(200, 74, 62, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: #B8A892;
+        }
+
+        /* 提交按钮 */
+        .btn-submit {
+            display: block;
+            width: 100%;
+            height: 58px;
+            background: linear-gradient(145deg, #D65A4E 0%, #B8443A 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow:
+                0 12px 32px rgba(200, 74, 62, 0.32),
+                0 4px 12px rgba(200, 74, 62, 0.22);
+            transition: all 0.25s ease;
+            text-decoration: none;
+            line-height: 58px;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .btn-submit:active {
+            transform: scale(0.97);
+        }
+
+        /* 底部Tab栏 */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 390px;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+            border-top: 1px solid rgba(232, 224, 213, 0.8);
+            z-index: 100;
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px 20px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .tab-icon {
+            font-size: 26px;
+            margin-bottom: 4px;
+        }
+
+        .tab-label {
+            font-size: 11px;
+            color: #B8A892;
+            font-weight: 500;
+        }
+
+        .tab-item.active .tab-icon,
+        .tab-item.active .tab-label {
+            color: #C84A3E;
+        }
+
+        .tab-item.active .tab-icon {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <!-- 顶部区域 -->
+        <div class="gift-header">
+            <div class="gift-icon">🎁</div>
+            <h2 class="gift-title">送礼</h2>
+            <p class="gift-subtitle">为朋友生成专属能量日历</p>
+        </div>
+
+        <!-- 表单卡片 -->
+        <div class="gift-form">
+            <div class="form-title">朋友生日</div>
+            <input type="text" class="form-input" placeholder="如：1995-08-15">
+            <input type="text" class="form-input" placeholder="祝福语（可选）">
+            <a href="#" class="btn-submit">生成日历卡</a>
+        </div>
+
+        <!-- 底部Tab栏 -->
+        <div class="tab-bar">
+            <a href="calendar.html" class="tab-item">
+                <div class="tab-icon">📅</div>
+                <div class="tab-label">月历</div>
+            </a>
+            <a href="detail.html" class="tab-item">
+                <div class="tab-icon">✨</div>
+                <div class="tab-label">今日</div>
+            </a>
+            <a href="gift.html" class="tab-item active">
+                <div class="tab-icon">🎁</div>
+                <div class="tab-label">送礼</div>
+            </a>
+            <a href="onboarding.html" class="tab-item">
+                <div class="tab-icon">📝</div>
+                <div class="tab-label">生辰</div>
+            </a>
+            <a href="feedback.html" class="tab-item">
+                <div class="tab-icon">💬</div>
+                <div class="tab-label">反馈</div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

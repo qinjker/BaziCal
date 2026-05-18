@@ -18,7 +18,7 @@ const loading = ref(false);
 onMounted(() => {
   userStore.restore();
   if (!userStore.user) {
-    router.push('/');
+    router.push('/index');
     return;
   }
   fetchCalendar();
@@ -67,546 +67,468 @@ const daysInMonth = computed(() => {
   return dayjs(`${currentYear.value}-${currentMonth.value}-01`).daysInMonth();
 });
 
+// 上个月的天数
+const daysInPrevMonth = computed(() => {
+  return dayjs(`${currentYear.value}-${currentMonth.value}-01`).subtract(1, 'month').daysInMonth();
+});
+
 // 判断日期是否今天
 const isToday = (date: string) => {
   return date === dayjs().format('YYYY-MM-DD');
 };
 
-// 获取今天的日期用于显示
-const todayStr = dayjs().format('YYYY年MM月DD日');
+// 判断是否是周末
+const isWeekend = (index: number) => {
+  return index === 0 || index === 6;
+};
 
 // 查看每日详情
 const viewDaily = (day: DailyData) => {
   router.push(`/daily?date=${day.date}`);
 };
 
-// 跳转到首页重新计算
-const goToIndex = () => {
-  router.push('/');
+// 跳转到今日详情
+const goToDaily = () => {
+  router.push(`/daily?date=${dayjs().format('YYYY-MM-DD')}`);
 };
 
-// 跳转到今日
-const goToToday = () => {
-  currentYear.value = dayjs().year();
-  currentMonth.value = dayjs().month() + 1;
-  fetchCalendar();
+// 天干颜色
+const stemColors: Record<string, string> = {
+  '甲': 'green', '乙': 'light-green',
+  '丙': 'red', '丁': 'light-red',
+  '戊': 'purple', '己': 'light-purple',
+  '庚': 'gold', '辛': 'light-gold',
+  '壬': 'blue', '癸': 'light-blue',
 };
 
-// 天干五行配色
-const stemColors: Record<string, { color: string; gradient: string }> = {
-  '甲': { color: '#4ade80', gradient: 'linear-gradient(135deg, #4ade80, #22c55e)' }, // 木 - 绿色
-  '乙': { color: '#86efac', gradient: 'linear-gradient(135deg, #86efac, #4ade80)' }, // 木 - 浅绿
-  '丙': { color: '#f87171', gradient: 'linear-gradient(135deg, #f87171, #ef4444)' }, // 火 - 红色
-  '丁': { color: '#fca5a5', gradient: 'linear-gradient(135deg, #fca5a5, #f87171)' }, // 火 - 浅红
-  '戊': { color: '#a78bfa', gradient: 'linear-gradient(135deg, #a78bfa, #8b5cf6)' }, // 土 - 紫色
-  '己': { color: '#c4b5fd', gradient: 'linear-gradient(135deg, #c4b5fd, #a78bfa)' }, // 土 - 浅紫
-  '庚': { color: '#fbbf24', gradient: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }, // 金 - 金色
-  '辛': { color: '#fde047', gradient: 'linear-gradient(135deg, #fde047, #fbbf24)' }, // 金 - 浅金
-  '壬': { color: '#60a5fa', gradient: 'linear-gradient(135deg, #60a5fa, #3b82f6)' }, // 水 - 蓝色
-  '癸': { color: '#93c5fd', gradient: 'linear-gradient(135deg, #93c5fd, #60a5fa)' }, // 水 - 浅蓝
+// 获取天干颜色类
+const getStemColorClass = (stem: string) => {
+  return stemColors[stem] || '';
 };
 
-// 获取天干颜色
-const getStemColor = (stem: string) => {
-  return stemColors[stem] || { color: '#e8c97a', gradient: 'linear-gradient(135deg, #e8c97a, #d4a853)' };
-};
-
-// 地支五行配色
+// 地支颜色 (内联样式)
 const branchColors: Record<string, string> = {
-  '子': '#60a5fa', // 水 - 蓝色
-  '丑': '#a78bfa', // 土 - 紫色
-  '寅': '#4ade80', // 木 - 绿色
-  '卯': '#86efac', // 木 - 浅绿
-  '辰': '#a78bfa', // 土 - 紫色
-  '巳': '#f87171', // 火 - 红色
-  '午': '#fca5a5', // 火 - 浅红
-  '未': '#a78bfa', // 土 - 紫色
-  '申': '#fbbf24', // 金 - 金色
-  '酉': '#fde047', // 金 - 浅金
-  '戌': '#a78bfa', // 土 - 紫色
-  '亥': '#60a5fa', // 水 - 蓝色
+  '子': '#60a5fa', '丑': '#a78bfa', '寅': '#4ade80', '卯': '#86efac',
+  '辰': '#a78bfa', '巳': '#f87171', '午': '#fca5a5', '未': '#a78bfa',
+  '申': '#fbbf24', '酉': '#fde047', '戌': '#a78bfa', '亥': '#60a5fa',
 };
 
-// 获取地支颜色
 const getBranchColor = (branch: string) => {
-  return branchColors[branch] || '#e8c97a';
+  return branchColors[branch] || '#2C1810';
 };
 </script>
 
 <template>
-  <div class="page">
-    <!-- 顶部导航 -->
-    <div class="header">
-      <button class="nav-btn" @click="goToIndex">首页</button>
-      <button class="today-btn" @click="goToToday">今天</button>
-      <div class="month-selector">
-        <button class="change-btn" @click="changeMonth(-1)">&lt;</button>
-        <span class="current-month">{{ currentYear }}年{{ currentMonth }}月</span>
-        <button class="change-btn" @click="changeMonth(1)">&gt;</button>
+  <div class="phone-container">
+    <!-- 顶部日期切换 -->
+    <div class="date-header">
+      <div class="date-nav-btn" @click="changeMonth(-1)">‹ 上一月</div>
+      <div class="date-display">
+        <div class="date-display-main">{{ currentYear }}年{{ currentMonth }}月</div>
+        <div class="date-display-sub">癸巳月 · 丙午马年</div>
       </div>
+      <div class="date-nav-btn" @click="changeMonth(1)">下一月 ›</div>
     </div>
 
-    <!-- 八字展示区 -->
-    <div v-if="userStore.bazi" class="bazi-section">
-      <div class="section-title">今日八字</div>
-      <div class="bazi-pillars">
-        <div class="pillar-item">
-          <span class="pillar-label">年柱</span>
-          <span class="pillar-value">{{ userStore.bazi.year.stem }}{{ userStore.bazi.year.branch }}</span>
-          <span class="shishen">{{ userStore.bazi.shishen.year }}</span>
-        </div>
-        <div class="pillar-item">
-          <span class="pillar-label">月柱</span>
-          <span class="pillar-value">{{ userStore.bazi.month.stem }}{{ userStore.bazi.month.branch }}</span>
-          <span class="shishen">{{ userStore.bazi.shishen.month }}</span>
-        </div>
-        <div class="pillar-item">
-          <span class="pillar-label">日柱</span>
-          <span class="pillar-value">{{ userStore.bazi.day.stem }}{{ userStore.bazi.day.branch }}</span>
-          <span class="shishen">{{ userStore.bazi.shishen.day }}</span>
-        </div>
-        <div class="pillar-item">
-          <span class="pillar-label">时柱</span>
-          <span class="pillar-value">{{ userStore.bazi.hour.stem }}{{ userStore.bazi.hour.branch }}</span>
-          <span class="shishen">{{ userStore.bazi.shishen.hour }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 五行分布 -->
-    <div v-if="userStore.bazi" class="wuxing-section">
-      <div class="wuxing-bars">
-        <div v-for="(value, key) in userStore.bazi.wuxing" :key="key" class="wuxing-item">
-          <span class="wuxing-name">{{ key }}</span>
-          <div class="wuxing-bar-bg">
-            <div class="wuxing-bar-fill" :style="{ width: (value / 8 * 100) + '%' }"></div>
+    <!-- 用户信息卡 -->
+    <div class="user-card">
+      <div class="user-info-row">
+        <div class="user-info-left">
+          <div class="user-avatar">十</div>
+          <div class="user-info-text">
+            <div class="user-name">日主：戊土</div>
+            <div class="user-desc">生于{{ userStore.user?.birthday }}</div>
           </div>
-          <span class="wuxing-count">{{ value }}</span>
+        </div>
+        <div class="user-info-right">
+          <div class="user-energy">{{ userStore.bazi?.shishen.month }}</div>
+          <div class="user-energy-label">本月能量</div>
         </div>
       </div>
     </div>
-
-    <!-- 当日宜忌 -->
-    <div v-if="days.find(d => isToday(d.date))" class="today-yiji">
-      <div class="yi-section">
-        <span class="label">宜</span>
-        <span class="tags">
-          <span v-for="item in days.find(d => isToday(d.date))?.yi.slice(0, 3)" :key="item" class="tag yi-tag">{{ item }}</span>
-        </span>
-      </div>
-      <div class="ji-section">
-        <span class="label">忌</span>
-        <span class="tags">
-          <span v-for="item in days.find(d => isToday(d.date))?.ji.slice(0, 2)" :key="item" class="tag ji-tag">{{ item }}</span>
-        </span>
-      </div>
-    </div>
-
-    <!-- 加载状态 -->
-    <div v-if="loading" class="loading">加载中...</div>
 
     <!-- 日历网格 -->
-    <div v-else class="calendar-grid">
+    <div class="calendar-section">
       <!-- 星期标题 -->
-      <div class="week-header">
-        <span v-for="day in weekDays" :key="day" :class="{ weekend: day === '日' || day === '六' }">
+      <div class="calendar-header-row">
+        <div v-for="day in weekDays" :key="day" class="calendar-weekday" :class="{ weekend: day === '日' || day === '六' }">
           {{ day }}
-        </span>
+        </div>
       </div>
 
       <!-- 日期格子 -->
-      <div class="days-container">
-        <!-- 空白格子 -->
-        <div v-for="i in firstDayOfMonth" :key="'empty-' + i" class="day-cell empty"></div>
-
-        <!-- 日期格子 -->
+      <div class="calendar-grid">
+        <!-- 上个月的数据 -->
         <div
-          v-for="day in days"
-          :key="day.date"
-          class="day-cell"
-          :class="{
-            today: isToday(day.date)
-          }"
-          @click="viewDaily(day)"
+          v-for="i in firstDayOfMonth"
+          :key="'prev-' + i"
+          class="calendar-day other-month"
         >
-          <!-- 第一行：日期 (居中) -->
-          <div class="day-date">{{ dayjs(day.date).date() }}</div>
+          <span class="day-number">{{ daysInPrevMonth - firstDayOfMonth + i }}</span>
+        </div>
 
-          <!-- 第二行：节日/节气/农历 (居中) -->
-          <div class="day-lunar" :class="{ 'is-holiday': day.holiday, 'is-jieqi': day.jieqi && !day.holiday }">
-            {{ day.holiday || day.jieqi || day.lunarDate }}
-          </div>
-
-          <!-- 第三行：天干 + 十神 -->
+        <!-- 当月日期 -->
+        <div
+          v-for="day in daysInMonth"
+          :key="'day-' + day"
+          class="calendar-day"
+          :class="{
+            today: isToday(`${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`),
+            weekend: isWeekend((firstDayOfMonth + day - 1) % 7)
+          }"
+          @click="viewDaily(days[day - 1] || { date: `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}` } as DailyData)"
+        >
+          <span class="day-number">{{ day }}</span>
+          <span class="day-lunar" :class="{ 'is-holiday': days[day - 1]?.holiday, 'is-jieqi': days[day - 1]?.jieqi && !days[day - 1]?.holiday }">
+            {{ days[day - 1]?.holiday || days[day - 1]?.jieqi || days[day - 1]?.lunarDate || '' }}
+          </span>
           <div class="day-row">
-            <span class="stem" :style="{ color: getStemColor(day.ganzhi[0]).color }">{{ day.ganzhi[0] }}</span>
-            <span class="shisen">{{ day.shishen }}</span>
+            <span class="stem" :class="getStemColorClass(days[day - 1]?.ganzhi?.[0] || '')">
+              {{ days[day - 1]?.ganzhi?.[0] || '' }}
+            </span>
+            <span class="shisen">{{ days[day - 1]?.shishen || '' }}</span>
           </div>
-
-          <!-- 第四行：地支 + 十神 -->
           <div class="day-row">
-            <span class="branch" :style="{ color: getBranchColor(day.ganzhi[1]) }">{{ day.ganzhi[1] }}</span>
-            <span class="shisen">{{ day.branchShishen }}</span>
+            <span class="branch" :style="{ color: getBranchColor(days[day - 1]?.ganzhi?.[1] || '') }">
+              {{ days[day - 1]?.ganzhi?.[1] || '' }}
+            </span>
+            <span class="shisen">{{ days[day - 1]?.branchShishen || '' }}</span>
           </div>
         </div>
+
+        <!-- 下个月的数据 -->
+        <div
+          v-for="i in (42 - firstDayOfMonth - daysInMonth)"
+          :key="'next-' + i"
+          class="calendar-day other-month"
+        >
+          <span class="day-number">{{ i }}</span>
+        </div>
       </div>
+    </div>
+
+    <!-- 底部Tab栏 -->
+    <div class="tab-bar">
+      <a href="#/calendar" class="tab-item active">
+        <span class="tab-icon">📅</span>
+        <span class="tab-label">月历</span>
+      </a>
+      <a href="#/daily" class="tab-item" @click.prevent="goToDaily">
+        <span class="tab-icon">✨</span>
+        <span class="tab-label">今日</span>
+      </a>
+      <a href="#/index" class="tab-item">
+        <span class="tab-icon">📝</span>
+        <span class="tab-label">生辰</span>
+      </a>
+      <a href="#/feedback" class="tab-item">
+        <span class="tab-icon">💬</span>
+        <span class="tab-label">反馈</span>
+      </a>
     </div>
   </div>
 </template>
 
 <style scoped>
-.page {
+.phone-container {
+  width: 100%;
+  max-width: 390px;
   min-height: 100vh;
-  background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
-  padding: 12px;
-  color: #fff;
+  margin: 0 auto;
+  background: #F7F4EF;
+  padding-bottom: 90px;
+  color: #2C1810;
 }
 
-/* 响应式适配 */
-@media (max-width: 400px) {
-  .page {
-    padding: 8px;
-  }
-
-  .days-container {
-    gap: 4px;
-  }
-
-  .day-cell {
-    min-height: 80px;
-    padding: 4px 2px;
-  }
-
-  .day-date {
-    font-size: 14px;
-  }
-
-  .day-lunar {
-    font-size: 10px;
-  }
-
-  .stem, .branch {
-    font-size: 14px;
-  }
-
-  .shisen {
-    font-size: 10px;
-  }
-}
-
-/* 顶部导航 */
-.header {
+/* 顶部日期切换 */
+.date-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 0;
-  margin-bottom: 15px;
+  padding: 16px 20px;
+  background: white;
+  border-bottom: 1px solid rgba(232, 224, 213, 0.5);
 }
 
-.nav-btn, .today-btn {
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  border-radius: 20px;
-  color: #fff;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.today-btn {
-  background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-  color: #1a1a2e;
-}
-
-.month-selector {
+.date-nav-btn {
+  padding: 8px 12px;
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-.change-btn {
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  font-size: 14px;
+  gap: 4px;
+  color: #8B7355;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
 }
 
-.current-month {
-  font-size: 18px;
-  font-weight: bold;
-  min-width: 120px;
+.date-display {
   text-align: center;
 }
 
-/* 八字展示区 */
-.bazi-section {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
+.date-display-main {
+  font-size: 18px;
+  color: #2C1810;
+  font-weight: 600;
+}
+
+.date-display-sub {
+  font-size: 13px;
+  color: #8B7355;
+  margin-top: 2px;
+}
+
+/* 用户信息卡 */
+.user-card {
+  margin: 16px 20px;
+  background: white;
+  border-radius: 18px;
   padding: 20px;
-  margin-bottom: 15px;
+  box-shadow: 0 4px 16px rgba(44, 24, 16, 0.06);
 }
 
-.section-title {
-  font-size: 14px;
-  color: #888;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.bazi-pillars {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-}
-
-.pillar-item {
-  text-align: center;
-  padding: 12px 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-}
-
-.pillar-label {
-  display: block;
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 6px;
-}
-
-.pillar-value {
-  display: block;
-  font-size: 18px;
-  font-weight: bold;
-  background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.shishen {
-  display: block;
-  font-size: 12px;
-  color: #f6d365;
-  margin-top: 4px;
-}
-
-/* 五行分布 */
-.wuxing-section {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 15px;
-  margin-bottom: 15px;
-}
-
-.wuxing-bars {
+.user-info-row {
   display: flex;
-  gap: 10px;
+  justify-content: space-between;
   align-items: center;
 }
 
-.wuxing-item {
-  flex: 1;
+.user-info-left {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 12px;
 }
 
-.wuxing-name {
-  font-size: 14px;
-  width: 20px;
-  color: #888;
+.user-avatar {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(145deg, #C84A3E 0%, #A33D33 100%);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
 }
 
-.wuxing-bar-bg {
-  flex: 1;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  overflow: hidden;
+.user-info-text {
+  display: flex;
+  flex-direction: column;
 }
 
-.wuxing-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #f6d365 0%, #fda085 100%);
-  border-radius: 4px;
+.user-name {
+  font-size: 16px;
+  color: #2C1810;
+  font-weight: 600;
 }
 
-.wuxing-count {
+.user-desc {
   font-size: 12px;
-  color: #666;
-  width: 16px;
+  color: #8B7355;
+  margin-top: 2px;
+}
+
+.user-info-right {
   text-align: right;
 }
 
-/* 今日宜忌 */
-.today-yiji {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 15px;
-  padding: 15px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
+.user-energy {
+  font-size: 14px;
+  color: #D4A843;
+  font-weight: 600;
 }
 
-.yi-section, .ji-section {
-  flex: 1;
-}
-
-.yi-section .label, .ji-section .label {
-  display: block;
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 8px;
-}
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.tag {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-}
-
-.yi-tag {
-  background: rgba(246, 211, 101, 0.2);
-  color: #f6d365;
-}
-
-.ji-tag {
-  background: rgba(255, 100, 100, 0.2);
-  color: #ff6464;
-}
-
-/* 加载状态 */
-.loading {
-  text-align: center;
-  padding: 60px;
-  color: #666;
+.user-energy-label {
+  font-size: 11px;
+  color: #B8A892;
 }
 
 /* 日历网格 */
-.calendar-grid {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 15px;
+.calendar-section {
+  margin: 0 20px;
+  background: white;
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(44, 24, 16, 0.06);
 }
 
-.week-header {
+.calendar-header-row {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(232, 224, 213, 0.5);
 }
 
-.week-header span {
+.calendar-weekday {
+  text-align: center;
   font-size: 12px;
-  color: #666;
+  color: #B8A892;
+  padding: 6px 0;
 }
 
-.week-header span.weekend {
-  color: #f6d365;
+.calendar-weekday.weekend {
+  color: #C84A3E;
 }
 
-.days-container {
+.calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+  gap: 4px;
 }
 
-.day-cell {
-  min-height: 90px;
+.calendar-day {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 6px 3px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
+  background: #FAFAF8;
+  min-height: 75px;
+  padding: 5px 3px;
 }
 
-.day-cell:not(.empty):hover {
-  background: rgba(255, 255, 255, 0.1);
+.calendar-day:active {
+  background: #F0EBE3;
 }
 
-.day-cell.empty {
-  background: transparent;
-  cursor: default;
+.calendar-day.other-month {
+  opacity: 0.25;
 }
 
-.day-cell.today {
-  background: rgba(246, 211, 101, 0.2);
-  border: 2px solid #f6d365;
+.calendar-day.today {
+  background: linear-gradient(145deg, #C84A3E 0%, #A33D33 100%);
 }
 
-.day-cell.today .day-date {
-  color: #f6d365;
-  font-size: 18px;
-}
-
-.day-date {
-  font-size: 14px;
+.calendar-day.today .day-number {
+  color: white;
   font-weight: 600;
-  text-align: center;
-  margin-bottom: 3px;
+}
+
+.calendar-day.today .day-lunar {
+  color: rgba(255,255,255,0.7);
+}
+
+.calendar-day.today .stem,
+.calendar-day.today .branch {
+  color: white;
+}
+
+.calendar-day.today .shisen {
+  color: rgba(255,255,255,0.7);
+}
+
+.calendar-day.weekend .day-number {
+  color: #C84A3E;
+}
+
+.calendar-day.today.weekend .day-number {
+  color: white;
+}
+
+.day-number {
+  font-size: 15px;
+  color: #2C1810;
+  font-weight: 600;
+  margin-bottom: 1px;
 }
 
 .day-lunar {
   font-size: 9px;
-  color: #999;
+  color: #8B7355;
+  margin-bottom: 3px;
   text-align: center;
-  margin-bottom: 4px;
-  min-height: 12px;
+  min-height: 11px;
 }
 
 .day-lunar.is-holiday {
-  color: #ff6b6b;
+  color: #E74C3C;
   font-weight: 600;
 }
 
 .day-lunar.is-jieqi {
-  color: #4ecdc4;
+  color: #5A8A6A;
   font-weight: 600;
 }
 
 .day-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  width: 100%;
-  padding: 0 2px;
-  line-height: 1.3;
-}
-
-.day-row.single {
   justify-content: center;
-  gap: 8px;
-}
-
-.day-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
+  gap: 3px;
+  width: 100%;
+  line-height: 1.2;
 }
 
 .stem {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
 }
 
+.stem.green { color: #4ade80; }
+.stem.light-green { color: #86efac; }
+.stem.red { color: #f87171; }
+.stem.light-red { color: #fca5a5; }
+.stem.purple { color: #a78bfa; }
+.stem.light-purple { color: #c4b5fd; }
+.stem.gold { color: #fbbf24; }
+.stem.light-gold { color: #fde047; }
+.stem.blue { color: #60a5fa; }
+.stem.light-blue { color: #93c5fd; }
+
+.branch {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2C1810;
+}
+
 .shisen {
+  font-size: 9px;
+  color: #8B7355;
+}
+
+/* 底部Tab栏 */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 390px;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(232, 224, 213, 0.8);
+  z-index: 100;
+}
+
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 12px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.tab-icon {
+  font-size: 24px;
+  margin-bottom: 3px;
+}
+
+.tab-label {
   font-size: 10px;
-  color: #888;
+  color: #B8A892;
+  font-weight: 500;
+}
+
+.tab-item.active .tab-icon,
+.tab-item.active .tab-label {
+  color: #C84A3E;
 }
 </style>

@@ -33,17 +33,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bazical.app.domain.model.CalendarDay
 import com.bazical.app.ui.theme.Primary
+import com.bazical.app.ui.theme.PrimaryVariant
 import com.bazical.app.ui.theme.Secondary
 import com.bazical.app.ui.theme.Success
+import com.bazical.app.ui.theme.TextPrimary
+import com.bazical.app.ui.theme.TextSecondary
+import com.bazical.app.ui.theme.TextTertiary
 import com.bazical.app.ui.theme.Warning
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -58,122 +63,218 @@ fun CalendarScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(Color(0xFF0D1117), Color(0xFF161B22), Color(0xFF0D1117))
-                )
-            )
-            .padding(16.dp)
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        // Header with navigation
+        // Date header with navigation
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+                .padding(horizontal = 16.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { viewModel.previousMonth() }) {
+            // Previous month button
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable { viewModel.previousMonth() }
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Icon(
                     Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "上月",
-                    tint = Primary
+                    contentDescription = "上一月",
+                    tint = TextTertiary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Text(
+                    text = "上一月",
+                    fontSize = 13.sp,
+                    color = TextTertiary
                 )
             }
-            Text(
-                text = "${uiState.year}年${uiState.month}月",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            IconButton(onClick = { viewModel.nextMonth() }) {
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Current month display
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "${uiState.year}年${uiState.month}月",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TextPrimary
+                )
+                Text(
+                    text = "${uiState.monthBranch ?: ""}月 · ${uiState.yearBranch ?: ""}",
+                    fontSize = 13.sp,
+                    color = TextTertiary,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Next month button
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable { viewModel.nextMonth() }
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "下一月",
+                    fontSize = 13.sp,
+                    color = TextTertiary
+                )
                 Icon(
                     Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "下月",
-                    tint = Primary
+                    contentDescription = "下一月",
+                    tint = TextTertiary,
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // BaZi display
-        uiState.bazi?.let { bazi ->
-            Card(
+        // User info card
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .shadow(
+                    elevation = 4.dp,
+                    shape = RoundedCornerShape(18.dp),
+                    spotColor = Color.Black.copy(alpha = 0.06f)
+                )
+                .clip(RoundedCornerShape(18.dp))
+                .background(Color.White)
+                .padding(20.dp)
+        ) {
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "四柱八字",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Primary
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Avatar
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .shadow(
+                                elevation = 4.dp,
+                                shape = RoundedCornerShape(14.dp),
+                                spotColor = Color.Black.copy(alpha = 0.1f)
+                            )
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(
+                                androidx.compose.ui.graphics.Brush.linearGradient(
+                                    colors = listOf(Primary, PrimaryVariant)
+                                )
+                            ),
+                        contentAlignment = Alignment.Center
                     ) {
-                        BaZiPillar("年", bazi.year.stem, bazi.year.branch)
-                        BaZiPillar("月", bazi.month.stem, bazi.month.branch)
-                        BaZiPillar("日", bazi.day.stem, bazi.day.branch)
-                        BaZiPillar("时", bazi.hour.stem, bazi.hour.branch)
+                        Text(
+                            text = "十",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
                     }
+
+                    Spacer(modifier = Modifier.size(12.dp))
+
+                    Column {
+                        Text(
+                            text = "日主：${uiState.dayStem}${uiState.dayBranch}",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = TextPrimary
+                        )
+                        Text(
+                            text = "生于${uiState.userBirthday}",
+                            fontSize = 12.sp,
+                            color = TextTertiary,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+                    }
+                }
+
+                Column(
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = uiState.monthShishen ?: "正财",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Secondary
+                    )
+                    Text(
+                        text = "本月能量",
+                        fontSize = 11.sp,
+                        color = TextTertiary,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        // Weekday headers
-        Row(modifier = Modifier.fillMaxWidth()) {
-            listOf("日", "一", "二", "三", "四", "五", "六").forEach { day ->
-                Text(
-                    text = day,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+        // Calendar section
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .shadow(
+                    elevation = 4.dp,
+                    shape = RoundedCornerShape(20.dp),
+                    spotColor = Color.Black.copy(alpha = 0.06f)
                 )
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color.White)
+                .padding(16.dp)
+        ) {
+            Column {
+                // Weekday headers
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    listOf("日", "一", "二", "三", "四", "五", "六").forEachIndexed { index, day ->
+                        Text(
+                            text = day,
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Center,
+                            fontSize = 12.sp,
+                            color = if (index == 0 || index == 6) Primary else TextTertiary,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Loading or calendar grid
+                if (uiState.loading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(400.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = Primary)
+                    }
+                } else {
+                    CalendarGrid(
+                        days = uiState.days,
+                        onDayClick = { day -> onNavigateToDaily(day.date) }
+                    )
+                }
             }
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Loading or calendar grid
-        if (uiState.loading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = Primary)
-            }
-        } else {
-            CalendarGrid(
-                days = uiState.days,
-                onDayClick = { day -> onNavigateToDaily(day.date) }
-            )
-        }
-    }
-}
-
-@Composable
-private fun BaZiPillar(label: String, stem: String, branch: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-        )
-        Text(
-            text = stem,
-            style = MaterialTheme.typography.titleMedium,
-            color = Primary,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = branch,
-            style = MaterialTheme.typography.bodyMedium,
-            color = Secondary
-        )
     }
 }
 
@@ -191,7 +292,8 @@ private fun CalendarGrid(
     LazyVerticalGrid(
         columns = GridCells.Fixed(7),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = Modifier.height(400.dp)
     ) {
         // Empty cells for days before month starts
         items(startDayOfWeek) {
@@ -215,55 +317,131 @@ private fun CalendarDayCell(
     isToday: Boolean,
     onClick: () -> Unit
 ) {
-    val luckColor = when (day.luck) {
-        "吉" -> Success
-        "凶" -> Warning
-        else -> MaterialTheme.colorScheme.onSurface
-    }
+    val dayNumber = try {
+        LocalDate.parse(day.date).dayOfMonth
+    } catch (e: Exception) { 0 }
+
+    val isWeekend = try {
+        val dow = LocalDate.parse(day.date).dayOfWeek.value % 7
+        dow == 0 || dow == 6
+    } catch (e: Exception) { false }
 
     Box(
         modifier = Modifier
             .aspectRatio(1f)
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surface)
+            .clip(RoundedCornerShape(12.dp))
+            .background(
+                when {
+                    isToday -> androidx.compose.ui.graphics.Brush.linearGradient(
+                        colors = listOf(Primary, PrimaryVariant)
+                    )
+                    else -> Color(0xFFFAFAF8)
+                }
+            )
             .clickable(onClick = onClick)
-            .padding(4.dp)
+            .padding(5.dp),
+        contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            val dayNumber = try {
-                LocalDate.parse(day.date).dayOfMonth
-            } catch (e: Exception) { 0 }
+            // Day number
+            Text(
+                text = dayNumber.toString(),
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = when {
+                    isToday -> Color.White
+                    isWeekend -> Primary
+                    else -> TextPrimary
+                }
+            )
 
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .then(if (isToday) Modifier.background(Primary, CircleShape) else Modifier),
-                contentAlignment = Alignment.Center
-            ) {
+            // Lunar date or holiday
+            val displayText = day.holiday ?: day.lunarDate ?: ""
+            if (displayText.isNotEmpty()) {
                 Text(
-                    text = dayNumber.toString(),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (isToday) Color.White else MaterialTheme.colorScheme.onSurface
+                    text = displayText,
+                    fontSize = 9.sp,
+                    color = when {
+                        isToday -> Color.White.copy(alpha = 0.7f)
+                        day.holiday != null -> Color(0xFFE74C3C)
+                        day.jieqi != null -> Success
+                        else -> TextTertiary
+                    },
+                    modifier = Modifier.padding(top = 1.dp)
                 )
             }
 
-            Text(
-                text = day.ganzhi.take(2),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-            )
+            // Gan Zhi row
+            if (day.ganzhi.isNotEmpty()) {
+                Row(
+                    modifier = Modifier.padding(top = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    val stemColor = getStemColor(day.ganzhi.getOrNull(0)?.toString() ?: "")
+                    val branchColor = getBranchColor(day.ganzhi.getOrNull(1)?.toString() ?: "")
 
-            if (day.luck.isNotEmpty()) {
+                    Text(
+                        text = day.ganzhi.getOrNull(0)?.toString() ?: "",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (isToday) Color.White else stemColor
+                    )
+                    Text(
+                        text = day.ganzhi.getOrNull(1)?.toString() ?: "",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (isToday) Color.White else branchColor
+                    )
+                }
+            }
+
+            // Shi Shen
+            if (day.shishen.isNotEmpty()) {
                 Text(
-                    text = day.luck,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = luckColor
+                    text = day.shishen,
+                    fontSize = 9.sp,
+                    color = if (isToday) Color.White.copy(alpha = 0.7f) else TextTertiary
                 )
             }
         }
+    }
+}
+
+private fun getStemColor(stem: String): Color {
+    return when (stem) {
+        "甲" -> Color(0xFF4ade80)
+        "乙" -> Color(0xFF86efac)
+        "丙" -> Color(0xFFf87171)
+        "丁" -> Color(0xFFfca5a5)
+        "戊" -> Color(0xFFa78bfa)
+        "己" -> Color(0xFFc4b5fd)
+        "庚" -> Color(0xFFfbbf24)
+        "辛" -> Color(0xFFfde047)
+        "壬" -> Color(0xFF60a5fa)
+        "癸" -> Color(0xFF93c5fd)
+        else -> Color(0xFF2C1810)
+    }
+}
+
+private fun getBranchColor(branch: String): Color {
+    return when (branch) {
+        "子" -> Color(0xFF60a5fa)
+        "丑" -> Color(0xFFa78bfa)
+        "寅" -> Color(0xFF4ade80)
+        "卯" -> Color(0xFF86efac)
+        "辰" -> Color(0xFFa78bfa)
+        "巳" -> Color(0xFFf87171)
+        "午" -> Color(0xFFfca5a5)
+        "未" -> Color(0xFFa78bfa)
+        "申" -> Color(0xFFfbbf24)
+        "酉" -> Color(0xFFfde047)
+        "戌" -> Color(0xFFa78bfa)
+        "亥" -> Color(0xFF60a5fa)
+        else -> Color(0xFF2C1810)
     }
 }

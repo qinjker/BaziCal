@@ -8,6 +8,11 @@ import type { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
+    name: 'splash',
+    component: () => import('@/pages/splash/index.vue'),
+  },
+  {
+    path: '/index',
     name: 'index',
     component: () => import('@/pages/index/index.vue'),
   },
@@ -30,6 +35,11 @@ const routes: RouteRecordRaw[] = [
     path: '/admin/dashboard',
     name: 'admin-dashboard',
     component: () => import('@/pages/admin/dashboard.vue'),
+  },
+  {
+    path: '/feedback',
+    name: 'feedback',
+    component: () => import('@/pages/feedback/index.vue'),
   },
 ];
 

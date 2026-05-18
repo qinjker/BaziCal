@@ -5,8 +5,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class SolarToLunarResponse(
-    @Json(name = "lunarYear") val lunarYear: Int,
-    @Json(name = "lunarMonth") val lunarMonth: Int,
-    @Json(name = "lunarDay") val lunarDay: Int,
-    @Json(name = "isLeapMonth") val isLeapMonth: Boolean
+    @Json(name = "year") val lunarYear: Int,
+    @Json(name = "month") val lunarMonth: Int,
+    @Json(name = "day") val lunarDay: Int
 )

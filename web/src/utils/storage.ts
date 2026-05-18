@@ -9,6 +9,7 @@ export interface StoredUser {
   userId: string;
   name: string;
   birthday: string;
+  birthday_type: 'solar' | 'lunar';
   hour: number;
   minute: number;
   gender: string;

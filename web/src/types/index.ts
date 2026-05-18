@@ -66,10 +66,54 @@ export interface ApiResponse<T> {
 export interface CalculateRequest {
   name: string;
   birthday: string;
+  birthday_type: 'solar' | 'lunar';
   hour: number;
   minute: number;
   gender: '男' | '女';
   device_id?: string;
+}
+
+// 用户信息
+export interface User {
+  userId: string;
+  name: string;
+  birthday: string;
+  birthday_type: 'solar' | 'lunar';
+  hour: number;
+  minute: number;
+  gender: string;
+  bazi: BaziResult;
+}
+
+// 用户信息 (本地存储)
+export interface StoredUser {
+  userId: string;
+  name: string;
+  birthday: string;
+  birthday_type: 'solar' | 'lunar';
+  hour: number;
+  minute: number;
+  gender: string;
+}
+
+// 每日详情响应
+export interface DailyDetailResponse {
+  date: string;
+  ganzhi: string;
+  shishen: string;
+  branchShishen: string;
+  energy: {
+    level: number;
+    description: string;
+  };
+  lucky: {
+    direction: string;
+    time: string;
+    color: string;
+    number: number;
+  };
+  messages: string[];
+  tags: string[];
 }
 
 // 计算八字响应

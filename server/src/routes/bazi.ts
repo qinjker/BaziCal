@@ -3,7 +3,7 @@
  */
 
 import { Router } from 'express';
-import { calculate, getCalendar, convertSolarToLunar } from '../controllers/bazi.controller';
+import { calculate, getCalendar, convertSolarToLunar, getUserById, getDaily } from '../controllers/bazi.controller';
 import { signatureMiddleware } from '../middleware/signature';
 
 const router = Router();
@@ -28,5 +28,17 @@ router.get('/calendar', getCalendar);
  * 阳历转阴历
  */
 router.get('/solar-to-lunar', convertSolarToLunar);
+
+/**
+ * GET /api/v1/bazi/user/:userId
+ * 获取用户详细信息
+ */
+router.get('/user/:userId', getUserById);
+
+/**
+ * GET /api/v1/bazi/daily/:date
+ * 获取指定日期的详细信息
+ */
+router.get('/daily/:date', getDaily);
 
 export default router;

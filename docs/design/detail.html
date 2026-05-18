@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>今日能量 - 十神能量日历</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #F7F4EF;
+        }
+
+        .phone-container {
+            width: 100%;
+            max-width: 390px;
+            min-height: 100vh;
+            margin: 0 auto;
+            background: #F7F4EF;
+            padding-bottom: 100px;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px 24px;
+        }
+
+        .nav-back {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #2C1810;
+            font-size: 26px;
+            border-radius: 14px;
+            transition: background 0.2s;
+        }
+
+        .nav-back:active {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .nav-date {
+            flex: 1;
+            text-align: center;
+        }
+
+        .nav-date-main {
+            font-size: 18px;
+            color: #2C1810;
+            font-weight: 600;
+        }
+
+        .nav-date-lunar {
+            font-size: 13px;
+            color: #8B7355;
+            margin-top: 3px;
+        }
+
+        .nav-spacer {
+            width: 48px;
+        }
+
+        /* 顶部用户信息卡 */
+        .user-card {
+            margin: 0 20px 20px;
+            background: white;
+            border-radius: 18px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 16px rgba(44, 24, 16, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(145deg, #C84A3E 0%, #A33D33 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .user-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 15px;
+            color: #2C1810;
+            font-weight: 600;
+        }
+
+        .user-desc {
+            font-size: 12px;
+            color: #8B7355;
+            margin-top: 2px;
+        }
+
+        .user-energy {
+            text-align: right;
+        }
+
+        .user-energy-value {
+            font-size: 16px;
+            color: #D4A843;
+            font-weight: 600;
+        }
+
+        .user-energy-label {
+            font-size: 11px;
+            color: #B8A892;
+        }
+
+        /* 主分享按钮 */
+        .share-main-btn {
+            display: block;
+            margin: 0 20px 20px;
+            padding: 16px;
+            background: linear-gradient(145deg, #C84A3E 0%, #A33D33 100%);
+            border-radius: 16px;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(200, 74, 62, 0.3);
+            transition: all 0.2s;
+        }
+
+        .share-main-btn:active {
+            transform: scale(0.98);
+        }
+
+        .share-main-btn-text {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .share-main-btn-hint {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* 干支大字区域 */
+        .ganzhi-section {
+            text-align: center;
+            padding: 24px 24px 28px;
+            background: linear-gradient(180deg, #FFFFFF 0%, #FAF8F4 100%);
+            margin: 0 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 16px rgba(44, 24, 16, 0.06);
+            margin-bottom: 20px;
+        }
+
+        .ganzhi-text {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 72px;
+            color: #C84A3E;
+            line-height: 1;
+            margin-bottom: 16px;
+            letter-spacing: 10px;
+            text-shadow: 0 4px 20px rgba(200, 74, 62, 0.25);
+        }
+
+        .ganzhi-info {
+            font-size: 14px;
+            color: #8B7355;
+            margin-bottom: 18px;
+        }
+
+        /* 十神标签 */
+        .ten-god-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .ten-god-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .ten-god-row:first-child {
+            margin-bottom: 8px;
+        }
+
+        .ten-god-tag {
+            padding: 8px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+        }
+
+        .ten-god-tag.gold {
+            background: linear-gradient(145deg, #E0B850 0%, #C49A3A 100%);
+        }
+
+        .ten-god-tag.green {
+            background: linear-gradient(145deg, #689A78 0%, #4A7A5A 100%);
+        }
+
+        .ten-god-tag.red {
+            background: linear-gradient(145deg, #D65A4E 0%, #B8443A 100%);
+        }
+
+        /* 寄语卡片 */
+        .message-card {
+            background: #FFFFFF;
+            border-radius: 22px;
+            padding: 26px 24px;
+            margin: 0 20px 20px;
+            box-shadow: 0 4px 20px rgba(44, 24, 16, 0.08);
+            border: 1px solid rgba(232, 224, 213, 0.6);
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .message-icon {
+            font-size: 20px;
+        }
+
+        .message-title {
+            font-size: 13px;
+            color: #B8A892;
+            font-weight: 500;
+            letter-spacing: 2px;
+        }
+
+        .message-main {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 20px;
+            color: #2C1810;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .message-list {
+            list-style: none;
+        }
+
+        .message-list li {
+            font-size: 14px;
+            color: #5A4A3A;
+            padding: 12px 0;
+            padding-left: 20px;
+            position: relative;
+            border-bottom: 1px solid rgba(232, 224, 213, 0.5);
+        }
+
+        .message-list li:last-child {
+            border-bottom: none;
+        }
+
+        .message-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background: #D4A843;
+            border-radius: 50%;
+        }
+
+        /* 底部功能栏 */
+        .action-bar {
+            display: flex;
+            justify-content: space-around;
+            margin: 0 20px;
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 16px 8px;
+            box-shadow: 0 6px 24px rgba(44, 24, 16, 0.08);
+            border: 1px solid rgba(232, 224, 213, 0.6);
+        }
+
+        .action-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 12px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .action-item:active {
+            background: #FAF6F0;
+            transform: scale(0.95);
+        }
+
+        .action-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(145deg, #FAF6F0 0%, #F0EBE3 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .action-item.primary .action-icon {
+            background: linear-gradient(145deg, #C84A3E 0%, #A33D33 100%);
+            box-shadow: 0 4px 12px rgba(200, 74, 62, 0.3);
+        }
+
+        .action-label {
+            font-size: 12px;
+            color: #5A4A3A;
+            font-weight: 500;
+        }
+
+        .action-item.primary .action-label {
+            color: #C84A3E;
+        }
+
+        /* 底部Tab栏 */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 390px;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+            border-top: 1px solid rgba(232, 224, 213, 0.8);
+            z-index: 100;
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px 20px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .tab-icon {
+            font-size: 26px;
+            margin-bottom: 4px;
+        }
+
+        .tab-label {
+            font-size: 11px;
+            color: #B8A892;
+            font-weight: 500;
+        }
+
+        .tab-item.active .tab-icon,
+        .tab-item.active .tab-label {
+            color: #C84A3E;
+        }
+
+        .tab-item.active .tab-icon {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <!-- 导航栏 -->
+        <div class="navbar">
+            <a href="calendar.html" class="nav-back">←</a>
+            <div class="nav-date">
+                <div class="nav-date-main">2026年5月15日</div>
+                <div class="nav-date-lunar">四月卅 · 乙巳日</div>
+            </div>
+            <div class="nav-spacer"></div>
+        </div>
+
+        <!-- 顶部用户信息卡 -->
+        <div class="user-card">
+            <div class="user-info-left">
+                <div class="user-avatar">十</div>
+                <div class="user-text">
+                    <div class="user-name">日主：戊土</div>
+                    <div class="user-desc">生于1990年</div>
+                </div>
+            </div>
+            <div class="user-energy">
+                <div class="user-energy-value">正官</div>
+                <div class="user-energy-label">今日能量</div>
+            </div>
+        </div>
+
+        <!-- 主分享按钮 -->
+        <a href="gift-preview.html" class="share-main-btn">
+            <div class="share-main-btn-text">✨ 生成分享卡</div>
+            <div class="share-main-btn-hint">分享今日能量给朋友</div>
+        </a>
+
+        <!-- 干支大字区域 -->
+        <div class="ganzhi-section">
+            <div class="ganzhi-text">壬午</div>
+            <div class="ganzhi-info">2026年5月15日 · 乙巳月</div>
+            <div class="ten-god-container">
+                <div class="ten-god-row">
+                    <div class="ten-god-tag gold">正官</div>
+                    <div class="ten-god-tag gold">比肩</div>
+                </div>
+                <div class="ten-god-row">
+                    <div class="ten-god-tag green">七杀</div>
+                    <div class="ten-god-tag green">劫财</div>
+                    <div class="ten-god-tag red">偏印</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 寄语卡片 -->
+        <div class="message-card">
+            <div class="message-header">
+                <span class="message-icon">💬</span>
+                <span class="message-title">今日寄语</span>
+            </div>
+            <p class="message-main">「今日宜稳中求进，贵人运不错，适合谈判与推进项目。」</p>
+            <ul class="message-list">
+                <li>早上适合处理文件</li>
+                <li>下午适合客户沟通</li>
+                <li>晚间适合复盘总结</li>
+            </ul>
+        </div>
+
+        <!-- 底部功能栏 -->
+        <div class="action-bar">
+            <a href="gift-preview.html" class="action-item primary">
+                <div class="action-icon">✨</div>
+                <div class="action-label">分享</div>
+            </a>
+            <a href="#" class="action-item">
+                <div class="action-icon">💾</div>
+                <div class="action-label">保存</div>
+            </a>
+            <!-- TODO: 送礼功能暂不做
+            <a href="gift-step1.html" class="action-item">
+                <div class="action-icon">🎁</div>
+                <div class="action-label">送礼</div>
+            </a>
+            -->
+            <a href="calendar.html" class="action-item">
+                <div class="action-icon">📅</div>
+                <div class="action-label">日历</div>
+            </a>
+        </div>
+
+        <!-- 底部Tab栏 -->
+        <div class="tab-bar">
+            <a href="calendar.html" class="tab-item">
+                <div class="tab-icon">📅</div>
+                <div class="tab-label">月历</div>
+            </a>
+            <a href="detail.html" class="tab-item active">
+                <div class="tab-icon">✨</div>
+                <div class="tab-label">今日</div>
+            </a>
+            <!-- TODO: 送礼功能暂不做
+            <a href="gift-step1.html" class="tab-item">
+                <div class="tab-icon">🎁</div>
+                <div class="tab-label">送礼</div>
+            </a>
+            -->
+            <a href="onboarding.html" class="tab-item">
+                <div class="tab-icon">📝</div>
+                <div class="tab-label">生辰</div>
+            </a>
+            <a href="feedback.html" class="tab-item">
+                <div class="tab-icon">💬</div>
+                <div class="tab-label">反馈</div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

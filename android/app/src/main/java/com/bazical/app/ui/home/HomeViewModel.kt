@@ -28,6 +28,23 @@ class HomeViewModel @Inject constructor(
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
+    // 时辰到小时的映射
+    private val timeToHour = mapOf(
+        "" to 0,
+        "子时" to 23,
+        "丑时" to 1,
+        "寅时" to 3,
+        "卯时" to 5,
+        "辰时" to 7,
+        "巳时" to 9,
+        "午时" to 11,
+        "未时" to 13,
+        "申时" to 15,
+        "酉时" to 17,
+        "戌时" to 19,
+        "亥时" to 21
+    )
+
     fun updateName(name: String) {
         _uiState.update { it.copy(name = name) }
     }
@@ -37,16 +54,21 @@ class HomeViewModel @Inject constructor(
         convertSolarToLunar(timestamp)
     }
 
-    fun updateHour(hour: Int) {
-        _uiState.update { it.copy(hour = hour) }
+    fun updateTime(timeValue: String) {
+        val hour = timeToHour[timeValue] ?: 0
+        _uiState.update { it.copy(timeValue = timeValue, hour = hour) }
     }
 
-    fun updateMinute(minute: Int) {
-        _uiState.update { it.copy(minute = minute) }
+    fun updateBirthdayType(type: String) {
+        _uiState.update { it.copy(birthdayType = type) }
     }
 
-    fun updateGender(gender: Gender) {
-        _uiState.update { it.copy(gender = gender) }
+    fun showDatePicker() {
+        _uiState.update { it.copy(showDatePicker = true) }
+    }
+
+    fun hideDatePicker() {
+        _uiState.update { it.copy(showDatePicker = false) }
     }
 
     private fun convertSolarToLunar(timestamp: Long) {
@@ -61,8 +83,8 @@ class HomeViewModel @Inject constructor(
 
     fun calculate() {
         val state = _uiState.value
-        if (state.name.isBlank() || state.birthday == null) {
-            _uiState.update { it.copy(error = "请填写完整信息") }
+        if (state.birthday == null) {
+            _uiState.update { it.copy(error = "请选择出生日期") }
             return
         }
 
@@ -72,11 +94,12 @@ class HomeViewModel @Inject constructor(
             val birthdayStr = dateFormat.format(Date(state.birthday))
             val user = User(
                 userId = "",
-                name = state.name,
+                name = "用户", // 默认名字
                 birthday = birthdayStr,
                 hour = state.hour,
                 minute = state.minute,
-                gender = state.gender
+                gender = state.gender,
+                birthdayType = state.birthdayType
             )
 
             val result = calculateBaziUseCase(user)

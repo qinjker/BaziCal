@@ -60,7 +60,20 @@ class CalendarViewModel @Inject constructor(
             if (user != null) {
                 val result = calculateBaziUseCase(user)
                 if (result.isSuccess) {
-                    _uiState.update { it.copy(bazi = result.getOrNull()?.second) }
+                    val bazi = result.getOrNull()?.second
+                    if (bazi != null) {
+                        _uiState.update {
+                            it.copy(
+                                bazi = bazi,
+                                dayStem = bazi.day.stem,
+                                dayBranch = bazi.day.branch,
+                                userBirthday = user.birthday,
+                                monthBranch = bazi.month.branch,
+                                yearBranch = bazi.year.branch,
+                                monthShishen = bazi.shishen.month
+                            )
+                        }
+                    }
                 }
             }
         }

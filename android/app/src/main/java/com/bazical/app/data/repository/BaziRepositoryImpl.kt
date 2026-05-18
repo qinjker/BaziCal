@@ -3,7 +3,6 @@ package com.bazical.app.data.repository
 import com.bazical.app.data.local.UserDataStore
 import com.bazical.app.data.remote.api.BaziApi
 import com.bazical.app.data.remote.dto.CalculateRequest
-import com.bazical.app.data.remote.dto.CalendarDayDto
 import com.bazical.app.domain.model.BaZi
 import com.bazical.app.domain.model.CalendarDay
 import com.bazical.app.domain.model.CalendarMonth
@@ -28,6 +27,7 @@ class BaziRepositoryImpl @Inject constructor(
             val request = CalculateRequest(
                 name = user.name,
                 birthday = user.birthday,
+                birthdayType = user.birthdayType,
                 hour = user.hour,
                 minute = user.minute,
                 gender = if (user.gender == Gender.MALE) "男" else "女",
@@ -54,7 +54,16 @@ class BaziRepositoryImpl @Inject constructor(
                     hour = response.bazi.shishen.hour
                 )
             )
-            Result.success(Pair(User(response.userId, user.name, user.birthday, user.hour, user.minute, user.gender), bazi))
+            val savedUser = User(
+                userId = response.userId,
+                name = user.name,
+                birthday = user.birthday,
+                birthdayType = user.birthdayType,
+                hour = user.hour,
+                minute = user.minute,
+                gender = user.gender
+            )
+            Result.success(Pair(savedUser, bazi))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -72,7 +81,12 @@ class BaziRepositoryImpl @Inject constructor(
                     yi = dto.yi,
                     ji = dto.ji,
                     star = dto.star,
-                    luck = dto.luck
+                    luck = dto.luck,
+                    shishen = dto.shishen,
+                    jieqi = dto.jieqi,
+                    lunarDate = dto.lunarDate,
+                    holiday = dto.holiday,
+                    branchShishen = dto.branchShishen
                 )
             }
             Result.success(CalendarMonth(year, month, days))
@@ -85,7 +99,7 @@ class BaziRepositoryImpl @Inject constructor(
         return try {
             val apiResponse = api.solarToLunar(date)
             val response = apiResponse.data ?: throw Exception(apiResponse.message)
-            Result.success(LunarDate(response.lunarYear, response.lunarMonth, response.lunarDay, response.isLeapMonth))
+            Result.success(LunarDate(response.lunarYear, response.lunarMonth, response.lunarDay, false))
         } catch (e: Exception) {
             Result.failure(e)
         }

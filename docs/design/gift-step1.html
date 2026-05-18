@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>送给朋友 - 十神能量日历</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #F7F4EF;
+        }
+
+        .phone-container {
+            width: 100%;
+            max-width: 390px;
+            min-height: 100vh;
+            margin: 0 auto;
+            background: #F7F4EF;
+            padding-bottom: 40px;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px 32px;
+        }
+
+        .nav-back {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #2C1810;
+            font-size: 26px;
+            border-radius: 14px;
+            transition: background 0.2s;
+        }
+
+        .nav-back:active {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .nav-title {
+            flex: 1;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #2C1810;
+            padding-right: 48px;
+        }
+
+        /* 顶部介绍 */
+        .intro-section {
+            text-align: center;
+            padding: 0 24px 36px;
+        }
+
+        .gift-icon-large {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(145deg, #E0B850 0%, #C49A3A 100%);
+            border-radius: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin: 0 auto 24px;
+            box-shadow: 0 10px 36px rgba(212, 168, 67, 0.32);
+        }
+
+        .intro-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 26px;
+            color: #2C1810;
+            margin-bottom: 12px;
+        }
+
+        .intro-desc {
+            font-size: 15px;
+            color: #8B7355;
+            line-height: 1.6;
+        }
+
+        /* 祝福卡片 */
+        .card-section {
+            padding: 0 24px;
+        }
+
+        .card {
+            background: #FFFFFF;
+            border-radius: 22px;
+            padding: 28px 26px;
+            box-shadow: 0 4px 20px rgba(44, 24, 16, 0.08);
+            border: 1px solid rgba(232, 224, 213, 0.6);
+        }
+
+        .card-title {
+            font-size: 15px;
+            color: #5A4A3A;
+            margin-bottom: 20px;
+        }
+
+        /* 生日输入区 */
+        .birthday-section {
+            margin-bottom: 24px;
+        }
+
+        .birthday-label {
+            font-size: 13px;
+            color: #8B7355;
+            margin-bottom: 14px;
+        }
+
+        .date-pickers {
+            display: flex;
+            gap: 12px;
+        }
+
+        .picker {
+            flex: 1;
+            height: 58px;
+            background: #FAF6F0;
+            border: 1.5px solid #E8E0D5;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .picker:focus-within {
+            border-color: #C84A3E;
+            box-shadow: 0 0 0 4px rgba(200, 74, 62, 0.1);
+        }
+
+        .picker select {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            font-size: 17px;
+            color: #2C1810;
+            cursor: pointer;
+            text-align: center;
+            text-align-last: center;
+            font-family: 'Noto Sans SC', sans-serif;
+            -webkit-appearance: none;
+        }
+
+        .picker::after {
+            content: '▼';
+            position: absolute;
+            right: 14px;
+            font-size: 10px;
+            color: #B8A892;
+            pointer-events: none;
+        }
+
+        /* 时辰选择 */
+        .time-section {
+            margin-bottom: 24px;
+        }
+
+        .time-label {
+            font-size: 13px;
+            color: #8B7355;
+            margin-bottom: 14px;
+        }
+
+        .time-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .time-tag {
+            padding: 12px 18px;
+            background: #FAF6F0;
+            border: 1.5px solid #E8E0D5;
+            border-radius: 12px;
+            font-size: 15px;
+            color: #5A4A3A;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .time-tag:active {
+            transform: scale(0.95);
+        }
+
+        .time-tag.selected {
+            background: linear-gradient(145deg, #D65A4E 0%, #B8443A 100%);
+            color: white;
+            border-color: #C84A3E;
+            box-shadow: 0 4px 14px rgba(200, 74, 62, 0.3);
+        }
+
+        /* 祝福语输入 */
+        .message-section {
+            margin-bottom: 28px;
+        }
+
+        .message-label {
+            font-size: 13px;
+            color: #8B7355;
+            margin-bottom: 14px;
+        }
+
+        .message-input {
+            width: 100%;
+            height: 58px;
+            background: #FAF6F0;
+            border: 1.5px solid #E8E0D5;
+            border-radius: 14px;
+            padding: 0 18px;
+            font-size: 16px;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #2C1810;
+            transition: all 0.2s;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #C84A3E;
+            box-shadow: 0 0 0 4px rgba(200, 74, 62, 0.1);
+        }
+
+        .message-input::placeholder {
+            color: #B8A892;
+        }
+
+        /* 提交按钮 */
+        .btn-submit {
+            display: block;
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(145deg, #D65A4E 0%, #B8443A 100%);
+            color: white;
+            border: none;
+            border-radius: 18px;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow:
+                0 14px 36px rgba(200, 74, 62, 0.35),
+                0 5px 14px rgba(200, 74, 62, 0.22);
+            transition: all 0.25s ease;
+            text-decoration: none;
+            line-height: 60px;
+            text-align: center;
+        }
+
+        .btn-submit:active {
+            transform: scale(0.97);
+        }
+
+        .btn-hint {
+            text-align: center;
+            font-size: 13px;
+            color: #B8A892;
+            margin-top: 16px;
+        }
+
+        /* 底部Tab栏 */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 390px;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+            border-top: 1px solid rgba(232, 224, 213, 0.8);
+            z-index: 100;
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px 20px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .tab-icon {
+            font-size: 26px;
+            margin-bottom: 4px;
+        }
+
+        .tab-label {
+            font-size: 11px;
+            color: #B8A892;
+            font-weight: 500;
+        }
+
+        .tab-item.active .tab-icon,
+        .tab-item.active .tab-label {
+            color: #C84A3E;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <!-- 导航栏 -->
+        <div class="navbar">
+            <a href="splash.html" class="nav-back">←</a>
+            <span class="nav-title">送给朋友</span>
+        </div>
+
+        <!-- 顶部介绍 -->
+        <div class="intro-section">
+            <div class="gift-icon-large">🎁</div>
+            <h2 class="intro-title">为朋友生成专属日历</h2>
+            <p class="intro-desc">输入朋友生日，生成专属能量日历<br>朋友可以查看自己每一天的十神能量</p>
+        </div>
+
+        <!-- 表单卡片 -->
+        <div class="card-section">
+            <div class="card">
+                <div class="card-title">朋友生日</div>
+
+                <!-- 生日输入 -->
+                <div class="birthday-section">
+                    <div class="birthday-label">出生年月日</div>
+                    <div class="date-pickers">
+                        <div class="picker">
+                            <select>
+                                <option>1990</option>
+                                <option>1991</option>
+                                <option>1992</option>
+                                <option>1993</option>
+                                <option>1994</option>
+                                <option>1995</option>
+                                <option>1996</option>
+                                <option>1997</option>
+                                <option>1998</option>
+                                <option>1999</option>
+                                <option>2000</option>
+                                <option>2001</option>
+                                <option>2002</option>
+                                <option>2003</option>
+                                <option>2004</option>
+                                <option>2005</option>
+                            </select>
+                        </div>
+                        <div class="picker">
+                            <select>
+                                <option>01</option>
+                                <option>02</option>
+                                <option>03</option>
+                                <option>04</option>
+                                <option>05</option>
+                                <option>06</option>
+                                <option>07</option>
+                                <option>08</option>
+                                <option>09</option>
+                                <option>10</option>
+                                <option>11</option>
+                                <option>12</option>
+                            </select>
+                        </div>
+                        <div class="picker">
+                            <select>
+                                <option>01</option>
+                                <option>02</option>
+                                <option>03</option>
+                                <option>04</option>
+                                <option>05</option>
+                                <option>06</option>
+                                <option>07</option>
+                                <option>08</option>
+                                <option>09</option>
+                                <option>10</option>
+                                <option>11</option>
+                                <option>12</option>
+                                <option>13</option>
+                                <option>14</option>
+                                <option>15</option>
+                                <option>16</option>
+                                <option>17</option>
+                                <option>18</option>
+                                <option>19</option>
+                                <option>20</option>
+                                <option>21</option>
+                                <option>22</option>
+                                <option>23</option>
+                                <option>24</option>
+                                <option>25</option>
+                                <option>26</option>
+                                <option>27</option>
+                                <option>28</option>
+                                <option>29</option>
+                                <option>30</option>
+                                <option>31</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 时辰选择 -->
+                <div class="time-section">
+                    <div class="time-label">出生时辰（可选）</div>
+                    <div class="time-tags">
+                        <div class="time-tag selected" onclick="selectTime(this)">未知</div>
+                        <div class="time-tag" onclick="selectTime(this)">子时</div>
+                        <div class="time-tag" onclick="selectTime(this)">丑时</div>
+                        <div class="time-tag" onclick="selectTime(this)">寅时</div>
+                        <div class="time-tag" onclick="selectTime(this)">卯时</div>
+                        <div class="time-tag" onclick="selectTime(this)">辰时</div>
+                        <div class="time-tag" onclick="selectTime(this)">巳时</div>
+                        <div class="time-tag" onclick="selectTime(this)">午时</div>
+                        <div class="time-tag" onclick="selectTime(this)">未时</div>
+                        <div class="time-tag" onclick="selectTime(this)">申时</div>
+                        <div class="time-tag" onclick="selectTime(this)">酉时</div>
+                        <div class="time-tag" onclick="selectTime(this)">戌时</div>
+                        <div class="time-tag" onclick="selectTime(this)">亥时</div>
+                    </div>
+                </div>
+
+                <!-- 祝福语 -->
+                <div class="message-section">
+                    <div class="message-label">祝福语（可选）</div>
+                    <input type="text" class="message-input" placeholder="如：生日快乐，天天好心情！">
+                </div>
+
+                <!-- 生成按钮 -->
+                <a href="gift-preview.html" class="btn-submit">生成日历卡</a>
+                <p class="btn-hint">朋友可直接查看，无需注册登录</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectTime(element) {
+            document.querySelectorAll('.time-tag').forEach(t => t.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+    </script>
+
+    <!-- 底部Tab栏 -->
+    <div class="tab-bar">
+        <a href="calendar.html" class="tab-item">
+            <div class="tab-icon">📅</div>
+            <div class="tab-label">月历</div>
+        </a>
+        <a href="detail.html" class="tab-item">
+            <div class="tab-icon">✨</div>
+            <div class="tab-label">今日</div>
+        </a>
+        <a href="gift-step1.html" class="tab-item active">
+            <div class="tab-icon">🎁</div>
+            <div class="tab-label">送礼</div>
+        </a>
+        <a href="onboarding.html" class="tab-item">
+            <div class="tab-icon">📝</div>
+            <div class="tab-label">生辰</div>
+        </a>
+        <a href="feedback.html" class="tab-item">
+            <div class="tab-icon">💬</div>
+            <div class="tab-label">反馈</div>
+        </a>
+    </div>
+</body>
+</html>

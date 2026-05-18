@@ -55,6 +55,16 @@ export const initDatabase = async (): Promise<void> => {
       // 忽略错误，列可能已存在
     }
 
+    // 迁移：添加 birthday_type 列 (如果不存在)
+    try {
+      await client.query(`
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS birthday_type VARCHAR(10) DEFAULT 'solar' CHECK (birthday_type IN ('solar', 'lunar'))
+      `);
+      console.log('✓ birthday_type 列已添加/已存在');
+    } catch (e) {
+      // 忽略错误，列可能已存在
+    }
+
     // 创建索引 (使用 IF NOT EXISTS 避免报错)
     await client.query('CREATE INDEX IF NOT EXISTS idx_users_user_id ON users(user_id)');
     await client.query('CREATE INDEX IF NOT EXISTS idx_users_device_id ON users(device_id)');

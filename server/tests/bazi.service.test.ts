@@ -86,4 +86,38 @@ describe('Bazi Service', () => {
       expect(morning.hour.stem).not.toBe(night.hour.stem);
     });
   });
+
+  describe('calculateBazi with birthday_type', () => {
+    it('should calculate bazi for lunar birthday (default)', () => {
+      // 阴历生日直接使用
+      const result = calculateBazi('1990-01-15', 10, 0, 'lunar');
+
+      expect(result).toHaveProperty('year');
+      expect(result).toHaveProperty('month');
+      expect(result).toHaveProperty('day');
+      expect(result).toHaveProperty('hour');
+    });
+
+    it('should calculate bazi for solar birthday and convert to lunar', () => {
+      // 阳历生日会被转换为阴历后计算
+      // 1990-01-15 阳历 -> 转换为阴历
+      const solarResult = calculateBazi('1990-01-15', 10, 0, 'solar');
+      const lunarResult = calculateBazi('1990-01-15', 10, 0, 'lunar');
+
+      // 注意：阳历和阴历的同一日期转换后不一定相同
+      // 所以这里只验证两种类型都能返回正确的结构
+      expect(solarResult).toHaveProperty('year');
+      expect(solarResult).toHaveProperty('month');
+      expect(solarResult).toHaveProperty('day');
+      expect(solarResult).toHaveProperty('hour');
+    });
+
+    it('should return day shishen as 日主 for both birthday types', () => {
+      const solarResult = calculateBazi('1990-01-15', 10, 0, 'solar');
+      const lunarResult = calculateBazi('1990-01-15', 10, 0, 'lunar');
+
+      expect(solarResult.shishen.day).toBe('日主');
+      expect(lunarResult.shishen.day).toBe('日主');
+    });
+  });
 });
