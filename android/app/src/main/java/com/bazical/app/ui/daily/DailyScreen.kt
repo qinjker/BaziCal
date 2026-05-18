@@ -371,6 +371,7 @@ private fun TenGodChip(text: String, color: Color, isPrimary: Boolean) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun YiJiCard(
     title: String,

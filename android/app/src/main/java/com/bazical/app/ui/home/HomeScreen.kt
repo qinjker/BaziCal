@@ -85,7 +85,7 @@ fun HomeScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(left = 20.dp, top = 20.dp, bottom = 24.dp),
+                .padding(start = 20.dp, top = 20.dp, bottom = 24.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
