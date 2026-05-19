@@ -8,13 +8,16 @@ const APP_KEY = import.meta.env.VITE_APP_KEY || 'dev-app-key-12345';
 /**
  * SHA256 哈希
  */
-export const sha256 = (data: string): string => {
-  // 使用 Web Crypto API
+export const sha256 = async (data: string): Promise<string> => {
+  // 检查 crypto.subtle 是否可用 (浏览器需要 HTTPS 或 localhost)
+  if (typeof crypto === 'undefined' || !crypto.subtle) {
+    throw new Error('crypto.subtle is not available. Please use HTTPS or localhost.');
+  }
+
   const msgBuffer = new TextEncoder().encode(data);
-  return crypto.subtle.digest('SHA-256', msgBuffer).then((hashBuffer) => {
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-  });
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 };
 
 /**
