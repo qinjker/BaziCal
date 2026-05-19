@@ -43,6 +43,7 @@ import com.bazical.app.ui.theme.Secondary
 import com.bazical.app.ui.theme.Success
 import com.bazical.app.ui.theme.TextTertiary
 import com.bazical.app.ui.theme.Warning
+import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
@@ -61,13 +62,19 @@ fun SplashScreen(
 
     LaunchedEffect(Unit) {
         startAnimation = true
+        // 确保开屏至少显示 1.5 秒，避免直接跳过
+        delay(1500)
     }
 
     LaunchedEffect(hasUserData) {
-        when (hasUserData) {
-            true -> onNavigateToCalendar()
-            false -> onNavigateToHome()
-            else -> {} // Loading state
+        // 只有当数据加载完成且至少显示了 1.5 秒后才跳转
+        if (hasUserData != null) {
+            delay(500) // 再延迟一点确保动画完整
+            when (hasUserData) {
+                true -> onNavigateToCalendar()
+                false -> onNavigateToHome()
+                else -> {}
+            }
         }
     }
 

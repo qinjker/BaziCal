@@ -80,12 +80,13 @@ async function testCalculate() {
 
   const timestamp = Date.now().toString();
   const body = {
-    name: '测试用户',
+    name: '用户',
     birthday: '1990-01-15',
     birthday_type: 'solar',
     hour: 10,
     minute: 30,
-    gender: '男'
+    gender: '男',
+    device_id:"device_foi835qmzktmpbdsabr"
   };
   const signature = generateSignature(APP_KEY, timestamp, body);
 
