@@ -13,20 +13,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,8 +28,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,18 +40,19 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bazical.app.domain.model.CalendarDay
 import com.bazical.app.ui.theme.Primary
 import com.bazical.app.ui.theme.PrimaryVariant
-import com.bazical.app.ui.theme.Secondary
-import com.bazical.app.ui.theme.Success
 import com.bazical.app.ui.theme.TextPrimary
 import com.bazical.app.ui.theme.TextSecondary
 import com.bazical.app.ui.theme.TextTertiary
 import com.bazical.app.ui.theme.Warning
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import com.bazical.app.ui.theme.Success
+import com.bazical.app.ui.theme.Secondary
 
 @Composable
 fun CalendarScreen(
     onNavigateToDaily: (String) -> Unit,
+    onNavigateToHome: () -> Unit,
+    onNavigateToToday: () -> Unit,
+    onNavigateToFeedback: () -> Unit,
     viewModel: CalendarViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -65,7 +60,7 @@ fun CalendarScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(Color(0xFFF7F4EF))
     ) {
         // Date header with navigation
         Row(
@@ -75,7 +70,6 @@ fun CalendarScreen(
                 .padding(horizontal = 16.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Previous month button
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
@@ -98,7 +92,6 @@ fun CalendarScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Current month display
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -118,7 +111,6 @@ fun CalendarScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Next month button
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
@@ -164,7 +156,6 @@ fun CalendarScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Avatar
                     Box(
                         modifier = Modifier
                             .size(48.dp)
@@ -175,8 +166,8 @@ fun CalendarScreen(
                             )
                             .clip(RoundedCornerShape(14.dp))
                             .background(
-                                androidx.compose.ui.graphics.Brush.linearGradient(
-                                    colors = listOf(Primary, PrimaryVariant)
+                                Brush.linearGradient(
+                                    colors = listOf(Color(0xFFC84A3E), Color(0xFFA33D33))
                                 )
                             ),
                         contentAlignment = Alignment.Center
@@ -189,17 +180,17 @@ fun CalendarScreen(
                         )
                     }
 
-                    Spacer(modifier = Modifier.size(12.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
 
                     Column {
                         Text(
-                            text = "日主：${uiState.dayStem}${uiState.dayBranch}",
+                            text = "日主：${uiState.dayStem ?: ""}${uiState.dayBranch ?: ""}",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = TextPrimary
                         )
                         Text(
-                            text = "生于${uiState.userBirthday}",
+                            text = "生于${uiState.userBirthday ?: ""}",
                             fontSize = 12.sp,
                             color = TextTertiary,
                             modifier = Modifier.padding(top = 2.dp)
@@ -211,10 +202,10 @@ fun CalendarScreen(
                     horizontalAlignment = Alignment.End
                 ) {
                     Text(
-                        text = uiState.monthShishen ?: "正财",
+                        text = uiState.monthShishen ?: "",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Secondary
+                        color = Color(0xFFD4A843)
                     )
                     Text(
                         text = "本月能量",
@@ -226,7 +217,7 @@ fun CalendarScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Calendar section
         Box(
@@ -251,7 +242,7 @@ fun CalendarScreen(
                             modifier = Modifier.weight(1f),
                             textAlign = TextAlign.Center,
                             fontSize = 12.sp,
-                            color = if (index == 0 || index == 6) Primary else TextTertiary,
+                            color = if (index == 0 || index == 6) Color(0xFFC84A3E) else TextTertiary,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -259,24 +250,77 @@ fun CalendarScreen(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Loading or calendar grid
-                if (uiState.loading) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(400.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = Primary)
-                    }
-                } else {
-                    CalendarGrid(
-                        days = uiState.days,
-                        onDayClick = { day -> onNavigateToDaily(day.date) }
-                    )
-                }
+                // Calendar grid
+                CalendarGrid(
+                    days = uiState.days,
+                    onDayClick = { day -> onNavigateToDaily(day.date) }
+                )
             }
         }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        // Bottom Tab Bar
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+                .padding(vertical = 12.dp, horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            TabItem(
+                emoji = "📅",
+                label = "月历",
+                isActive = true,
+                onClick = { }
+            )
+            TabItem(
+                emoji = "✨",
+                label = "今日",
+                isActive = false,
+                onClick = onNavigateToToday
+            )
+            TabItem(
+                emoji = "📝",
+                label = "生辰",
+                isActive = false,
+                onClick = onNavigateToHome
+            )
+            TabItem(
+                emoji = "💬",
+                label = "反馈",
+                isActive = false,
+                onClick = onNavigateToFeedback
+            )
+        }
+    }
+}
+
+@Composable
+private fun TabItem(
+    emoji: String,
+    label: String,
+    isActive: Boolean,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = emoji,
+            fontSize = 24.sp
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = label,
+            fontSize = 10.sp,
+            color = if (isActive) Color(0xFFC84A3E) else TextTertiary,
+            fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal
+        )
     }
 }
 
@@ -285,10 +329,10 @@ private fun CalendarGrid(
     days: List<CalendarDay>,
     onDayClick: (CalendarDay) -> Unit
 ) {
-    val today = LocalDate.now()
+    val today = java.time.LocalDate.now()
     val firstDayOfMonth = days.firstOrNull()?.date?.let {
-        try { LocalDate.parse(it) } catch (e: Exception) { null }
-    } ?: LocalDate.now()
+        try { java.time.LocalDate.parse(it) } catch (e: Exception) { null }
+    } ?: java.time.LocalDate.now()
     val startDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7
 
     LazyVerticalGrid(
@@ -306,7 +350,7 @@ private fun CalendarGrid(
         items(days) { day ->
             CalendarDayCell(
                 day = day,
-                isToday = try { LocalDate.parse(day.date) == today } catch (e: Exception) { false },
+                isToday = try { java.time.LocalDate.parse(day.date) == today } catch (e: Exception) { false },
                 onClick = { onDayClick(day) }
             )
         }
@@ -320,11 +364,11 @@ private fun CalendarDayCell(
     onClick: () -> Unit
 ) {
     val dayNumber = try {
-        LocalDate.parse(day.date).dayOfMonth
+        java.time.LocalDate.parse(day.date).dayOfMonth
     } catch (e: Exception) { 0 }
 
     val isWeekend = try {
-        val dow = LocalDate.parse(day.date).dayOfWeek.value % 7
+        val dow = java.time.LocalDate.parse(day.date).dayOfWeek.value % 7
         dow == 0 || dow == 6
     } catch (e: Exception) { false }
 
@@ -334,7 +378,7 @@ private fun CalendarDayCell(
             .clip(RoundedCornerShape(12.dp))
             .background(
                 if (isToday) {
-                    Brush.linearGradient(colors = listOf(Primary, PrimaryVariant))
+                    Brush.linearGradient(colors = listOf(Color(0xFFC84A3E), Color(0xFFA33D33)))
                 } else {
                     SolidColor(Color(0xFFFAFAF8))
                 }
@@ -355,13 +399,13 @@ private fun CalendarDayCell(
                 fontWeight = FontWeight.SemiBold,
                 color = when {
                     isToday -> Color.White
-                    isWeekend -> Primary
+                    isWeekend -> Color(0xFFC84A3E)
                     else -> TextPrimary
                 }
             )
 
             // Lunar date or holiday
-            val displayText = day.holiday ?: day.lunarDate ?: ""
+            val displayText = day.holiday ?: day.jieqi ?: day.lunarDate ?: ""
             if (displayText.isNotEmpty()) {
                 Text(
                     text = displayText,
@@ -369,14 +413,14 @@ private fun CalendarDayCell(
                     color = when {
                         isToday -> Color.White.copy(alpha = 0.7f)
                         day.holiday != null -> Color(0xFFE74C3C)
-                        day.jieqi != null -> Success
+                        day.jieqi != null -> Color(0xFF5A8A6A)
                         else -> TextTertiary
                     },
                     modifier = Modifier.padding(top = 1.dp)
                 )
             }
 
-            // Gan Zhi row
+            // Gan Zhi row 1: stem + shishen
             if (day.ganzhi.isNotEmpty()) {
                 Row(
                     modifier = Modifier.padding(top = 2.dp),
@@ -384,8 +428,6 @@ private fun CalendarDayCell(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     val stemColor = getStemColor(day.ganzhi.getOrNull(0)?.toString() ?: "")
-                    val branchColor = getBranchColor(day.ganzhi.getOrNull(1)?.toString() ?: "")
-
                     Text(
                         text = day.ganzhi.getOrNull(0)?.toString() ?: "",
                         fontSize = 12.sp,
@@ -393,21 +435,35 @@ private fun CalendarDayCell(
                         color = if (isToday) Color.White else stemColor
                     )
                     Text(
+                        text = day.shishen,
+                        fontSize = 9.sp,
+                        color = if (isToday) Color.White.copy(alpha = 0.7f) else TextTertiary,
+                        modifier = Modifier.padding(start = 2.dp)
+                    )
+                }
+            }
+
+            // Gan Zhi row 2: branch + branchShishen
+            if (day.ganzhi.length > 1) {
+                Row(
+                    modifier = Modifier.padding(top = 1.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    val branchColor = getBranchColor(day.ganzhi.getOrNull(1)?.toString() ?: "")
+                    Text(
                         text = day.ganzhi.getOrNull(1)?.toString() ?: "",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = if (isToday) Color.White else branchColor
                     )
+                    Text(
+                        text = day.branchShishen,
+                        fontSize = 9.sp,
+                        color = if (isToday) Color.White.copy(alpha = 0.7f) else TextTertiary,
+                        modifier = Modifier.padding(start = 2.dp)
+                    )
                 }
-            }
-
-            // Shi Shen
-            if (day.shishen.isNotEmpty()) {
-                Text(
-                    text = day.shishen,
-                    fontSize = 9.sp,
-                    color = if (isToday) Color.White.copy(alpha = 0.7f) else TextTertiary
-                )
             }
         }
     }
@@ -425,7 +481,7 @@ private fun getStemColor(stem: String): Color {
         "辛" -> Color(0xFFfde047)
         "壬" -> Color(0xFF60a5fa)
         "癸" -> Color(0xFF93c5fd)
-        else -> Color(0xFF2C1810)
+        else -> TextPrimary
     }
 }
 
@@ -443,6 +499,6 @@ private fun getBranchColor(branch: String): Color {
         "酉" -> Color(0xFFfde047)
         "戌" -> Color(0xFFa78bfa)
         "亥" -> Color(0xFF60a5fa)
-        else -> Color(0xFF2C1810)
+        else -> TextPrimary
     }
 }

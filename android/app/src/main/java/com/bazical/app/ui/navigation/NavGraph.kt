@@ -58,6 +58,18 @@ fun BaziCalNavHost(
             CalendarScreen(
                 onNavigateToDaily = { date ->
                     navController.navigate(Screen.Daily.createRoute(date))
+                },
+                onNavigateToHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Calendar.route) { inclusive = true }
+                    }
+                },
+                onNavigateToToday = {
+                    val today = java.time.LocalDate.now().toString()
+                    navController.navigate(Screen.Daily.createRoute(today))
+                },
+                onNavigateToFeedback = {
+                    // TODO: Navigate to feedback
                 }
             )
         }
