@@ -39,14 +39,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bazical.app.domain.model.CalendarDay
-import com.bazical.app.ui.theme.Primary
-import com.bazical.app.ui.theme.PrimaryVariant
 import com.bazical.app.ui.theme.TextPrimary
-import com.bazical.app.ui.theme.TextSecondary
 import com.bazical.app.ui.theme.TextTertiary
-import com.bazical.app.ui.theme.Warning
-import com.bazical.app.ui.theme.Success
-import com.bazical.app.ui.theme.Secondary
+import java.time.LocalDate
 
 @Composable
 fun CalendarScreen(
@@ -251,9 +246,11 @@ fun CalendarScreen(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Calendar grid
-                CalendarGrid(
+                // Calendar grid with all days (including padding for other months)
+                CalendarGridFull(
                     days = uiState.days,
+                    year = uiState.year,
+                    month = uiState.month,
                     onDayClick = { day -> onNavigateToDaily(day.date) }
                 )
             }
@@ -265,8 +262,8 @@ fun CalendarScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
-                .padding(vertical = 12.dp, horizontal = 8.dp),
+                .background(Color(0xFFFAF8F5).copy(alpha = 0.97f))
+                .padding(vertical = 8.dp, horizontal = 8.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             TabItem(
@@ -308,83 +305,146 @@ private fun TabItem(
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
-            .padding(8.dp),
+            .padding(6.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = emoji,
             fontSize = 24.sp
         )
-        Spacer(modifier = Modifier.height(2.dp))
+        Spacer(modifier = Modifier.height(3.dp))
         Text(
             text = label,
             fontSize = 10.sp,
             color = if (isActive) Color(0xFFC84A3E) else TextTertiary,
-            fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal
+            fontWeight = FontWeight.Medium
         )
     }
 }
 
 @Composable
-private fun CalendarGrid(
+private fun CalendarGridFull(
     days: List<CalendarDay>,
+    year: Int,
+    month: Int,
     onDayClick: (CalendarDay) -> Unit
 ) {
-    val today = java.time.LocalDate.now()
-    val firstDayOfMonth = days.firstOrNull()?.date?.let {
-        try { java.time.LocalDate.parse(it) } catch (e: Exception) { null }
-    } ?: java.time.LocalDate.now()
-    val startDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7
+    val today = LocalDate.now()
+    val firstDayOfMonth = LocalDate.of(year, month, 1)
+    val startDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7 // 0 = Sunday
 
+    // Calculate total cells needed (6 weeks = 42 days)
+    val totalCells = 42
+
+    // Create list of all cells (including padding days from prev/next month)
+    val allCells = mutableListOf<CalendarCellData>()
+
+    // Calculate days from previous month
+    val prevMonth = firstDayOfMonth.minusMonths(1)
+    val daysInPrevMonth = prevMonth.lengthOfMonth()
+    for (i in (daysInPrevMonth - startDayOfWeek + 1)..daysInPrevMonth) {
+        allCells.add(CalendarCellData(
+            dayNumber = i,
+            lunarDate = null,
+            ganzhiIndex = -1, // Indicates padding
+            stem = "",
+            shishen = "",
+            branch = "",
+            branchShishen = "",
+            isOtherMonth = true,
+            isToday = false,
+            isWeekend = false,
+            date = ""
+        ))
+    }
+
+    // Add current month days
+    for (day in days) {
+        val date = try { LocalDate.parse(day.date) } catch (e: Exception) { null }
+        val dayNum = date?.dayOfMonth ?: 0
+        val isTodayCell = date == today
+        val dayOfWeek = date?.dayOfWeek?.value ?: 1
+        val isWeekendCell = dayOfWeek == 0 || dayOfWeek == 6
+
+        // Get stem and branch from ganzhi
+        val stemChar = if (day.ganzhi.isNotEmpty()) day.ganzhi[0] else ""
+        val branchChar = if (day.ganzhi.size > 1) day.ganzhi[1] else ""
+
+        allCells.add(CalendarCellData(
+            dayNumber = dayNum,
+            lunarDate = day.lunarDate ?: day.holiday ?: day.jieqi,
+            ganzhiIndex = if (day.ganzhi.isNotEmpty()) 0 else -1,
+            stem = stemChar,
+            shishen = day.shishen,
+            branch = branchChar,
+            branchShishen = day.branchShishen,
+            isOtherMonth = false,
+            isToday = isTodayCell,
+            isWeekend = isWeekendCell,
+            date = day.date
+        ))
+    }
+
+    // Add next month days
+    val remainingCells = totalCells - allCells.size
+    val nextMonth = firstDayOfMonth.plusMonths(1)
+    for (i in 1..remainingCells) {
+        allCells.add(CalendarCellData(
+            dayNumber = i,
+            lunarDate = null,
+            ganzhiIndex = -1,
+            stem = "",
+            shishen = "",
+            branch = "",
+            branchShishen = "",
+            isOtherMonth = true,
+            isToday = false,
+            isWeekend = false,
+            date = ""
+        ))
+    }
+
+    // Display in grid
     LazyVerticalGrid(
         columns = GridCells.Fixed(7),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
-        modifier = Modifier.height(400.dp)
+        modifier = Modifier.height(480.dp)
     ) {
-        // Empty cells for days before month starts
-        items(startDayOfWeek) {
-            Box(modifier = Modifier.aspectRatio(1f))
-        }
-
-        // Calendar days
-        items(days) { day ->
-            CalendarDayCell(
-                day = day,
-                isToday = try { java.time.LocalDate.parse(day.date) == today } catch (e: Exception) { false },
-                onClick = { onDayClick(day) }
-            )
+        items(allCells) { cell ->
+            CalendarDayCellFromDesign(cell)
         }
     }
 }
 
+data class CalendarCellData(
+    val dayNumber: Int,
+    val lunarDate: String?,
+    val ganzhiIndex: Int,
+    val stem: String,
+    val shishen: String,
+    val branch: String,
+    val branchShishen: String,
+    val isOtherMonth: Boolean,
+    val isToday: Boolean,
+    val isWeekend: Boolean,
+    val date: String
+)
+
 @Composable
-private fun CalendarDayCell(
-    day: CalendarDay,
-    isToday: Boolean,
-    onClick: () -> Unit
-) {
-    val dayNumber = try {
-        java.time.LocalDate.parse(day.date).dayOfMonth
-    } catch (e: Exception) { 0 }
-
-    val isWeekend = try {
-        val dow = java.time.LocalDate.parse(day.date).dayOfWeek.value % 7
-        dow == 0 || dow == 6
-    } catch (e: Exception) { false }
-
+private fun CalendarDayCellFromDesign(cell: CalendarCellData) {
     Box(
         modifier = Modifier
             .aspectRatio(1f)
             .clip(RoundedCornerShape(12.dp))
             .background(
-                if (isToday) {
-                    Brush.linearGradient(colors = listOf(Color(0xFFC84A3E), Color(0xFFA33D33)))
-                } else {
-                    SolidColor(Color(0xFFFAFAF8))
+                when {
+                    cell.isToday -> Brush.linearGradient(colors = listOf(Color(0xFFC84A3E), Color(0xFFA33D33)))
+                    cell.isOtherMonth -> SolidColor(Color(0xFFFAFAF8))
+                    else -> SolidColor(Color(0xFFFAFAF8))
                 }
             )
-            .clickable(onClick = onClick)
+            .clickable(enabled = !cell.isOtherMonth && cell.date.isNotEmpty()) { }
             .padding(5.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -395,75 +455,82 @@ private fun CalendarDayCell(
         ) {
             // Day number
             Text(
-                text = dayNumber.toString(),
+                text = cell.dayNumber.toString(),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = when {
-                    isToday -> Color.White
-                    isWeekend -> Color(0xFFC84A3E)
+                    cell.isToday -> Color.White
+                    cell.isOtherMonth -> TextPrimary.copy(alpha = 0.3f)
+                    cell.isWeekend -> Color(0xFFC84A3E)
                     else -> TextPrimary
                 }
             )
 
-            // Lunar date or holiday
-            val displayText = day.holiday ?: day.jieqi ?: day.lunarDate ?: ""
-            if (displayText.isNotEmpty()) {
+            // Lunar date
+            if (cell.lunarDate != null) {
+                val lunarColor = when {
+                    cell.isToday -> Color.White.copy(alpha = 0.7f)
+                    cell.lunarDate.contains("初一") || cell.lunarDate.contains("十五") -> Color(0xFFE74C3C)
+                    else -> TextTertiary
+                }
                 Text(
-                    text = displayText,
+                    text = cell.lunarDate,
                     fontSize = 9.sp,
-                    color = when {
-                        isToday -> Color.White.copy(alpha = 0.7f)
-                        day.holiday != null -> Color(0xFFE74C3C)
-                        day.jieqi != null -> Color(0xFF5A8A6A)
-                        else -> TextTertiary
-                    },
+                    color = lunarColor,
                     modifier = Modifier.padding(top = 1.dp)
                 )
+            } else {
+                Spacer(modifier = Modifier.height(11.dp))
             }
 
-            // Gan Zhi row 1: stem + shishen
-            if (day.ganzhi.isNotEmpty()) {
+            // Only show ganzhi rows for current month days
+            if (!cell.isOtherMonth && cell.stem.isNotEmpty()) {
+                // Row 1: Stem + Shishen
                 Row(
                     modifier = Modifier.padding(top = 2.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    val stemColor = getStemColor(day.ganzhi.getOrNull(0) ?: "")
+                    val stemColor = getStemColor(cell.stem)
                     Text(
-                        text = day.ganzhi.getOrNull(0) ?: "",
+                        text = cell.stem,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (isToday) Color.White else stemColor
+                        color = if (cell.isToday) Color.White else stemColor
                     )
-                    Text(
-                        text = day.shishen,
-                        fontSize = 9.sp,
-                        color = if (isToday) Color.White.copy(alpha = 0.7f) else TextTertiary,
-                        modifier = Modifier.padding(start = 2.dp)
-                    )
+                    if (cell.shishen.isNotEmpty()) {
+                        Text(
+                            text = cell.shishen,
+                            fontSize = 9.sp,
+                            color = if (cell.isToday) Color.White.copy(alpha = 0.7f) else TextTertiary,
+                            modifier = Modifier.padding(start = 2.dp)
+                        )
+                    }
                 }
-            }
 
-            // Gan Zhi row 2: branch + branchShishen
-            if (day.ganzhi.size > 1) {
-                Row(
-                    modifier = Modifier.padding(top = 1.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    val branchColor = getBranchColor(day.ganzhi.getOrNull(1) ?: "")
-                    Text(
-                        text = day.ganzhi.getOrNull(1) ?: "",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (isToday) Color.White else branchColor
-                    )
-                    Text(
-                        text = day.branchShishen,
-                        fontSize = 9.sp,
-                        color = if (isToday) Color.White.copy(alpha = 0.7f) else TextTertiary,
-                        modifier = Modifier.padding(start = 2.dp)
-                    )
+                // Row 2: Branch + BranchShishen
+                if (cell.branch.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.padding(top = 1.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        val branchColor = getBranchColor(cell.branch)
+                        Text(
+                            text = cell.branch,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (cell.isToday) Color.White else branchColor
+                        )
+                        if (cell.branchShishen.isNotEmpty()) {
+                            Text(
+                                text = cell.branchShishen,
+                                fontSize = 9.sp,
+                                color = if (cell.isToday) Color.White.copy(alpha = 0.7f) else TextTertiary,
+                                modifier = Modifier.padding(start = 2.dp)
+                            )
+                        }
+                    }
                 }
             }
         }
