@@ -3,7 +3,7 @@
  * 用于生成请求签名
  */
 
-const APP_KEY = import.meta.env.VITE_APP_KEY || 'dev-app-key-12345';
+const APP_KEY = import.meta.env.VITE_APP_KEY || 'apkey20260519';
 
 /**
  * SHA256 哈希

@@ -14,7 +14,7 @@ import type {
   DailyDetailResponse,
 } from '../types';
 
-const APP_KEY = import.meta.env.VITE_APP_KEY || 'dev-app-key-12345';
+const APP_KEY = import.meta.env.VITE_APP_KEY || 'apkey20260519';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 class ApiService {
