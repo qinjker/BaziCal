@@ -76,7 +76,7 @@ class BaziRepositoryImpl @Inject constructor(
             val days = response.days.map { dto ->
                 CalendarDay(
                     date = dto.date,
-                    ganzhi = dto.ganzhi,
+                    ganzhi = if (dto.ganzhi.length >= 2) listOf(dto.ganzhi[0].toString(), dto.ganzhi[1].toString()) else listOf(dto.ganzhi),
                     wuxing = dto.wuxing,
                     yi = dto.yi,
                     ji = dto.ji,

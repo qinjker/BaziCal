@@ -428,9 +428,9 @@ private fun CalendarDayCell(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    val stemColor = getStemColor(day.ganzhi.getOrNull(0)?.toString() ?: "")
+                    val stemColor = getStemColor(day.ganzhi.getOrNull(0) ?: "")
                     Text(
-                        text = day.ganzhi.getOrNull(0)?.toString() ?: "",
+                        text = day.ganzhi.getOrNull(0) ?: "",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = if (isToday) Color.White else stemColor
@@ -445,15 +445,15 @@ private fun CalendarDayCell(
             }
 
             // Gan Zhi row 2: branch + branchShishen
-            if (day.ganzhi.length > 1) {
+            if (day.ganzhi.size > 1) {
                 Row(
                     modifier = Modifier.padding(top = 1.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    val branchColor = getBranchColor(day.ganzhi.getOrNull(1)?.toString() ?: "")
+                    val branchColor = getBranchColor(day.ganzhi.getOrNull(1) ?: "")
                     Text(
-                        text = day.ganzhi.getOrNull(1)?.toString() ?: "",
+                        text = day.ganzhi.getOrNull(1) ?: "",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = if (isToday) Color.White else branchColor

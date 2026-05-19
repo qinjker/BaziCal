@@ -2,7 +2,7 @@ package com.bazical.app.domain.model
 
 data class CalendarDay(
     val date: String,
-    val ganzhi: String,
+    val ganzhi: List<String>,  // 改为 List<String>，如 ["甲", "午"]
     val wuxing: String,
     val yi: List<String>,
     val ji: List<String>,
