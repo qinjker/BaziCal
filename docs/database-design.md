@@ -177,18 +177,21 @@ CREATE INDEX idx_gift_calendars_created_at ON gift_calendars(created_at DESC);
 ```sql
 CREATE TABLE feedback (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  type            VARCHAR(20) NOT NULL COMMENT '反馈类型',
-  content         TEXT NOT NULL,
-  contact         VARCHAR(100) COMMENT '联系方式',
-  user_id         VARCHAR(64) COMMENT '提交者user_id',
+  type            VARCHAR(20) NOT NULL COMMENT '反馈类型：功能建议/问题反馈/体验优化/其他',
+  content         TEXT NOT NULL COMMENT '反馈内容，最多500字符',
+  contact         VARCHAR(100) COMMENT '联系方式（微信号/邮箱/手机号）',
+  user_id         VARCHAR(64) COMMENT '提交者user_id（非必须，用于已登录用户）',
+  device_id       VARCHAR(128) COMMENT '设备ID（用于关联用户）',
   status          VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'reviewed', 'replied', 'closed')),
-  reply           TEXT COMMENT '管理员回复',
+  reply           TEXT COMMENT '管理员回复内容',
+  replied_by      VARCHAR(32) COMMENT '回复人用户名',
   replied_at      TIMESTAMP COMMENT '回复时间',
   created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_feedback_user_id ON feedback(user_id);
+CREATE INDEX idx_feedback_device_id ON feedback(device_id);
 CREATE INDEX idx_feedback_type ON feedback(type);
 CREATE INDEX idx_feedback_status ON feedback(status);
 CREATE INDEX idx_feedback_created_at ON feedback(created_at DESC);
@@ -200,11 +203,13 @@ CREATE INDEX idx_feedback_created_at ON feedback(created_at DESC);
 |------|------|------|
 | id | UUID | 主键 |
 | type | VARCHAR(20) | 反馈类型（功能建议/问题反馈/体验优化/其他） |
-| content | TEXT | 反馈内容 |
+| content | TEXT | 反馈内容（最多500字符） |
 | contact | VARCHAR(100) | 联系方式（微信号/邮箱/手机号） |
-| user_id | VARCHAR(64) | 提交者user_id |
+| user_id | VARCHAR(64) | 提交者user_id（已登录用户） |
+| device_id | VARCHAR(128) | 设备ID（用于关联未登录用户） |
 | status | VARCHAR(20) | 处理状态 |
 | reply | TEXT | 管理员回复内容 |
+| replied_by | VARCHAR(32) | 回复人用户名 |
 | replied_at | TIMESTAMP | 回复时间 |
 | created_at | TIMESTAMP | 提交时间 |
 | updated_at | TIMESTAMP | 更新时间 |
@@ -213,7 +218,7 @@ CREATE INDEX idx_feedback_created_at ON feedback(created_at DESC);
 
 | 状态 | 说明 |
 |------|------|
-| pending | 待处理 |
+| pending | 待处理（默认） |
 | reviewed | 已查看 |
 | replied | 已回复 |
 | closed | 已关闭 |
@@ -330,8 +335,10 @@ CREATE TABLE IF NOT EXISTS feedback (
   content         TEXT NOT NULL,
   contact         VARCHAR(100),
   user_id         VARCHAR(64),
-  status          VARCHAR(20) DEFAULT 'pending',
+  device_id       VARCHAR(128),
+  status          VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'reviewed', 'replied', 'closed')),
   reply           TEXT,
+  replied_by      VARCHAR(32),
   replied_at      TIMESTAMP,
   created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -343,6 +350,7 @@ CREATE INDEX IF NOT EXISTS idx_users_device_id ON users(device_id);
 CREATE INDEX IF NOT EXISTS idx_admins_username ON admins(username);
 CREATE INDEX IF NOT EXISTS idx_gift_calendars_share_code ON gift_calendars(share_code);
 CREATE INDEX IF NOT EXISTS idx_feedback_user_id ON feedback(user_id);
+CREATE INDEX IF NOT EXISTS idx_feedback_device_id ON feedback(device_id);
 CREATE INDEX IF NOT EXISTS idx_feedback_status ON feedback(status);
 
 -- 插入默认管理员（密码：admin123）

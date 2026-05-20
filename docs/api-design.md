@@ -350,14 +350,96 @@
 
 **POST** `/api/v1/feedback`
 
-提交用户反馈。
+提交用户反馈，需要签名验证。
 
 **Request:**
 ```json
 {
   "type": "功能建议",
   "content": "希望增加春节提醒功能",
-  "contact": "微信号：xxx"
+  "contact": "微信号：xxx",
+  "device_id": "optional-device-id"
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| type | string | ✅ | 反馈类型：功能建议/问题反馈/体验优化/其他 |
+| content | string | ✅ | 反馈内容，最多500字符 |
+| contact | string | ❌ | 联系方式（微信号/邮箱/手机号） |
+| device_id | string | ❌ | 设备ID，用于关联用户 |
+
+**Response:**
+```json
+{
+  "code": 0,
+  "message": "反馈已提交，感谢您的意见！"
+}
+```
+
+**错误码：**
+| code | 说明 |
+|------|------|
+| 400 | 参数错误（type不在范围内，content为空或超过500字符） |
+
+---
+
+### 6. 获取反馈列表（管理后台）
+
+**GET** `/api/v1/admin/feedbacks`
+
+获取用户反馈列表，需要管理员认证。
+
+**Request Query:**
+```
+?page=1&pageSize=20&status=pending&type=功能建议
+```
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| page | int | ❌ | 页码 (默认1) |
+| pageSize | int | ❌ | 每页数量 (默认20) |
+| status | string | ❌ | 状态筛选：pending/reviewed/replied/closed |
+| type | string | ❌ | 类型筛选：功能建议/问题反馈/体验优化/其他 |
+
+**Response:**
+```json
+{
+  "code": 0,
+  "data": {
+    "feedbacks": [
+      {
+        "id": "uuid-xxx",
+        "type": "功能建议",
+        "content": "希望增加春节提醒功能",
+        "contact": "微信号：xxx",
+        "user_id": "xxx",
+        "device_id": "xxx",
+        "status": "pending",
+        "reply": null,
+        "replied_at": null,
+        "created_at": "2026-05-20T12:00:00Z"
+      }
+    ],
+    "total": 100,
+    "page": 1,
+    "pageSize": 20
+  }
+}
+```
+
+---
+
+### 7. 回复反馈（管理后台）
+
+**POST** `/api/v1/admin/feedbacks/:id/reply`
+
+回复用户反馈，需要管理员认证。
+
+**Request:**
+```json
+{
+  "reply": "感谢您的反馈，我们已记录并在后续版本中考虑。"
 }
 ```
 
@@ -365,7 +447,30 @@
 ```json
 {
   "code": 0,
-  "message": "反馈已提交，我们会尽快回复您"
+  "message": "回复成功"
+}
+```
+
+---
+
+### 8. 更新反馈状态（管理后台）
+
+**PATCH** `/api/v1/admin/feedbacks/:id/status`
+
+更新反馈状态，需要管理员认证。
+
+**Request:**
+```json
+{
+  "status": "reviewed"
+}
+```
+
+**Response:**
+```json
+{
+  "code": 0,
+  "message": "状态已更新"
 }
 ```
 

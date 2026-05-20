@@ -358,7 +358,7 @@ private fun CalendarGridFull(
         ))
     }
 
-    // Display in grid - 7 columns with equal width, square cells
+    // Display in grid - 7 columns with flexible height
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -367,7 +367,9 @@ private fun CalendarGridFull(
 
         for (rowIndex in 0 until rows) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min),
                 horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 for (colIndex in 0 until 7) {
@@ -407,7 +409,7 @@ private fun CalendarDayCellFromDesign(
 ) {
     Column(
         modifier = modifier
-            .aspectRatio(1f)
+            .defaultMinSize(minHeight = 90.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(
                 when {
@@ -417,11 +419,10 @@ private fun CalendarDayCellFromDesign(
                 }
             )
             .clickable(enabled = !cell.isOtherMonth && cell.date.isNotEmpty()) { }
-            .padding(4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceEvenly
+            .padding(horizontal = 4.dp, vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Day number
+        // Row 1: Day number
         Text(
             text = cell.dayNumber.toString(),
             fontSize = 14.sp,
@@ -434,7 +435,7 @@ private fun CalendarDayCellFromDesign(
             }
         )
 
-        // Lunar date
+        // Row 2: Lunar date
         if (cell.lunarDate != null) {
             val lunarColor = when {
                 cell.isToday -> Color.White.copy(alpha = 0.7f)
@@ -447,61 +448,63 @@ private fun CalendarDayCellFromDesign(
                 color = lunarColor
             )
         } else {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
         }
 
-            // Only show ganzhi rows for current month days
-            if (!cell.isOtherMonth && cell.stem.isNotEmpty()) {
-                // Row 1: Stem + Shishen
+        Spacer(modifier = Modifier.height(2.dp))
+
+        // Only show ganzhi rows for current month days
+        if (!cell.isOtherMonth && cell.stem.isNotEmpty()) {
+            // Row 3: Stem + Shishen
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                val stemColor = getStemColor(cell.stem)
+                Text(
+                    text = cell.stem,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (cell.isToday) Color.White else stemColor
+                )
+                if (cell.shishen.isNotEmpty()) {
+                    Text(
+                        text = cell.shishen,
+                        fontSize = 8.sp,
+                        color = if (cell.isToday) Color.White.copy(alpha = 0.7f) else TextTertiary,
+                        modifier = Modifier.padding(start = 1.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(1.dp))
+
+            // Row 4: Branch + BranchShishen
+            if (cell.branch.isNotEmpty()) {
                 Row(
-                    modifier = Modifier.padding(top = 2.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    val stemColor = getStemColor(cell.stem)
+                    val branchColor = getBranchColor(cell.branch)
                     Text(
-                        text = cell.stem,
-                        fontSize = 12.sp,
+                        text = cell.branch,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (cell.isToday) Color.White else stemColor
+                        color = if (cell.isToday) Color.White else branchColor
                     )
-                    if (cell.shishen.isNotEmpty()) {
+                    if (cell.branchShishen.isNotEmpty()) {
                         Text(
-                            text = cell.shishen,
-                            fontSize = 9.sp,
+                            text = cell.branchShishen,
+                            fontSize = 8.sp,
                             color = if (cell.isToday) Color.White.copy(alpha = 0.7f) else TextTertiary,
-                            modifier = Modifier.padding(start = 2.dp)
+                            modifier = Modifier.padding(start = 1.dp)
                         )
-                    }
-                }
-
-                // Row 2: Branch + BranchShishen
-                if (cell.branch.isNotEmpty()) {
-                    Row(
-                        modifier = Modifier.padding(top = 1.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        val branchColor = getBranchColor(cell.branch)
-                        Text(
-                            text = cell.branch,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = if (cell.isToday) Color.White else branchColor
-                        )
-                        if (cell.branchShishen.isNotEmpty()) {
-                            Text(
-                                text = cell.branchShishen,
-                                fontSize = 9.sp,
-                                color = if (cell.isToday) Color.White.copy(alpha = 0.7f) else TextTertiary,
-                                modifier = Modifier.padding(start = 2.dp)
-                            )
-                        }
                     }
                 }
             }
         }
     }
+}
 
 private fun getStemColor(stem: String): Color {
     return when (stem) {
