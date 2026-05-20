@@ -507,7 +507,6 @@ private fun CalendarDayCellFromDesign(
             }
         }
     }
-}
 
 private fun getStemColor(stem: String): Color {
     return when (stem) {
