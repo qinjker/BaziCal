@@ -1,5 +1,6 @@
 package com.bazical.app.ui.calendar
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bazical.app.domain.usecase.CalculateBaziUseCase
@@ -13,6 +14,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
+
+private const val TAG = "CalendarViewModel"
 
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
@@ -42,12 +45,19 @@ class CalendarViewModel @Inject constructor(
     fun loadCalendar(year: Int, month: Int) {
         viewModelScope.launch {
             _uiState.update { it.copy(loading = true, year = year, month = month) }
+            Log.d(TAG, "loadCalendar: year=$year, month=$month")
             val result = getCalendarUseCase(year, month)
             result.fold(
                 onSuccess = { calendarMonth ->
+                    Log.d(TAG, "loadCalendar success: ${calendarMonth.days.size} days")
+                    if (calendarMonth.days.isNotEmpty()) {
+                        val firstDay = calendarMonth.days.first()
+                        Log.d(TAG, "First day: date=${firstDay.date}, ganzhi=${firstDay.ganzhi}, shishen=${firstDay.shishen}, branchShishen=${firstDay.branchShishen}, lunarDate=${firstDay.lunarDate}")
+                    }
                     _uiState.update { it.copy(days = calendarMonth.days, loading = false) }
                 },
                 onFailure = { e ->
+                    Log.e(TAG, "loadCalendar failure: ${e.message}", e)
                     _uiState.update { it.copy(error = e.message, loading = false) }
                 }
             )

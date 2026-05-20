@@ -1,5 +1,6 @@
 package com.bazical.app.ui.calendar
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +43,8 @@ import com.bazical.app.domain.model.CalendarDay
 import com.bazical.app.ui.theme.TextPrimary
 import com.bazical.app.ui.theme.TextTertiary
 import java.time.LocalDate
+
+private const val TAG = "CalendarScreen"
 
 @Composable
 fun CalendarScreen(
@@ -359,6 +362,9 @@ private fun CalendarGridFull(
     }
 
     // Add current month days
+    Log.d(TAG, "CalendarGridFull: days.size=${days.size}, first day: ${
+        if (days.isNotEmpty()) "date=${days[0].date}, ganzhi=${days[0].ganzhi}, shishen=${days[0].shishen}, lunarDate=${days[0].lunarDate}" else "empty"
+    }")
     for (day in days) {
         val date = try { LocalDate.parse(day.date) } catch (e: Exception) { null }
         val dayNum = date?.dayOfMonth ?: 0
