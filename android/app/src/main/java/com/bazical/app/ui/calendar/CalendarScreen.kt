@@ -326,12 +326,12 @@ private fun CalendarGridFull(
 
         // Build lunarDate with proper empty string handling
         val displayLunarDate = when {
-            !day.jieqi.isNullOrEmpty() -> day.jieqi!!
-            !day.lunarDate.isNullOrEmpty() -> day.lunarDate!!
-            !day.holiday.isNullOrEmpty() -> day.holiday!!
+            !day.jieqi.isNullOrEmpty() && day.jieqi!!.isNotBlank() -> day.jieqi!!
+            !day.lunarDate.isNullOrEmpty() && day.lunarDate!!.isNotBlank() -> day.lunarDate!!
+            !day.holiday.isNullOrEmpty() && day.holiday!!.isNotBlank() -> day.holiday!!
             else -> null
         }
-        val isJieqiDay = !day.jieqi.isNullOrEmpty()
+        val isJieqiDay = !day.jieqi.isNullOrEmpty() && day.jieqi!!.isNotBlank()
 
         allCells.add(CalendarCellData(
             dayNumber = dayNum,
@@ -434,12 +434,12 @@ private fun CalendarDayCellFromDesign(
             .padding(horizontal = 2.dp, vertical = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Day number
+        // Day number (Row 1)
         Text(
             text = cell.dayNumber.toString(),
-            fontSize = 12.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
-            lineHeight = 14.sp,
+            lineHeight = 16.sp,
             color = when {
                 cell.isToday -> Color.White
                 cell.isOtherMonth -> TextPrimary.copy(alpha = 0.3f)
@@ -448,7 +448,7 @@ private fun CalendarDayCellFromDesign(
             }
         )
 
-        // Lunar date or Jieqi
+        // Lunar date or Jieqi (Row 2)
         val displayText = cell.lunarDate ?: ""
         if (displayText.isNotEmpty()) {
             val lunarColor = when {
@@ -459,29 +459,29 @@ private fun CalendarDayCellFromDesign(
             }
             Text(
                 text = displayText,
-                fontSize = 8.sp,
-                lineHeight = 10.sp,
+                fontSize = 10.sp,
+                lineHeight = 12.sp,
                 color = lunarColor
             )
         }
 
         // Only show ganzhi rows for current month days
         if (!cell.isOtherMonth && cell.stem.isNotEmpty()) {
-            // Stem + Shishen
+            // Stem + Shishen (Row 3)
             Text(
                 text = cell.stem + (if (cell.shishen.isNotEmpty()) " ${cell.shishen}" else ""),
-                fontSize = 10.sp,
-                lineHeight = 12.sp,
+                fontSize = 12.sp,
+                lineHeight = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = if (cell.isToday) Color.White else Color(0xFF2C1810)
             )
 
-            // Branch + BranchShishen
+            // Branch + BranchShishen (Row 4)
             if (cell.branch.isNotEmpty()) {
                 Text(
                     text = cell.branch + (if (cell.branchShishen.isNotEmpty()) " ${cell.branchShishen}" else ""),
-                    fontSize = 10.sp,
-                    lineHeight = 12.sp,
+                    fontSize = 12.sp,
+                    lineHeight = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = if (cell.isToday) Color.White else Color(0xFF5A4A3A)
                 )
