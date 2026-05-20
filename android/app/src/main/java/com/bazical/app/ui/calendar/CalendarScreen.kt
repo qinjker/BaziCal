@@ -422,7 +422,6 @@ private fun CalendarDayCellFromDesign(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .heightIn(min = 90.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(
                 when {
@@ -433,7 +432,8 @@ private fun CalendarDayCellFromDesign(
             )
             .clickable(enabled = !cell.isOtherMonth && cell.date.isNotEmpty()) { }
             .padding(horizontal = 1.dp, vertical = 2.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
     ) {
         // Row 1: Day number
         Text(
