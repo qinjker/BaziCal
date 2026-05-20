@@ -411,7 +411,7 @@ private fun CalendarDayCellFromDesign(
 ) {
     Column(
         modifier = modifier
-            .fillMaxHeight()
+            .fillMaxSize()
             .clip(RoundedCornerShape(12.dp))
             .background(
                 when {
