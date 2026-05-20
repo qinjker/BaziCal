@@ -380,7 +380,7 @@ private fun CalendarGridFull(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(IntrinsicSize.Min),
+                    .height(60.dp),
                 horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 for (colIndex in 0 until 7) {
@@ -431,7 +431,7 @@ private fun CalendarDayCellFromDesign(
                 }
             )
             .clickable(enabled = !cell.isOtherMonth && cell.date.isNotEmpty()) { }
-            .padding(horizontal = 2.dp, vertical = 2.dp),
+            .padding(horizontal = 2.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Day number (Row 1)
@@ -468,8 +468,8 @@ private fun CalendarDayCellFromDesign(
             // Stem + Shishen (Row 3)
             Text(
                 text = cell.stem + (if (cell.shishen.isNotEmpty()) " ${cell.shishen}" else ""),
-                fontSize = 10.sp,
-                fontWeight = FontWeight.SemiBold,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Medium,
                 color = if (cell.isToday) Color.White else Color(0xFF2C1810)
             )
 
@@ -477,8 +477,8 @@ private fun CalendarDayCellFromDesign(
             if (cell.branch.isNotEmpty()) {
                 Text(
                     text = cell.branch + (if (cell.branchShishen.isNotEmpty()) " ${cell.branchShishen}" else ""),
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Medium,
                     color = if (cell.isToday) Color.White else Color(0xFF5A4A3A)
                 )
             }
