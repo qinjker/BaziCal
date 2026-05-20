@@ -5,8 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,17 +14,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -45,19 +45,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bazical.app.ui.components.BottomTabBar
 import com.bazical.app.ui.components.TabItem
 import com.bazical.app.ui.theme.Primary
-import com.bazical.app.ui.theme.PrimaryVariant
-import com.bazical.app.ui.theme.Secondary
-import com.bazical.app.ui.theme.Success
 import com.bazical.app.ui.theme.TextPrimary
-import com.bazical.app.ui.theme.TextSecondary
 import com.bazical.app.ui.theme.TextTertiary
-import com.bazical.app.ui.theme.Warning
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DailyScreen(
     date: String,
@@ -74,77 +68,63 @@ fun DailyScreen(
     } catch (e: Exception) {
         date
     }
-    val dayOfWeek = try {
-        LocalDate.parse(date).dayOfWeek.getDisplayName(TextStyle.FULL, Locale.CHINESE)
-    } catch (e: Exception) {
-        ""
-    }
+
+    val lunarDate = uiState.dayData?.lunarDate ?: ""
+    val ganzhiYearMonth = "2026年5月" // TODO: 计算阴历年月
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(Color(0xFFF7F4EF))
     ) {
         Column(
             modifier = Modifier.weight(1f)
         ) {
+            // Navbar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.White)
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(
-                    onClick = onNavigateBack,
+                Box(
                     modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(MaterialTheme.colorScheme.surface)
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(Color(0xFFFAF6F0))
+                        .clickable { onNavigateBack() },
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "返回",
                         tint = TextPrimary,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(22.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(12.dp))
 
                 Column(
+                    modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = displayDate,
-                        fontSize = 15.sp,
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = TextPrimary
                     )
                     Text(
-                        text = dayOfWeek,
-                        fontSize = 12.sp,
+                        text = "$lunarDate",
+                        fontSize = 13.sp,
                         color = TextTertiary,
-                        modifier = Modifier.padding(top = 2.dp)
+                        modifier = Modifier.padding(top = 3.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(MaterialTheme.colorScheme.surface)
-                ) {
-                    Icon(
-                        Icons.Default.Share,
-                        contentDescription = "分享",
-                        tint = TextPrimary,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
+                Spacer(modifier = Modifier.width(60.dp))
             }
 
             if (uiState.loading) {
@@ -155,172 +135,291 @@ fun DailyScreen(
                     CircularProgressIndicator(color = Primary)
                 }
             } else {
-                uiState.dayData?.let { day ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .verticalScroll(rememberScrollState())
-                            .padding(16.dp)
-                            .weight(1f)
-                    ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(bottom = 16.dp)
+                ) {
+                    uiState.dayData?.let { day ->
+                        // User Card
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp, vertical = 16.dp)
+                                .shadow(
+                                    elevation = 4.dp,
+                                    shape = RoundedCornerShape(18.dp),
+                                    spotColor = Color.Black.copy(alpha = 0.06f)
+                                )
+                                .clip(RoundedCornerShape(18.dp))
+                                .background(Color.White)
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .shadow(
+                                        elevation = 4.dp,
+                                        shape = RoundedCornerShape(12.dp),
+                                        spotColor = Color.Black.copy(alpha = 0.1f)
+                                    )
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(
+                                        Brush.linearGradient(
+                                            colors = listOf(Color(0xFFC84A3E), Color(0xFFA33D33))
+                                        )
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "十",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color.White
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "日主：${day.shishen}",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = TextPrimary
+                                )
+                                Text(
+                                    text = "生于${uiState.userBirthday ?: ""}",
+                                    fontSize = 12.sp,
+                                    color = TextTertiary,
+                                    modifier = Modifier.padding(top = 2.dp)
+                                )
+                            }
+
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(
+                                    text = day.shishen,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color(0xFFD4A843)
+                                )
+                                Text(
+                                    text = "今日能量",
+                                    fontSize = 11.sp,
+                                    color = Color(0xFFB8A892),
+                                    modifier = Modifier.padding(top = 2.dp)
+                                )
+                            }
+                        }
+
+                        // Share Main Button
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .padding(horizontal = 20.dp)
                                 .shadow(
-                                    elevation = 6.dp,
+                                    elevation = 8.dp,
+                                    shape = RoundedCornerShape(16.dp),
+                                    spotColor = Color(0xFFC84A3E).copy(alpha = 0.3f)
+                                )
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(
+                                    Brush.linearGradient(
+                                        colors = listOf(Color(0xFFC84A3E), Color(0xFFA33D33))
+                                    )
+                                )
+                                .clickable { }
+                                .padding(vertical = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "✨ 生成分享卡",
+                                    fontSize = 17.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = "分享今日能量给朋友",
+                                    fontSize = 12.sp,
+                                    color = Color.White.copy(alpha = 0.8f),
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        // Ganzhi Section
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp)
+                                .shadow(
+                                    elevation = 4.dp,
                                     shape = RoundedCornerShape(20.dp),
-                                    spotColor = Primary.copy(alpha = 0.12f)
+                                    spotColor = Color.Black.copy(alpha = 0.06f)
                                 )
                                 .clip(RoundedCornerShape(20.dp))
-                                .background(Color.White)
-                                .padding(28.dp)
+                                .background(
+                                    Brush.linearGradient(
+                                        colors = listOf(Color.White, Color(0xFFFAF8F4))
+                                    )
+                                )
+                                .padding(24.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    val stemColor = stemColor(day.ganzhi.getOrNull(0)?.toString() ?: "")
-                                    val branchColor = branchColor(day.ganzhi.getOrNull(1)?.toString() ?: "")
-
-                                    Text(
-                                        text = day.ganzhi.getOrNull(0)?.toString() ?: "",
-                                        fontSize = 48.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = stemColor
-                                    )
-                                    Spacer(modifier = Modifier.width(20.dp))
-                                    Text(
-                                        text = day.ganzhi.getOrNull(1)?.toString() ?: "",
-                                        fontSize = 48.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = branchColor
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
-                                    text = "五行：${day.wuxing}",
-                                    fontSize = 15.sp,
-                                    color = Secondary,
-                                    fontWeight = FontWeight.Medium
+                                    text = day.ganzhi.joinToString(""),
+                                    fontSize = 72.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFFC84A3E),
+                                    modifier = Modifier.padding(bottom = 16.dp)
                                 )
 
-                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "$displayDate · ${day.ganzhi.joinToString("")}月",
+                                    fontSize = 14.sp,
+                                    color = TextTertiary,
+                                    modifier = Modifier.padding(bottom = 18.dp)
+                                )
+
+                                // Ten God Tags
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    val shishenTags = listOf(day.shishen, day.branchShishen).filter { it.isNotEmpty() }
+                                    shishenTags.take(2).forEach { tag ->
+                                        TenGodTag(tag, "gold")
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(8.dp))
 
                                 Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
-                                    InfoItem("星宿", day.star)
-                                    InfoItem("吉凶", day.luck, if (day.luck == "吉") Success else Warning)
+                                    val remainingTags = listOf(day.branchShishen).filter { it.isNotEmpty() }
+                                    remainingTags.forEach { tag ->
+                                        TenGodTag(tag, "green")
+                                    }
                                 }
                             }
                         }
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(18.dp)
-                            ) {
-                                Text(
-                                    text = "今日十神",
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = TextTertiary
+                        // Message Card
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp)
+                                .shadow(
+                                    elevation = 4.dp,
+                                    shape = RoundedCornerShape(22.dp),
+                                    spotColor = Color.Black.copy(alpha = 0.08f)
                                 )
-
-                                Spacer(modifier = Modifier.height(12.dp))
-
-                                FlowRow(
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                .clip(RoundedCornerShape(22.dp))
+                                .background(Color.White)
+                                .padding(26.dp)
+                        ) {
+                            Column {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    TenGodChip(
-                                        text = day.shishen,
-                                        color = Primary,
-                                        isPrimary = true
+                                    Text(
+                                        text = "💬",
+                                        fontSize = 20.sp
                                     )
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Text(
+                                        text = "今日寄语",
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = Color(0xFFB8A892),
+                                        letterSpacing = 2.sp
+                                    )
+                                }
 
-                                    if (day.branchShishen.isNotEmpty()) {
-                                        TenGodChip(
-                                            text = day.branchShishen,
-                                            color = Secondary,
-                                            isPrimary = false
-                                        )
+                                Spacer(modifier = Modifier.height(18.dp))
+
+                                uiState.messages.forEach { message ->
+                                    Text(
+                                        text = "「$message」",
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = TextPrimary,
+                                        lineHeight = 34.sp,
+                                        modifier = Modifier.padding(bottom = 20.dp)
+                                    )
+                                }
+
+                                uiState.messages.takeIf { it.isNotEmpty() }?.let { messages ->
+                                    Column {
+                                        messages.drop(1).forEach { msg ->
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(6.dp)
+                                                        .background(Color(0xFFD4A843), CircleShape)
+                                                )
+                                                Spacer(modifier = Modifier.width(12.dp))
+                                                Text(
+                                                    text = msg,
+                                                    fontSize = 14.sp,
+                                                    color = Color(0xFF5A4A3A)
+                                                )
+                                            }
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                        }
                                     }
                                 }
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
 
-                        YiJiCard(
-                            title = "宜",
-                            icon = "✅",
-                            items = day.yi,
-                            backgroundColor = Color(0xFFF0FFF4),
-                            accentColor = Success
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        YiJiCard(
-                            title = "忌",
-                            icon = "⚠️",
-                            items = day.ji,
-                            backgroundColor = Color(0xFFFFF9F5),
-                            accentColor = Warning
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        if (uiState.messages.isNotEmpty()) {
-                            Card(
+                        // Action Bar
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp)
+                                .shadow(
+                                    elevation = 6.dp,
+                                    shape = RoundedCornerShape(20.dp),
+                                    spotColor = Color.Black.copy(alpha = 0.08f)
+                                )
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(Color.White)
+                                .padding(16.dp)
+                        ) {
+                            Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(16.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color.White),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                                horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
-                                Column(
-                                    modifier = Modifier.padding(18.dp)
-                                ) {
-                                    Text(
-                                        text = "正向寄语",
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = TextTertiary
-                                    )
-
-                                    Spacer(modifier = Modifier.height(12.dp))
-
-                                    uiState.messages.forEach { message ->
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clip(RoundedCornerShape(10.dp))
-                                                .background(Color(0xFFFAF6F0))
-                                                .padding(12.dp)
-                                        ) {
-                                            Text(
-                                                text = message,
-                                                fontSize = 14.sp,
-                                                color = TextPrimary,
-                                                lineHeight = 22.sp
-                                            )
-                                        }
-                                        Spacer(modifier = Modifier.height(10.dp))
-                                    }
-                                }
+                                ActionItem(
+                                    icon = Icons.Default.Share,
+                                    label = "分享",
+                                    isPrimary = true,
+                                    onClick = { }
+                                )
+                                ActionItem(
+                                    icon = Icons.Default.Save,
+                                    label = "保存",
+                                    isPrimary = false,
+                                    onClick = { }
+                                )
+                                ActionItem(
+                                    icon = Icons.Default.CalendarToday,
+                                    label = "日历",
+                                    isPrimary = false,
+                                    onClick = onNavigateBack
+                                )
                             }
                         }
 
@@ -338,131 +437,66 @@ fun DailyScreen(
 }
 
 @Composable
-private fun InfoItem(label: String, value: String, color: Color = TextPrimary) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            color = TextTertiary
-        )
-        Text(
-            text = value,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = color,
-            modifier = Modifier.padding(top = 4.dp)
-        )
+private fun TenGodTag(text: String, colorType: String) {
+    val backgroundColor = when (colorType) {
+        "gold" -> Brush.linearGradient(colors = listOf(Color(0xFFE0B850), Color(0xFFC49A3A)))
+        "green" -> Brush.linearGradient(colors = listOf(Color(0xFF689A78), Color(0xFF4A7A5A)))
+        "red" -> Brush.linearGradient(colors = listOf(Color(0xFFD65A4E), Color(0xFFB8443A)))
+        else -> Brush.linearGradient(colors = listOf(Color(0xFFE0B850), Color(0xFFC49A3A)))
     }
-}
 
-@Composable
-private fun TenGodChip(text: String, color: Color, isPrimary: Boolean) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(
-                if (isPrimary) color.copy(alpha = 0.12f) else color.copy(alpha = 0.08f)
-            )
+            .clip(RoundedCornerShape(18.dp))
+            .background(backgroundColor)
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Text(
             text = text,
-            fontSize = 15.sp,
-            fontWeight = if (isPrimary) FontWeight.SemiBold else FontWeight.Normal,
-            color = if (isPrimary) color else TextSecondary
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.White
         )
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun YiJiCard(
-    title: String,
-    icon: String,
-    items: List<String>,
-    backgroundColor: Color,
-    accentColor: Color
+private fun ActionItem(
+    icon: ImageVector,
+    label: String,
+    isPrimary: Boolean,
+    onClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    Column(
+        modifier = Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .clickable { onClick() }
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier.padding(18.dp)
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(
+                    if (isPrimary) Brush.linearGradient(colors = listOf(Color(0xFFC84A3E), Color(0xFFA33D33)))
+                    else Brush.linearGradient(colors = listOf(Color(0xFFFAF6F0), Color(0xFFF0EBE3)))
+                ),
+            contentAlignment = Alignment.Center
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = icon,
-                    fontSize = 16.sp
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = title,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = accentColor
-                )
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items.forEach { item ->
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(backgroundColor)
-                            .padding(horizontal = 14.dp, vertical = 8.dp)
-                    ) {
-                        Text(
-                            text = item,
-                            fontSize = 14.sp,
-                            color = TextPrimary
-                        )
-                    }
-                }
-            }
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = if (isPrimary) Color.White else TextPrimary,
+                modifier = Modifier.size(22.dp)
+            )
         }
-    }
-}
-
-private fun stemColor(stem: String): Color {
-    return when (stem) {
-        "甲" -> Color(0xFF4ade80)
-        "乙" -> Color(0xFF86efac)
-        "丙" -> Color(0xFFf87171)
-        "丁" -> Color(0xFFfca5a5)
-        "戊" -> Color(0xFFa78bfa)
-        "己" -> Color(0xFFc4b5fd)
-        "庚" -> Color(0xFFfbbf24)
-        "辛" -> Color(0xFFfde047)
-        "壬" -> Color(0xFF60a5fa)
-        "癸" -> Color(0xFF93c5fd)
-        else -> Color(0xFF2C1810)
-    }
-}
-
-private fun branchColor(branch: String): Color {
-    return when (branch) {
-        "子" -> Color(0xFF60a5fa)
-        "丑" -> Color(0xFFa78bfa)
-        "寅" -> Color(0xFF4ade80)
-        "卯" -> Color(0xFF86efac)
-        "辰" -> Color(0xFFa78bfa)
-        "巳" -> Color(0xFFf87171)
-        "午" -> Color(0xFFfca5a5)
-        "未" -> Color(0xFFa78bfa)
-        "申" -> Color(0xFFfbbf24)
-        "酉" -> Color(0xFFfde047)
-        "戌" -> Color(0xFFa78bfa)
-        "亥" -> Color(0xFF60a5fa)
-        else -> Color(0xFF2C1810)
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            color = if (isPrimary) Color(0xFFC84A3E) else Color(0xFF5A4A3A)
+        )
     }
 }
