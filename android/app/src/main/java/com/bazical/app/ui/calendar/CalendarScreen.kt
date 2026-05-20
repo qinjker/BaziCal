@@ -322,8 +322,6 @@ private fun CalendarGridFull(
         val stemChar = if (day.ganzhi.isNotEmpty()) day.ganzhi[0] else ""
         val branchChar = if (day.ganzhi.size > 1) day.ganzhi[1] else ""
 
-        Log.d(TAG, "Day $dayNum: stem='$stemChar', branch='$branchChar', shishen='${day.shishen}', branchShishen='${day.branchShishen}', jieqi='${day.jieqi}', lunarDate='${day.lunarDate}', holiday='${day.holiday}', displayLunarDate='$displayLunarDate', isJieqiDay=$isJieqiDay")
-
         // Build lunarDate with proper empty string handling
         // Note: API returns "" (empty string) for jieqi when no jieqi, not null
         val jieqiValue = day.jieqi?.takeIf { it.isNotBlank() }
@@ -332,6 +330,8 @@ private fun CalendarGridFull(
 
         val displayLunarDate = jieqiValue ?: lunarValue ?: holidayValue
         val isJieqiDay = jieqiValue != null
+
+        Log.d(TAG, "Day $dayNum: stem='$stemChar', branch='$branchChar', shishen='${day.shishen}', branchShishen='${day.branchShishen}', jieqi='${day.jieqi}', lunarDate='${day.lunarDate}', holiday='${day.holiday}', displayLunarDate='$displayLunarDate', isJieqiDay=$isJieqiDay")
 
         allCells.add(CalendarCellData(
             dayNumber = dayNum,
