@@ -380,8 +380,8 @@ private fun CalendarGridFull(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(70.dp),
-                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                    .height(60.dp),
+                horizontalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 for (colIndex in 0 until 7) {
                     val cellIndex = rowIndex * 7 + colIndex
@@ -431,7 +431,7 @@ private fun CalendarDayCellFromDesign(
                 }
             )
             .clickable(enabled = !cell.isOtherMonth && cell.date.isNotEmpty()) { }
-            .padding(horizontal = 2.dp, vertical = 4.dp),
+            .padding(vertical = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Day number (Row 1)
