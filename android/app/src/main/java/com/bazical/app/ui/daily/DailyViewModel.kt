@@ -3,6 +3,7 @@ package com.bazical.app.ui.daily
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bazical.app.domain.repository.UserRepository
 import com.bazical.app.domain.usecase.GetCalendarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DailyViewModel @Inject constructor(
     private val getCalendarUseCase: GetCalendarUseCase,
+    private val userRepository: UserRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -25,8 +27,17 @@ class DailyViewModel @Inject constructor(
     init {
         val date = savedStateHandle.get<String>("date") ?: ""
         _uiState.update { it.copy(date = date) }
+        loadUserData()
         if (date.isNotEmpty()) {
             loadDailyData(date)
+        }
+    }
+
+    private fun loadUserData() {
+        viewModelScope.launch {
+            userRepository.getUser()?.let { user ->
+                _uiState.update { it.copy(userBirthday = user.birthday) }
+            }
         }
     }
 

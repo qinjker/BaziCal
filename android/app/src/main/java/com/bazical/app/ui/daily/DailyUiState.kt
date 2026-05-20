@@ -7,5 +7,6 @@ data class DailyUiState(
     val dayData: CalendarDay? = null,
     val loading: Boolean = false,
     val error: String? = null,
-    val messages: List<String> = emptyList()
+    val messages: List<String> = emptyList(),
+    val userBirthday: String? = null
 )
