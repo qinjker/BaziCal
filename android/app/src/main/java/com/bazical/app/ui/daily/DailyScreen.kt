@@ -88,7 +88,6 @@ fun DailyScreen(
         Column(
             modifier = Modifier.weight(1f)
         ) {
-            // Header bar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,206 +95,134 @@ fun DailyScreen(
                     .padding(horizontal = 16.dp, vertical = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-            IconButton(
-                onClick = onNavigateBack,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "返回",
-                    tint = TextPrimary,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = displayDate,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = TextPrimary
-                )
-                Text(
-                    text = dayOfWeek,
-                    fontSize = 12.sp,
-                    color = TextTertiary,
-                    modifier = Modifier.padding(top = 2.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            IconButton(
-                onClick = { /* TODO: Share */ },
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-            ) {
-                Icon(
-                    Icons.Default.Share,
-                    contentDescription = "分享",
-                    tint = TextPrimary,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-        }
-
-        if (uiState.loading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = Primary)
-            }
-        } else {
-            uiState.dayData?.let { day ->
-                Column(
+                IconButton(
+                    onClick = onNavigateBack,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp)
-                        .weight(1f)
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(MaterialTheme.colorScheme.surface)
                 ) {
-                    // Main info card
-                    Box(
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "返回",
+                        tint = TextPrimary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = displayDate,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = TextPrimary
+                    )
+                    Text(
+                        text = dayOfWeek,
+                        fontSize = 12.sp,
+                        color = TextTertiary,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                ) {
+                    Icon(
+                        Icons.Default.Share,
+                        contentDescription = "分享",
+                        tint = TextPrimary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+
+            if (uiState.loading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Primary)
+                }
+            } else {
+                uiState.dayData?.let { day ->
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .shadow(
-                                elevation = 6.dp,
-                                shape = RoundedCornerShape(20.dp),
-                                spotColor = Primary.copy(alpha = 0.12f)
-                            )
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(Color.White)
-                            .padding(28.dp)
+                            .verticalScroll(rememberScrollState())
+                            .padding(16.dp)
+                            .weight(1f)
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .shadow(
+                                    elevation = 6.dp,
+                                    shape = RoundedCornerShape(20.dp),
+                                    spotColor = Primary.copy(alpha = 0.12f)
+                                )
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(Color.White)
+                                .padding(28.dp)
                         ) {
-                            // Gan Zhi display
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                val stemColor = getStemColor(day.ganzhi.getOrNull(0)?.toString() ?: "")
-                                val branchColor = getBranchColor(day.ganzhi.getOrNull(1)?.toString() ?: "")
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    val stemColor = stemColor(day.ganzhi.getOrNull(0)?.toString() ?: "")
+                                    val branchColor = branchColor(day.ganzhi.getOrNull(1)?.toString() ?: "")
 
-                                Text(
-                                    text = day.ganzhi.getOrNull(0)?.toString() ?: "",
-                                    fontSize = 48.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = stemColor
-                                )
-                                Spacer(modifier = Modifier.width(20.dp))
-                                Text(
-                                    text = day.ganzhi.getOrNull(1)?.toString() ?: "",
-                                    fontSize = 48.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = branchColor
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            // Wu Xing
-                            Text(
-                                text = "五行：${day.wuxing}",
-                                fontSize = 15.sp,
-                                color = Secondary,
-                                fontWeight = FontWeight.Medium
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            // Two columns of info
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                InfoItem("星宿", day.star)
-                                InfoItem("吉凶", day.luck, if (day.luck == "吉") Success else Warning)
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    // Tags section
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(18.dp)
-                        ) {
-                            Text(
-                                text = "今日十神",
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = TextTertiary
-                            )
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            FlowRow(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                // 主十神标签
-                                TenGodChip(
-                                    text = day.shishen,
-                                    color = Primary,
-                                    isPrimary = true
-                                )
-
-                                // 地支十神标签
-                                if (day.branchShishen.isNotEmpty()) {
-                                    TenGodChip(
-                                        text = day.branchShishen,
-                                        color = Secondary,
-                                        isPrimary = false
+                                    Text(
+                                        text = day.ganzhi.getOrNull(0)?.toString() ?: "",
+                                        fontSize = 48.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = stemColor
                                     )
+                                    Spacer(modifier = Modifier.width(20.dp))
+                                    Text(
+                                        text = day.ganzhi.getOrNull(1)?.toString() ?: "",
+                                        fontSize = 48.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = branchColor
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Text(
+                                    text = "五行：${day.wuxing}",
+                                    fontSize = 15.sp,
+                                    color = Secondary,
+                                    fontWeight = FontWeight.Medium
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    InfoItem("星宿", day.star)
+                                    InfoItem("吉凶", day.luck, if (day.luck == "吉") Success else Warning)
                                 }
                             }
                         }
-                    }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
 
-                    // Yi section
-                    YiJiCard(
-                        title = "宜",
-                        icon = "✅",
-                        items = day.yi,
-                        backgroundColor = Color(0xFFF0FFF4),
-                        accentColor = Success
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Ji section
-                    YiJiCard(
-                        title = "忌",
-                        icon = "⚠️",
-                        items = day.ji,
-                        backgroundColor = Color(0xFFFFF9F5),
-                        accentColor = Warning
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Messages section
-                    if (uiState.messages.isNotEmpty()) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
@@ -306,7 +233,7 @@ fun DailyScreen(
                                 modifier = Modifier.padding(18.dp)
                             ) {
                                 Text(
-                                    text = "正向寄语",
+                                    text = "今日十神",
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = TextTertiary
@@ -314,33 +241,95 @@ fun DailyScreen(
 
                                 Spacer(modifier = Modifier.height(12.dp))
 
-                                uiState.messages.forEach { message ->
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clip(RoundedCornerShape(10.dp))
-                                            .background(Color(0xFFFAF6F0))
-                                            .padding(12.dp)
-                                    ) {
-                                        Text(
-                                            text = message,
-                                            fontSize = 14.sp,
-                                            color = TextPrimary,
-                                            lineHeight = 22.sp
+                                FlowRow(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    TenGodChip(
+                                        text = day.shishen,
+                                        color = Primary,
+                                        isPrimary = true
+                                    )
+
+                                    if (day.branchShishen.isNotEmpty()) {
+                                        TenGodChip(
+                                            text = day.branchShishen,
+                                            color = Secondary,
+                                            isPrimary = false
                                         )
                                     }
-                                    Spacer(modifier = Modifier.height(10.dp))
                                 }
                             }
                         }
-                    }
 
-                    Spacer(modifier = Modifier.height(100.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        YiJiCard(
+                            title = "宜",
+                            icon = "✅",
+                            items = day.yi,
+                            backgroundColor = Color(0xFFF0FFF4),
+                            accentColor = Success
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        YiJiCard(
+                            title = "忌",
+                            icon = "⚠️",
+                            items = day.ji,
+                            backgroundColor = Color(0xFFFFF9F5),
+                            accentColor = Warning
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        if (uiState.messages.isNotEmpty()) {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color.White),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(18.dp)
+                                ) {
+                                    Text(
+                                        text = "正向寄语",
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = TextTertiary
+                                    )
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    uiState.messages.forEach { message ->
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clip(RoundedCornerShape(10.dp))
+                                                .background(Color(0xFFFAF6F0))
+                                                .padding(12.dp)
+                                        ) {
+                                            Text(
+                                                text = message,
+                                                fontSize = 14.sp,
+                                                color = TextPrimary,
+                                                lineHeight = 22.sp
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.height(10.dp))
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(100.dp))
+                    }
                 }
             }
         }
 
-        // Bottom Tab Bar
         BottomTabBar(
             currentRoute = currentRoute,
             onTabClick = onTabClick
@@ -444,7 +433,7 @@ private fun YiJiCard(
     }
 }
 
-private fun getStemColor(stem: String): Color {
+private fun stemColor(stem: String): Color {
     return when (stem) {
         "甲" -> Color(0xFF4ade80)
         "乙" -> Color(0xFF86efac)
@@ -460,7 +449,7 @@ private fun getStemColor(stem: String): Color {
     }
 }
 
-private fun getBranchColor(branch: String): Color {
+private fun branchColor(branch: String): Color {
     return when (branch) {
         "子" -> Color(0xFF60a5fa)
         "丑" -> Color(0xFFa78bfa)
