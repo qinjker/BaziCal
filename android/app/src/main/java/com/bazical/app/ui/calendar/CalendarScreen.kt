@@ -380,7 +380,7 @@ private fun CalendarGridFull(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(60.dp),
+                    .height(70.dp),
                 horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 for (colIndex in 0 until 7) {
@@ -463,25 +463,26 @@ private fun CalendarDayCellFromDesign(
             )
         }
 
-        // Only show ganzhi rows for current month days
+        // Stem + Shishen (Row 3) - 显示天干和十神
         if (!cell.isOtherMonth && cell.stem.isNotEmpty()) {
-            // Stem + Shishen (Row 3)
+            val stemShishenText = cell.stem + if (cell.shishen.isNotEmpty()) " ${cell.shishen}" else ""
             Text(
-                text = cell.stem + (if (cell.shishen.isNotEmpty()) " ${cell.shishen}" else ""),
+                text = stemShishenText,
                 fontSize = 9.sp,
                 fontWeight = FontWeight.Medium,
                 color = if (cell.isToday) Color.White else Color(0xFF2C1810)
             )
+        }
 
-            // Branch + BranchShishen (Row 4)
-            if (cell.branch.isNotEmpty()) {
-                Text(
-                    text = cell.branch + (if (cell.branchShishen.isNotEmpty()) " ${cell.branchShishen}" else ""),
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = if (cell.isToday) Color.White else Color(0xFF5A4A3A)
-                )
-            }
+        // Branch + BranchShishen (Row 4) - 显示地支和地支十神
+        if (!cell.isOtherMonth && cell.branch.isNotEmpty()) {
+            val branchShishenText = cell.branch + if (cell.branchShishen.isNotEmpty()) " ${cell.branchShishen}" else ""
+            Text(
+                text = branchShishenText,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Medium,
+                color = if (cell.isToday) Color.White else Color(0xFF5A4A3A)
+            )
         }
     }
 }
