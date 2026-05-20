@@ -369,7 +369,7 @@ private fun CalendarGridFull(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(IntrinsicSize.Min),
+                    .height(100.dp),
                 horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 for (colIndex in 0 until 7) {
@@ -409,6 +409,7 @@ private fun CalendarDayCellFromDesign(
 ) {
     Column(
         modifier = modifier
+            .fillMaxSize()
             .defaultMinSize(minHeight = 90.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(
