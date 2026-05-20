@@ -322,16 +322,16 @@ private fun CalendarGridFull(
         val stemChar = if (day.ganzhi.isNotEmpty()) day.ganzhi[0] else ""
         val branchChar = if (day.ganzhi.size > 1) day.ganzhi[1] else ""
 
-        Log.d(TAG, "Day $dayNum: stem='$stemChar', branch='$branchChar', shishen='${day.shishen}', branchShishen='${day.branchShishen}'")
+        Log.d(TAG, "Day $dayNum: stem='$stemChar', branch='$branchChar', shishen='${day.shishen}', branchShishen='${day.branchShishen}', jieqi='${day.jieqi}', lunarDate='${day.lunarDate}', holiday='${day.holiday}', displayLunarDate='$displayLunarDate', isJieqiDay=$isJieqiDay")
 
         // Build lunarDate with proper empty string handling
-        val displayLunarDate = when {
-            !day.jieqi.isNullOrEmpty() && day.jieqi!!.isNotBlank() -> day.jieqi!!
-            !day.lunarDate.isNullOrEmpty() && day.lunarDate!!.isNotBlank() -> day.lunarDate!!
-            !day.holiday.isNullOrEmpty() && day.holiday!!.isNotBlank() -> day.holiday!!
-            else -> null
-        }
-        val isJieqiDay = !day.jieqi.isNullOrEmpty() && day.jieqi!!.isNotBlank()
+        // Note: API returns "" (empty string) for jieqi when no jieqi, not null
+        val jieqiValue = day.jieqi?.takeIf { it.isNotBlank() }
+        val lunarValue = day.lunarDate?.takeIf { it.isNotBlank() }
+        val holidayValue = day.holiday?.takeIf { it.isNotBlank() }
+
+        val displayLunarDate = jieqiValue ?: lunarValue ?: holidayValue
+        val isJieqiDay = jieqiValue != null
 
         allCells.add(CalendarCellData(
             dayNumber = dayNum,
@@ -439,7 +439,6 @@ private fun CalendarDayCellFromDesign(
             text = cell.dayNumber.toString(),
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
-            lineHeight = 14.sp,
             color = when {
                 cell.isToday -> Color.White
                 cell.isOtherMonth -> TextPrimary.copy(alpha = 0.3f)
@@ -459,8 +458,7 @@ private fun CalendarDayCellFromDesign(
             }
             Text(
                 text = displayText,
-                fontSize = 10.sp,
-                lineHeight = 12.sp,
+                fontSize = 9.sp,
                 color = lunarColor
             )
         }
@@ -470,8 +468,7 @@ private fun CalendarDayCellFromDesign(
             // Stem + Shishen (Row 3)
             Text(
                 text = cell.stem + (if (cell.shishen.isNotEmpty()) " ${cell.shishen}" else ""),
-                fontSize = 12.sp,
-                lineHeight = 14.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = if (cell.isToday) Color.White else Color(0xFF2C1810)
             )
@@ -480,8 +477,7 @@ private fun CalendarDayCellFromDesign(
             if (cell.branch.isNotEmpty()) {
                 Text(
                     text = cell.branch + (if (cell.branchShishen.isNotEmpty()) " ${cell.branchShishen}" else ""),
-                    fontSize = 12.sp,
-                    lineHeight = 14.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = if (cell.isToday) Color.White else Color(0xFF5A4A3A)
                 )
