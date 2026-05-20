@@ -358,21 +358,17 @@ private fun CalendarGridFull(
         ))
     }
 
-    // Display in grid - use weight to allow cells to expand
+    // Display in grid - 7 columns with equal width, square cells
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
         // Calculate rows needed (6 weeks = 6 rows)
         val rows = 6
-        val rowHeight = 70.dp
 
         for (rowIndex in 0 until rows) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(rowHeight)
-                    .padding(vertical = 2.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 for (colIndex in 0 until 7) {
                     val cellIndex = rowIndex * 7 + colIndex
@@ -411,8 +407,8 @@ private fun CalendarDayCellFromDesign(
 ) {
     Column(
         modifier = modifier
-            .fillMaxSize()
-            .clip(RoundedCornerShape(12.dp))
+            .aspectRatio(1f)
+            .clip(RoundedCornerShape(8.dp))
             .background(
                 when {
                     cell.isToday -> Brush.linearGradient(colors = listOf(Color(0xFFC84A3E), Color(0xFFA33D33)))
@@ -428,32 +424,31 @@ private fun CalendarDayCellFromDesign(
         // Day number
         Text(
             text = cell.dayNumber.toString(),
-                fontSize = 15.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = when {
-                    cell.isToday -> Color.White
-                    cell.isOtherMonth -> TextPrimary.copy(alpha = 0.3f)
-                    cell.isWeekend -> Color(0xFFC84A3E)
-                    else -> TextPrimary
-                }
-            )
-
-            // Lunar date
-            if (cell.lunarDate != null) {
-                val lunarColor = when {
-                    cell.isToday -> Color.White.copy(alpha = 0.7f)
-                    cell.lunarDate.contains("初一") || cell.lunarDate.contains("十五") -> Color(0xFFE74C3C)
-                    else -> TextTertiary
-                }
-                Text(
-                    text = cell.lunarDate,
-                    fontSize = 9.sp,
-                    color = lunarColor,
-                    modifier = Modifier.padding(top = 1.dp)
-                )
-            } else {
-                Spacer(modifier = Modifier.height(11.dp))
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = when {
+                cell.isToday -> Color.White
+                cell.isOtherMonth -> TextPrimary.copy(alpha = 0.3f)
+                cell.isWeekend -> Color(0xFFC84A3E)
+                else -> TextPrimary
             }
+        )
+
+        // Lunar date
+        if (cell.lunarDate != null) {
+            val lunarColor = when {
+                cell.isToday -> Color.White.copy(alpha = 0.7f)
+                cell.lunarDate.contains("初一") || cell.lunarDate.contains("十五") -> Color(0xFFE74C3C)
+                else -> TextTertiary
+            }
+            Text(
+                text = cell.lunarDate,
+                fontSize = 9.sp,
+                color = lunarColor
+            )
+        } else {
+            Spacer(modifier = Modifier.height(8.dp))
+        }
 
             // Only show ganzhi rows for current month days
             if (!cell.isOtherMonth && cell.stem.isNotEmpty()) {
