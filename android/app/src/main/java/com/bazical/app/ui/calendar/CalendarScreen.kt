@@ -369,7 +369,7 @@ private fun CalendarGridFull(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp),
+                    .height(80.dp),
                 horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 for (colIndex in 0 until 7) {
@@ -426,7 +426,7 @@ private fun CalendarDayCellFromDesign(
         // Row 1: Day number
         Text(
             text = cell.dayNumber.toString(),
-            fontSize = 14.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             color = when {
                 cell.isToday -> Color.White
@@ -445,14 +445,12 @@ private fun CalendarDayCellFromDesign(
             }
             Text(
                 text = cell.lunarDate,
-                fontSize = 9.sp,
+                fontSize = 8.sp,
                 color = lunarColor
             )
         } else {
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(8.dp))
         }
-
-        Spacer(modifier = Modifier.height(2.dp))
 
         // Only show ganzhi rows for current month days
         if (!cell.isOtherMonth && cell.stem.isNotEmpty()) {
@@ -464,14 +462,14 @@ private fun CalendarDayCellFromDesign(
                 val stemColor = getStemColor(cell.stem)
                 Text(
                     text = cell.stem,
-                    fontSize = 11.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = if (cell.isToday) Color.White else stemColor
                 )
                 if (cell.shishen.isNotEmpty()) {
                     Text(
                         text = cell.shishen,
-                        fontSize = 8.sp,
+                        fontSize = 7.sp,
                         color = if (cell.isToday) Color.White.copy(alpha = 0.7f) else TextTertiary,
                         modifier = Modifier.padding(start = 1.dp)
                     )
@@ -489,14 +487,14 @@ private fun CalendarDayCellFromDesign(
                     val branchColor = getBranchColor(cell.branch)
                     Text(
                         text = cell.branch,
-                        fontSize = 11.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = if (cell.isToday) Color.White else branchColor
                     )
                     if (cell.branchShishen.isNotEmpty()) {
                         Text(
                             text = cell.branchShishen,
-                            fontSize = 8.sp,
+                            fontSize = 7.sp,
                             color = if (cell.isToday) Color.White.copy(alpha = 0.7f) else TextTertiary,
                             modifier = Modifier.padding(start = 1.dp)
                         )
