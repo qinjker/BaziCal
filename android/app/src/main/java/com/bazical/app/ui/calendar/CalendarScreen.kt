@@ -472,7 +472,7 @@ private fun CalendarDayCellFromDesign(
                 fontSize = 10.sp,
                 lineHeight = 12.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = if (cell.isToday) Color.White else Color(0xFF2C1810)
+                color = if (cell.isToday) Color.White else getStemColor(cell.stem)
             )
 
             // Branch + BranchShishen
@@ -482,7 +482,7 @@ private fun CalendarDayCellFromDesign(
                     fontSize = 10.sp,
                     lineHeight = 12.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (cell.isToday) Color.White else Color(0xFF5A4A3A)
+                    color = if (cell.isToday) Color.White else getBranchColor(cell.branch)
                 )
             }
         }
