@@ -437,9 +437,9 @@ private fun CalendarDayCellFromDesign(
         // Day number (Row 1)
         Text(
             text = cell.dayNumber.toString(),
-            fontSize = 14.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
-            lineHeight = 16.sp,
+            lineHeight = 14.sp,
             color = when {
                 cell.isToday -> Color.White
                 cell.isOtherMonth -> TextPrimary.copy(alpha = 0.3f)
