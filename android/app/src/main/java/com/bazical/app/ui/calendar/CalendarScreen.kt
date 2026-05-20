@@ -380,8 +380,8 @@ private fun CalendarGridFull(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(60.dp),
-                horizontalArrangement = Arrangement.spacedBy(0.dp)
+                    .height(70.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 for (colIndex in 0 until 7) {
                     val cellIndex = rowIndex * 7 + colIndex
@@ -431,9 +431,8 @@ private fun CalendarDayCellFromDesign(
                 }
             )
             .clickable(enabled = !cell.isOtherMonth && cell.date.isNotEmpty()) { }
-            .padding(horizontal = 1.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(0.dp)
+            .padding(horizontal = 2.dp, vertical = 2.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Day number (Row 1)
         Text(
@@ -448,7 +447,7 @@ private fun CalendarDayCellFromDesign(
             }
         )
 
-        // Lunar date or Jieqi (Row 2)
+        // Lunar date or Jieqi
         val displayText = cell.lunarDate ?: ""
         if (displayText.isNotEmpty()) {
             val lunarColor = when {
@@ -459,31 +458,33 @@ private fun CalendarDayCellFromDesign(
             }
             Text(
                 text = displayText,
-                fontSize = 9.sp,
+                fontSize = 8.sp,
+                lineHeight = 10.sp,
                 color = lunarColor
             )
         }
 
-        // Stem + Shishen (Row 3) - 显示天干和十神
+        // Only show ganzhi rows for current month days
         if (!cell.isOtherMonth && cell.stem.isNotEmpty()) {
-            val stemShishenText = cell.stem + if (cell.shishen.isNotEmpty()) " ${cell.shishen}" else ""
+            // Stem + Shishen
             Text(
-                text = stemShishenText,
-                fontSize = 9.sp,
-                fontWeight = FontWeight.Medium,
+                text = cell.stem + (if (cell.shishen.isNotEmpty()) " ${cell.shishen}" else ""),
+                fontSize = 10.sp,
+                lineHeight = 12.sp,
+                fontWeight = FontWeight.SemiBold,
                 color = if (cell.isToday) Color.White else Color(0xFF2C1810)
             )
-        }
 
-        // Branch + BranchShishen (Row 4) - 显示地支和地支十神
-        if (!cell.isOtherMonth && cell.branch.isNotEmpty()) {
-            val branchShishenText = cell.branch + if (cell.branchShishen.isNotEmpty()) " ${cell.branchShishen}" else ""
-            Text(
-                text = branchShishenText,
-                fontSize = 9.sp,
-                fontWeight = FontWeight.Medium,
-                color = if (cell.isToday) Color.White else Color(0xFF5A4A3A)
-            )
+            // Branch + BranchShishen
+            if (cell.branch.isNotEmpty()) {
+                Text(
+                    text = cell.branch + (if (cell.branchShishen.isNotEmpty()) " ${cell.branchShishen}" else ""),
+                    fontSize = 10.sp,
+                    lineHeight = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (cell.isToday) Color.White else Color(0xFF5A4A3A)
+                )
+            }
         }
     }
 }
