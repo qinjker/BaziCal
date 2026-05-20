@@ -377,9 +377,7 @@ private fun CalendarGridFull(
 
         for (rowIndex in 0 until rows) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 for (colIndex in 0 until 7) {
