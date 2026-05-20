@@ -433,54 +433,54 @@ private fun CalendarDayCellFromDesign(
             .padding(horizontal = 2.dp, vertical = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Day number - 14sp per design
+        // Day number
         Text(
             text = cell.dayNumber.toString(),
-            fontSize = 14.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
-            lineHeight = 16.sp,
+            lineHeight = 14.sp,
             color = when {
                 cell.isToday -> Color.White
                 cell.isOtherMonth -> TextPrimary.copy(alpha = 0.3f)
                 cell.isWeekend -> Color(0xFFC84A3E)
-                else -> TextPrimary
+                else -> Color(0xFF2C1810)
             }
         )
 
-        // Lunar date or Jieqi - 10sp per design
+        // Lunar date or Jieqi
         val displayText = cell.lunarDate ?: ""
         if (displayText.isNotEmpty()) {
             val lunarColor = when {
                 cell.isToday -> Color.White.copy(alpha = 0.7f)
                 cell.isJieqi -> Color(0xFF10B981)
                 displayText.contains("初一") || displayText.contains("十五") -> Color(0xFFE74C3C)
-                else -> Color(0xFF8B7355) // #8B7355 is the gray color for lunar date
+                else -> Color(0xFF8B7355)
             }
             Text(
                 text = displayText,
-                fontSize = 10.sp,
-                lineHeight = 12.sp,
+                fontSize = 8.sp,
+                lineHeight = 10.sp,
                 color = lunarColor
             )
         }
 
         // Only show ganzhi rows for current month days
         if (!cell.isOtherMonth && cell.stem.isNotEmpty()) {
-            // Stem + Shishen - 12sp per design
+            // Stem + Shishen
             Text(
                 text = cell.stem + (if (cell.shishen.isNotEmpty()) " ${cell.shishen}" else ""),
-                fontSize = 12.sp,
-                lineHeight = 14.sp,
+                fontSize = 10.sp,
+                lineHeight = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = if (cell.isToday) Color.White else Color(0xFF2C1810)
             )
 
-            // Branch + BranchShishen - 12sp per design
+            // Branch + BranchShishen
             if (cell.branch.isNotEmpty()) {
                 Text(
                     text = cell.branch + (if (cell.branchShishen.isNotEmpty()) " ${cell.branchShishen}" else ""),
-                    fontSize = 12.sp,
-                    lineHeight = 14.sp,
+                    fontSize = 10.sp,
+                    lineHeight = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = if (cell.isToday) Color.White else Color(0xFF5A4A3A)
                 )
