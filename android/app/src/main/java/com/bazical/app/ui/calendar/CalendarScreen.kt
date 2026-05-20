@@ -15,9 +15,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -297,6 +294,7 @@ private fun CalendarGridFull(
         allCells.add(CalendarCellData(
             dayNumber = i,
             lunarDate = null,
+            isJieqi = false,
             ganzhiIndex = -1, // Indicates padding
             stem = "",
             shishen = "",
@@ -326,7 +324,8 @@ private fun CalendarGridFull(
 
         allCells.add(CalendarCellData(
             dayNumber = dayNum,
-            lunarDate = day.lunarDate ?: day.holiday ?: day.jieqi,
+            lunarDate = day.jieqi ?: day.lunarDate ?: day.holiday,
+            isJieqi = !day.jieqi.isNullOrEmpty(),
             ganzhiIndex = if (day.ganzhi.isNotEmpty()) 0 else -1,
             stem = stemChar,
             shishen = day.shishen,
@@ -346,6 +345,7 @@ private fun CalendarGridFull(
         allCells.add(CalendarCellData(
             dayNumber = i,
             lunarDate = null,
+            isJieqi = false,
             ganzhiIndex = -1,
             stem = "",
             shishen = "",
@@ -369,7 +369,7 @@ private fun CalendarGridFull(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(80.dp),
+                    .height(70.dp),
                 horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 for (colIndex in 0 until 7) {
@@ -391,6 +391,7 @@ private fun CalendarGridFull(
 data class CalendarCellData(
     val dayNumber: Int,
     val lunarDate: String?,
+    val isJieqi: Boolean = false,
     val ganzhiIndex: Int,
     val stem: String,
     val shishen: String,
@@ -436,10 +437,11 @@ private fun CalendarDayCellFromDesign(
             }
         )
 
-        // Row 2: Lunar date
+        // Row 2: Lunar date or Jieqi
         if (cell.lunarDate != null) {
             val lunarColor = when {
                 cell.isToday -> Color.White.copy(alpha = 0.7f)
+                cell.isJieqi -> Color(0xFF10B981) // 节气用绿色
                 cell.lunarDate.contains("初一") || cell.lunarDate.contains("十五") -> Color(0xFFE74C3C)
                 else -> TextTertiary
             }
