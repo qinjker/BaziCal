@@ -50,6 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bazical.app.ui.components.BottomTabBar
+import com.bazical.app.ui.components.TabItem
 import com.bazical.app.ui.theme.Primary
 import com.bazical.app.ui.theme.Surface
 import com.bazical.app.ui.theme.TextPrimary
@@ -63,6 +65,8 @@ import java.util.Locale
 @Composable
 fun HomeScreen(
     onNavigateToCalendar: () -> Unit,
+    currentRoute: String?,
+    onTabClick: (TabItem) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -79,15 +83,19 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState())
     ) {
-        // Navigation bar
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp, top = 20.dp, bottom = 24.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
         ) {
+            // Navigation bar
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, top = 20.dp, bottom = 24.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
             IconButton(
                 onClick = onNavigateToCalendar,
                 modifier = Modifier
@@ -416,6 +424,13 @@ fun HomeScreen(
         )
 
         Spacer(modifier = Modifier.height(100.dp))
+        }
+
+        // Bottom Tab Bar
+        BottomTabBar(
+            currentRoute = currentRoute,
+            onTabClick = onTabClick
+        )
     }
 
     // Date picker dialog

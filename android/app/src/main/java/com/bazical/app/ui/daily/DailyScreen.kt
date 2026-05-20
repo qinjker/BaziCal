@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bazical.app.ui.components.BottomTabBar
+import com.bazical.app.ui.components.TabItem
 import com.bazical.app.ui.theme.Primary
 import com.bazical.app.ui.theme.PrimaryVariant
 import com.bazical.app.ui.theme.Secondary
@@ -60,6 +62,8 @@ import java.util.Locale
 fun DailyScreen(
     date: String,
     onNavigateBack: () -> Unit,
+    currentRoute: String?,
+    onTabClick: (TabItem) -> Unit,
     viewModel: DailyViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -81,14 +85,17 @@ fun DailyScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Header bar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White)
-                .padding(horizontal = 16.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.weight(1f)
         ) {
+            // Header bar
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
             IconButton(
                 onClick = onNavigateBack,
                 modifier = Modifier
@@ -152,9 +159,10 @@ fun DailyScreen(
             uiState.dayData?.let { day ->
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
                         .padding(16.dp)
+                        .weight(1f)
                 ) {
                     // Main info card
                     Box(
@@ -331,6 +339,12 @@ fun DailyScreen(
                 }
             }
         }
+
+        // Bottom Tab Bar
+        BottomTabBar(
+            currentRoute = currentRoute,
+            onTabClick = onTabClick
+        )
     }
 }
 

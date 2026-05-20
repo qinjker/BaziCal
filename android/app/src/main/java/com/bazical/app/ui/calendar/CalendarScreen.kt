@@ -40,6 +40,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bazical.app.domain.model.CalendarDay
+import com.bazical.app.ui.components.BottomTabBar
+import com.bazical.app.ui.components.TabItem
 import com.bazical.app.ui.theme.TextPrimary
 import com.bazical.app.ui.theme.TextTertiary
 import java.time.LocalDate
@@ -52,6 +54,8 @@ fun CalendarScreen(
     onNavigateToHome: () -> Unit,
     onNavigateToToday: () -> Unit,
     onNavigateToFeedback: () -> Unit,
+    currentRoute: String?,
+    onTabClick: (TabItem) -> Unit,
     viewModel: CalendarViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -262,65 +266,9 @@ fun CalendarScreen(
         Spacer(modifier = Modifier.weight(1f))
 
         // Bottom Tab Bar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFFFAF8F5).copy(alpha = 0.97f))
-                .padding(vertical = 8.dp, horizontal = 8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            TabItem(
-                emoji = "📅",
-                label = "月历",
-                isActive = true,
-                onClick = { }
-            )
-            TabItem(
-                emoji = "✨",
-                label = "今日",
-                isActive = false,
-                onClick = onNavigateToToday
-            )
-            TabItem(
-                emoji = "📝",
-                label = "生辰",
-                isActive = false,
-                onClick = onNavigateToHome
-            )
-            TabItem(
-                emoji = "💬",
-                label = "反馈",
-                isActive = false,
-                onClick = onNavigateToFeedback
-            )
-        }
-    }
-}
-
-@Composable
-private fun TabItem(
-    emoji: String,
-    label: String,
-    isActive: Boolean,
-    onClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
-            .padding(6.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = emoji,
-            fontSize = 24.sp
-        )
-        Spacer(modifier = Modifier.height(3.dp))
-        Text(
-            text = label,
-            fontSize = 10.sp,
-            color = if (isActive) Color(0xFFC84A3E) else TextTertiary,
-            fontWeight = FontWeight.Medium
+        BottomTabBar(
+            currentRoute = currentRoute,
+            onTabClick = onTabClick
         )
     }
 }
@@ -410,15 +358,34 @@ private fun CalendarGridFull(
         ))
     }
 
-    // Display in grid
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(7),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        modifier = Modifier.height(480.dp)
+    // Display in grid - use weight to allow cells to expand
+    Column(
+        modifier = Modifier.fillMaxWidth()
     ) {
-        items(allCells) { cell ->
-            CalendarDayCellFromDesign(cell)
+        // Calculate rows needed (6 weeks = 6 rows)
+        val rows = 6
+        val rowHeight = 70.dp
+
+        for (rowIndex in 0 until rows) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(rowHeight)
+                    .padding(vertical = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                for (colIndex in 0 until 7) {
+                    val cellIndex = rowIndex * 7 + colIndex
+                    if (cellIndex < allCells.size) {
+                        CalendarDayCellFromDesign(
+                            cell = allCells[cellIndex],
+                            modifier = Modifier.weight(1f)
+                        )
+                    } else {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
+            }
         }
     }
 }
@@ -438,10 +405,13 @@ data class CalendarCellData(
 )
 
 @Composable
-private fun CalendarDayCellFromDesign(cell: CalendarCellData) {
-    Box(
-        modifier = Modifier
-            .aspectRatio(1f)
+private fun CalendarDayCellFromDesign(
+    cell: CalendarCellData,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxHeight()
             .clip(RoundedCornerShape(12.dp))
             .background(
                 when {
@@ -451,17 +421,13 @@ private fun CalendarDayCellFromDesign(cell: CalendarCellData) {
                 }
             )
             .clickable(enabled = !cell.isOtherMonth && cell.date.isNotEmpty()) { }
-            .padding(5.dp),
-        contentAlignment = Alignment.Center
+            .padding(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            // Day number
-            Text(
-                text = cell.dayNumber.toString(),
+        // Day number
+        Text(
+            text = cell.dayNumber.toString(),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = when {
