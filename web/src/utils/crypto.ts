@@ -3,19 +3,9 @@
  * 用于生成请求签名
  */
 
-const APP_KEY = import.meta.env.VITE_APP_KEY || 'apkey20260519';
+import { sha256 } from 'js-sha256';
 
-/**
- * SHA256 哈希
- * 强制使用 Web Crypto API
- */
-export const sha256 = async (data: string): Promise<string> => {
-  // 强制使用 Web Crypto API
-  const msgBuffer = new TextEncoder().encode(data);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-};
+const APP_KEY = import.meta.env.VITE_APP_KEY || 'apkey20260519';
 
 /**
  * 生成签名和时间戳
@@ -23,7 +13,7 @@ export const sha256 = async (data: string): Promise<string> => {
 export const generateSignature = async (body: string): Promise<{ signature: string; timestamp: string }> => {
   const timestamp = Date.now().toString();
   const data = APP_KEY + timestamp + body;
-  const signature = await sha256(data);
+  const signature = sha256(data);
   return { signature, timestamp };
 };
 
