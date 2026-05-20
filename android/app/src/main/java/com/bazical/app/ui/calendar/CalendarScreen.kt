@@ -322,13 +322,12 @@ private fun CalendarGridFull(
         val stemChar = if (day.ganzhi.isNotEmpty()) day.ganzhi[0] else ""
         val branchChar = if (day.ganzhi.size > 1) day.ganzhi[1] else ""
 
-        // Build lunarDate with proper empty string handling
-        // Note: API returns "" (empty string) for jieqi when no jieqi, not null
+        // Build lunarDate - 优先级: holiday > jieqi > lunarDate (与 Web 端一致)
+        val holidayValue = day.holiday?.takeIf { it.isNotBlank() }
         val jieqiValue = day.jieqi?.takeIf { it.isNotBlank() }
         val lunarValue = day.lunarDate?.takeIf { it.isNotBlank() }
-        val holidayValue = day.holiday?.takeIf { it.isNotBlank() }
 
-        val displayLunarDate = jieqiValue ?: lunarValue ?: holidayValue
+        val displayLunarDate = holidayValue ?: jieqiValue ?: lunarValue
         val isJieqiDay = jieqiValue != null
 
         Log.d(TAG, "Day $dayNum: stem='$stemChar', branch='$branchChar', shishen='${day.shishen}', branchShishen='${day.branchShishen}', jieqi='${day.jieqi}', lunarDate='${day.lunarDate}', holiday='${day.holiday}', displayLunarDate='$displayLunarDate', isJieqiDay=$isJieqiDay")
