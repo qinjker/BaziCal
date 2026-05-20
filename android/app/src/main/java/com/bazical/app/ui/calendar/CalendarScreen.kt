@@ -379,7 +379,7 @@ private fun CalendarGridFull(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(70.dp),
+                    .height(120.dp),
                 horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 for (colIndex in 0 until 7) {
@@ -430,15 +430,15 @@ private fun CalendarDayCellFromDesign(
                 }
             )
             .clickable(enabled = !cell.isOtherMonth && cell.date.isNotEmpty()) { }
-            .padding(horizontal = 1.dp, vertical = 1.dp),
+            .padding(horizontal = 2.dp, vertical = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Day number
+        // Day number - 14sp per design
         Text(
             text = cell.dayNumber.toString(),
-            fontSize = 9.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
-            lineHeight = 9.sp,
+            lineHeight = 16.sp,
             color = when {
                 cell.isToday -> Color.White
                 cell.isOtherMonth -> TextPrimary.copy(alpha = 0.3f)
@@ -447,42 +447,42 @@ private fun CalendarDayCellFromDesign(
             }
         )
 
-        // Lunar date or Jieqi
+        // Lunar date or Jieqi - 10sp per design
         val displayText = cell.lunarDate ?: ""
         if (displayText.isNotEmpty()) {
             val lunarColor = when {
                 cell.isToday -> Color.White.copy(alpha = 0.7f)
                 cell.isJieqi -> Color(0xFF10B981)
                 displayText.contains("初一") || displayText.contains("十五") -> Color(0xFFE74C3C)
-                else -> TextTertiary
+                else -> Color(0xFF8B7355) // #8B7355 is the gray color for lunar date
             }
             Text(
                 text = displayText,
-                fontSize = 5.sp,
-                lineHeight = 5.sp,
+                fontSize = 10.sp,
+                lineHeight = 12.sp,
                 color = lunarColor
             )
         }
 
         // Only show ganzhi rows for current month days
         if (!cell.isOtherMonth && cell.stem.isNotEmpty()) {
-            // Stem + Shishen
+            // Stem + Shishen - 12sp per design
             Text(
-                text = cell.stem + (if (cell.shishen.isNotEmpty()) cell.shishen else ""),
-                fontSize = 6.sp,
-                lineHeight = 6.sp,
+                text = cell.stem + (if (cell.shishen.isNotEmpty()) " ${cell.shishen}" else ""),
+                fontSize = 12.sp,
+                lineHeight = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = if (cell.isToday) Color.White else getStemColor(cell.stem)
+                color = if (cell.isToday) Color.White else Color(0xFF2C1810)
             )
 
-            // Branch + BranchShishen
+            // Branch + BranchShishen - 12sp per design
             if (cell.branch.isNotEmpty()) {
                 Text(
-                    text = cell.branch + (if (cell.branchShishen.isNotEmpty()) cell.branchShishen else ""),
-                    fontSize = 6.sp,
-                    lineHeight = 6.sp,
+                    text = cell.branch + (if (cell.branchShishen.isNotEmpty()) " ${cell.branchShishen}" else ""),
+                    fontSize = 12.sp,
+                    lineHeight = 14.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (cell.isToday) Color.White else getBranchColor(cell.branch)
+                    color = if (cell.isToday) Color.White else Color(0xFF5A4A3A)
                 )
             }
         }
