@@ -83,9 +83,9 @@ class BaziRepositoryImpl @Inject constructor(
                     star = dto.star,
                     luck = dto.luck,
                     shishen = dto.shishen,
-                    jieqi = dto.jieqi,
-                    lunarDate = dto.lunarDate,
-                    holiday = dto.holiday,
+                    jieqi = dto.jieqi?.takeIf { it.isNotEmpty() },
+                    lunarDate = dto.lunarDate?.takeIf { it.isNotEmpty() },
+                    holiday = dto.holiday?.takeIf { it.isNotEmpty() },
                     branchShishen = dto.branchShishen
                 )
             }
