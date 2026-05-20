@@ -432,7 +432,7 @@ private fun CalendarDayCellFromDesign(
                 }
             )
             .clickable(enabled = !cell.isOtherMonth && cell.date.isNotEmpty()) { }
-            .padding(horizontal = 4.dp, vertical = 6.dp),
+            .padding(horizontal = 2.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Row 1: Day number
@@ -453,7 +453,7 @@ private fun CalendarDayCellFromDesign(
         if (displayText.isNotEmpty()) {
             val lunarColor = when {
                 cell.isToday -> Color.White.copy(alpha = 0.7f)
-                cell.isJieqi -> Color(0xFF10B981) // 节气用绿色
+                cell.isJieqi -> Color(0xFF10B981)
                 displayText.contains("初一") || displayText.contains("十五") -> Color(0xFFE74C3C)
                 else -> TextTertiary
             }
@@ -462,63 +462,54 @@ private fun CalendarDayCellFromDesign(
                 fontSize = 5.sp,
                 color = lunarColor
             )
-        } else {
-            Spacer(modifier = Modifier.height(5.dp))
         }
 
         // Only show ganzhi rows for current month days
-        if (!cell.isOtherMonth) {
+        if (!cell.isOtherMonth && cell.stem.isNotEmpty()) {
             // Row 3: Stem + Shishen
-            if (cell.stem.isNotEmpty()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                val stemColor = getStemColor(cell.stem)
+                Text(
+                    text = cell.stem,
+                    fontSize = 6.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (cell.isToday) Color.White else stemColor
+                )
+                if (cell.shishen.isNotEmpty()) {
+                    Text(
+                        text = cell.shishen,
+                        fontSize = 4.sp,
+                        color = if (cell.isToday) Color.White.copy(alpha = 0.7f) else TextTertiary,
+                        modifier = Modifier.padding(start = 1.dp)
+                    )
+                }
+            }
+
+            // Row 4: Branch + BranchShishen
+            if (cell.branch.isNotEmpty()) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    val stemColor = getStemColor(cell.stem)
+                    val branchColor = getBranchColor(cell.branch)
                     Text(
-                        text = cell.stem,
+                        text = cell.branch,
                         fontSize = 6.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (cell.isToday) Color.White else stemColor
+                        color = if (cell.isToday) Color.White else branchColor
                     )
-                    if (cell.shishen.isNotEmpty()) {
+                    if (cell.branchShishen.isNotEmpty()) {
                         Text(
-                            text = cell.shishen,
+                            text = cell.branchShishen,
                             fontSize = 4.sp,
                             color = if (cell.isToday) Color.White.copy(alpha = 0.7f) else TextTertiary,
                             modifier = Modifier.padding(start = 1.dp)
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(1.dp))
-
-                // Row 4: Branch + BranchShishen
-                if (cell.branch.isNotEmpty()) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        val branchColor = getBranchColor(cell.branch)
-                        Text(
-                            text = cell.branch,
-                            fontSize = 6.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = if (cell.isToday) Color.White else branchColor
-                        )
-                        if (cell.branchShishen.isNotEmpty()) {
-                            Text(
-                                text = cell.branchShishen,
-                                fontSize = 4.sp,
-                                color = if (cell.isToday) Color.White.copy(alpha = 0.7f) else TextTertiary,
-                                modifier = Modifier.padding(start = 1.dp)
-                            )
-                        }
-                    }
-                }
-            } else {
-                // No stem data, show placeholder
-                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
