@@ -427,7 +427,7 @@ private fun CalendarDayCellFromDesign(
         // Row 1: Day number
         Text(
             text = cell.dayNumber.toString(),
-            fontSize = 6.sp,
+            fontSize = 9.sp,
             fontWeight = FontWeight.Medium,
             color = when {
                 cell.isToday -> Color.White
@@ -448,11 +448,11 @@ private fun CalendarDayCellFromDesign(
             }
             Text(
                 text = displayText,
-                fontSize = 4.sp,
+                fontSize = 5.sp,
                 color = lunarColor
             )
         } else {
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(5.dp))
         }
 
         // Only show ganzhi rows for current month days
@@ -466,14 +466,14 @@ private fun CalendarDayCellFromDesign(
                     val stemColor = getStemColor(cell.stem)
                     Text(
                         text = cell.stem,
-                        fontSize = 5.sp,
+                        fontSize = 6.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = if (cell.isToday) Color.White else stemColor
                     )
                     if (cell.shishen.isNotEmpty()) {
                         Text(
                             text = cell.shishen,
-                            fontSize = 3.sp,
+                            fontSize = 4.sp,
                             color = if (cell.isToday) Color.White.copy(alpha = 0.7f) else TextTertiary,
                             modifier = Modifier.padding(start = 1.dp)
                         )
@@ -491,14 +491,14 @@ private fun CalendarDayCellFromDesign(
                         val branchColor = getBranchColor(cell.branch)
                         Text(
                             text = cell.branch,
-                            fontSize = 5.sp,
+                            fontSize = 6.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = if (cell.isToday) Color.White else branchColor
                         )
                         if (cell.branchShishen.isNotEmpty()) {
                             Text(
                                 text = cell.branchShishen,
-                                fontSize = 3.sp,
+                                fontSize = 4.sp,
                                 color = if (cell.isToday) Color.White.copy(alpha = 0.7f) else TextTertiary,
                                 modifier = Modifier.padding(start = 1.dp)
                             )
@@ -507,7 +507,7 @@ private fun CalendarDayCellFromDesign(
                 }
             } else {
                 // No stem data, show placeholder
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
