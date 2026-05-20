@@ -309,7 +309,7 @@ private fun CalendarGridFull(
 
     // Add current month days
     Log.d(TAG, "CalendarGridFull: days.size=${days.size}, first day: ${
-        if (days.isNotEmpty()) "date=${days[0].date}, ganzhi=${days[0].ganzhi}, shishen=${days[0].shishen}, lunarDate=${days[0].lunarDate}" else "empty"
+        if (days.isNotEmpty()) "date=${days[0].date}, ganzhi=${days[0].ganzhi}, shishen=${days[0].shishen}, branchShishen=${days[0].branchShishen}, lunarDate=${days[0].lunarDate}" else "empty"
     }")
     for (day in days) {
         val date = try { LocalDate.parse(day.date) } catch (e: Exception) { null }
@@ -322,10 +322,21 @@ private fun CalendarGridFull(
         val stemChar = if (day.ganzhi.isNotEmpty()) day.ganzhi[0] else ""
         val branchChar = if (day.ganzhi.size > 1) day.ganzhi[1] else ""
 
+        Log.d(TAG, "Day $dayNum: stem='$stemChar', branch='$branchChar', shishen='${day.shishen}', branchShishen='${day.branchShishen}'")
+
+        // Build lunarDate with proper empty string handling
+        val displayLunarDate = when {
+            !day.jieqi.isNullOrEmpty() -> day.jieqi!!
+            !day.lunarDate.isNullOrEmpty() -> day.lunarDate!!
+            !day.holiday.isNullOrEmpty() -> day.holiday!!
+            else -> null
+        }
+        val isJieqiDay = !day.jieqi.isNullOrEmpty()
+
         allCells.add(CalendarCellData(
             dayNumber = dayNum,
-            lunarDate = day.jieqi ?: day.lunarDate ?: day.holiday,
-            isJieqi = !day.jieqi.isNullOrEmpty(),
+            lunarDate = displayLunarDate,
+            isJieqi = isJieqiDay,
             ganzhiIndex = if (day.ganzhi.isNotEmpty()) 0 else -1,
             stem = stemChar,
             shishen = day.shishen,
