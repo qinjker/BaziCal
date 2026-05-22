@@ -50,3 +50,8 @@ data class FeedbackListResponse(
 data class RepliesResponse(
     @Json(name = "replies") val replies: List<ReplyDto>
 )
+
+@JsonClass(generateAdapter = true)
+data class EmptyResponse(
+    @Json(name = "success") val success: Boolean = true
+)

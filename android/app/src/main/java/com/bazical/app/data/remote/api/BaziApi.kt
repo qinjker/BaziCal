@@ -4,6 +4,7 @@ import com.bazical.app.data.remote.dto.ApiResponse
 import com.bazical.app.data.remote.dto.CalculateRequest
 import com.bazical.app.data.remote.dto.CalculateResponse
 import com.bazical.app.data.remote.dto.CalendarResponse
+import com.bazical.app.data.remote.dto.EmptyResponse
 import com.bazical.app.data.remote.dto.FeedbackListResponse
 import com.bazical.app.data.remote.dto.FeedbackRequest
 import com.bazical.app.data.remote.dto.FeedbackDto
@@ -34,7 +35,7 @@ interface BaziApi {
     // ==================== 反馈相关 API ====================
 
     @POST("api/v1/feedback")
-    suspend fun submitFeedback(@Body request: FeedbackRequest): ApiResponse<Unit>
+    suspend fun submitFeedback(@Body request: FeedbackRequest): ApiResponse<EmptyResponse>
 
     @GET("api/v1/feedbacks")
     suspend fun getMyFeedbacks(
@@ -53,5 +54,5 @@ interface BaziApi {
     suspend fun addFeedbackReply(
         @Path("id") id: String,
         @Body request: ReplyRequest
-    ): ApiResponse<Unit>
+    ): ApiResponse<EmptyResponse>
 }
