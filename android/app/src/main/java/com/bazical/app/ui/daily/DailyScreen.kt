@@ -349,8 +349,7 @@ fun DailyScreen(
 
                             // Messages with elegant layout
                             Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                                modifier = Modifier.fillMaxWidth()
                             ) {
                                 uiState.messages.forEach { message ->
                                     Text(
@@ -359,7 +358,6 @@ fun DailyScreen(
                                         fontWeight = FontWeight.Medium,
                                         color = TextPrimary,
                                         lineHeight = 30.sp,
-                                        textAlign = TextAlign.Center,
                                         modifier = Modifier.padding(vertical = 6.dp)
                                     )
                                 }
