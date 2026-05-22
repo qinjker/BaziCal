@@ -234,16 +234,6 @@ fun CalendarScreen(
                 .padding(16.dp)
         ) {
             Column {
-                // Error state
-                uiState.error?.let { error ->
-                    Text(
-                        text = "加载失败: $error",
-                        color = Color(0xFFC84A3E),
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(20.dp)
-                    )
-                }
-
                 // Weekday headers
                 Row(modifier = Modifier.fillMaxWidth()) {
                     listOf("日", "一", "二", "三", "四", "五", "六").forEachIndexed { index, day ->
