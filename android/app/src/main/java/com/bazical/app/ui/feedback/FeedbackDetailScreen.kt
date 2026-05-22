@@ -36,7 +36,7 @@ import com.bazical.app.domain.model.Feedback
 import com.bazical.app.domain.model.FeedbackStatus
 import com.bazical.app.domain.model.FeedbackType
 import com.bazical.app.domain.model.Reply
-import com.bazical.app.ui.theme.Color
+import com.bazical.app.ui.theme.*
 
 @Composable
 fun FeedbackDetailScreen(
@@ -55,7 +55,7 @@ fun FeedbackDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Background)
+            .background(Background)
             .imePadding()
     ) {
         // 导航栏
@@ -72,7 +72,7 @@ fun FeedbackDetailScreen(
                         .fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = Color.Primary)
+                    CircularProgressIndicator(color = Primary)
                 }
             }
             uiState.feedback != null -> {
@@ -113,7 +113,7 @@ fun FeedbackDetailScreen(
                 ) {
                     Text(
                         text = uiState.errorMessage ?: "加载失败",
-                        color = Color.Primary
+                        color = Primary
                     )
                 }
             }
@@ -129,7 +129,7 @@ private fun NavBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.Surface)
+            .background(Surface)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -137,14 +137,14 @@ private fun NavBar(
             modifier = Modifier
                 .size(40.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color.Background)
+                .background(Background)
                 .padding(8.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "←",
                 fontSize = 20.sp,
-                color = Color.TextPrimary
+                color = TextPrimary
             )
         }
 
@@ -154,7 +154,7 @@ private fun NavBar(
             text = "反馈详情",
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
-            color = Color.TextPrimary,
+            color = TextPrimary,
             modifier = Modifier.weight(1f)
         )
 
@@ -167,10 +167,10 @@ private fun NavBar(
 @Composable
 private fun StatusBadge(status: FeedbackStatus) {
     val (bgColor, textColor) = when (status) {
-        FeedbackStatus.pending -> Color.WarningBg to Color.Warning
-        FeedbackStatus.reviewed -> Color.InfoBg to Color.Info
-        FeedbackStatus.replied -> Color.SuccessBg to Color.Success
-        FeedbackStatus.closed -> Color.Background to Color.TextSecondary
+        FeedbackStatus.pending -> WarningBg to Warning
+        FeedbackStatus.reviewed -> InfoBg to Info
+        FeedbackStatus.replied -> SuccessBg to Success
+        FeedbackStatus.closed -> Background to TextSecondary
     }
 
     Box(
@@ -193,7 +193,7 @@ private fun OriginalFeedbackCard(feedback: Feedback) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.Surface)
+            .background(Surface)
             .padding(18.dp)
     ) {
         Row(
@@ -205,7 +205,7 @@ private fun OriginalFeedbackCard(feedback: Feedback) {
             Text(
                 text = formatDateTime(feedback.createdAt),
                 fontSize = 12.sp,
-                color = Color.TextSecondary
+                color = TextSecondary
             )
         }
 
@@ -214,7 +214,7 @@ private fun OriginalFeedbackCard(feedback: Feedback) {
         Text(
             text = feedback.content,
             fontSize = 15.sp,
-            color = Color.TextPrimary,
+            color = TextPrimary,
             lineHeight = 24.sp
         )
     }
@@ -223,10 +223,10 @@ private fun OriginalFeedbackCard(feedback: Feedback) {
 @Composable
 private fun TypeBadge(type: FeedbackType) {
     val (bgColor, textColor) = when (type) {
-        FeedbackType.功能建议 -> Color.SuccessBg to Color.Success
-        FeedbackType.问题反馈 -> Color.ErrorBg to Color.Primary
-        FeedbackType.体验优化 -> Color.InfoBg to Color.Info
-        FeedbackType.其他 -> Color.Background to Color.TextSecondary
+        FeedbackType.功能建议 -> SuccessBg to Success
+        FeedbackType.问题反馈 -> ErrorBg to Primary
+        FeedbackType.体验优化 -> InfoBg to Info
+        FeedbackType.其他 -> Background to TextSecondary
     }
 
     Box(
@@ -256,7 +256,7 @@ private fun ReplyBubble(reply: Reply) {
                 modifier = Modifier
                     .size(32.dp)
                     .background(
-                        color = Color.Success,
+                        color = Success,
                         shape = CircleShape
                     ),
                 contentAlignment = Alignment.Center
@@ -272,14 +272,14 @@ private fun ReplyBubble(reply: Reply) {
             Text(
                 text = reply.authorName,
                 fontSize = 11.sp,
-                color = if (isAdmin) Color.TextSecondary else Color.TextSecondary,
+                color = if (isAdmin) TextSecondary else TextSecondary,
                 modifier = Modifier.padding(start = if (isAdmin) 0.dp else 0.dp, bottom = 4.dp)
             )
 
             Box(
                 modifier = Modifier
                     .background(
-                        color = if (isAdmin) Color.Primary else Color.Surface,
+                        color = if (isAdmin) Primary else Surface,
                         shape = RoundedCornerShape(
                             topStart = 16.dp,
                             topEnd = 16.dp,
@@ -292,7 +292,7 @@ private fun ReplyBubble(reply: Reply) {
                 Text(
                     text = reply.content,
                     fontSize = 14.sp,
-                    color = if (isAdmin) Color.Surface else Color.TextPrimary,
+                    color = if (isAdmin) Surface else TextPrimary,
                     lineHeight = 20.sp
                 )
             }
@@ -300,7 +300,7 @@ private fun ReplyBubble(reply: Reply) {
             Text(
                 text = formatDateTime(reply.createdAt),
                 fontSize = 10.sp,
-                color = Color.TextSecondary,
+                color = TextSecondary,
                 modifier = Modifier.padding(top = 6.dp, start = if (isAdmin) 0.dp else 0.dp),
                 textAlign = if (isAdmin) Alignment.End else Alignment.Start
             )
@@ -312,7 +312,7 @@ private fun ReplyBubble(reply: Reply) {
                 modifier = Modifier
                     .size(32.dp)
                     .background(
-                        color = Color.Primary,
+                        color = Primary,
                         shape = CircleShape
                     ),
                 contentAlignment = Alignment.Center
@@ -333,7 +333,7 @@ private fun InputArea(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.Surface)
+            .background(Surface)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.Bottom
     ) {
@@ -342,14 +342,14 @@ private fun InputArea(
             onValueChange = onContentChange,
             textStyle = androidx.compose.ui.text.TextStyle(
                 fontSize = 15.sp,
-                color = Color.TextPrimary
+                color = TextPrimary
             ),
-            cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.Primary),
+            cursorBrush = androidx.compose.ui.graphics.SolidColor(Primary),
             modifier = Modifier
                 .weight(1f)
                 .height(48.dp)
                 .background(
-                    color = Color.Background,
+                    color = Background,
                     shape = RoundedCornerShape(14.dp)
                 )
                 .padding(horizontal = 16.dp, vertical = 14.dp),
@@ -359,7 +359,7 @@ private fun InputArea(
                         Text(
                             text = "输入回复内容...",
                             fontSize = 15.sp,
-                            color = Color.TextSecondary
+                            color = TextSecondary
                         )
                     }
                     innerTextField()
@@ -374,7 +374,7 @@ private fun InputArea(
                 .size(48.dp)
                 .clip(RoundedCornerShape(14.dp))
                 .background(
-                    color = if (content.isNotBlank()) Color.Primary else Color.Disabled
+                    color = if (content.isNotBlank()) Primary else Disabled
                 )
                 .padding(12.dp),
             contentAlignment = Alignment.Center
@@ -382,14 +382,14 @@ private fun InputArea(
             if (isSending) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(20.dp),
-                    color = Color.Surface,
+                    color = Surface,
                     strokeWidth = 2.dp
                 )
             } else {
                 Text(
                     text = "➤",
                     fontSize = 20.sp,
-                    color = Color.Surface
+                    color = Surface
                 )
             }
         }

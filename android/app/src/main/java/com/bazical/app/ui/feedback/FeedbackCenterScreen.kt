@@ -39,7 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.bazical.app.domain.model.Feedback
 import com.bazical.app.domain.model.FeedbackStatus
 import com.bazical.app.domain.model.FeedbackType
-import com.bazical.app.ui.theme.Color
+import com.bazical.app.ui.theme.*
 
 @Composable
 fun FeedbackCenterScreen(
@@ -57,14 +57,14 @@ fun FeedbackCenterScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Background)
+            .background(Background)
             .imePadding()
     ) {
         // 顶部 Tab 切换
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Surface)
+                .background(Surface)
                 .padding(horizontal = 20.dp)
         ) {
             TabButton(
@@ -129,7 +129,7 @@ private fun TabButton(
                     .width(40.dp)
                     .height(3.dp)
                     .background(
-                        color = Color.Primary,
+                        color = Primary,
                         shape = RoundedCornerShape(2.dp)
                     )
             )
@@ -183,7 +183,7 @@ private fun FeedbackItem(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.Surface)
+            .background(Surface)
             .clickable { onClick() }
             .padding(18.dp)
     ) {
@@ -198,7 +198,7 @@ private fun FeedbackItem(
                 Text(
                     text = formatTimeAgo(feedback.createdAt),
                     fontSize = 12.sp,
-                    color = Color.TextSecondary
+                    color = TextSecondary
                 )
             }
 
@@ -208,7 +208,7 @@ private fun FeedbackItem(
             Text(
                 text = feedback.content,
                 fontSize = 14.sp,
-                color = Color.TextPrimary,
+                color = TextPrimary,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 lineHeight = 22.sp
@@ -250,12 +250,12 @@ private fun FeedbackItem(
                         Text(
                             text = lastReply.authorName,
                             fontSize = 12.sp,
-                            color = Color.TextSecondary
+                            color = TextSecondary
                         )
                         Text(
                             text = lastReply.content,
                             fontSize = 13.sp,
-                            color = Color.TextSecondary,
+                            color = TextSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -265,7 +265,7 @@ private fun FeedbackItem(
                             modifier = Modifier
                                 .size(8.dp)
                                 .background(
-                                    color = Color.Primary,
+                                    color = Primary,
                                     shape = CircleShape
                                 )
                         )
@@ -283,7 +283,7 @@ private fun FeedbackItem(
                 Text(
                     text = "💬 ${feedback.replyCount}条回复",
                     fontSize = 12.sp,
-                    color = Color.TextSecondary
+                    color = TextSecondary
                 )
                 StatusBadge(status = feedback.status)
             }
@@ -351,7 +351,7 @@ private fun EmptyFeedbackState(onRetry: () -> Unit) {
         Text(
             text = "还没有提交过反馈",
             fontSize = 14.sp,
-            color = Color.TextSecondary
+            color = TextSecondary
         )
         Spacer(modifier = Modifier.height(20.dp))
         Button(
@@ -384,7 +384,7 @@ private fun SubmitFeedbackContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color.Surface)
+                .background(Surface)
                 .padding(18.dp)
         ) {
             // 类型选择
@@ -420,9 +420,9 @@ private fun SubmitFeedbackContent(
                     onValueChange = onContentChange,
                     textStyle = androidx.compose.ui.text.TextStyle(
                         fontSize = 15.sp,
-                        color = Color.TextPrimary
+                        color = TextPrimary
                     ),
-                    cursorBrush = SolidColor(Color.Primary),
+                    cursorBrush = SolidColor(Primary),
                     modifier = Modifier.fillMaxSize(),
                     decorationBox = { innerTextField ->
                         Box {
@@ -430,7 +430,7 @@ private fun SubmitFeedbackContent(
                                 Text(
                                     text = "请描述您的建议或遇到的问题...",
                                     fontSize = 15.sp,
-                                    color = Color.TextSecondary
+                                    color = TextSecondary
                                 )
                             }
                             innerTextField()
@@ -441,7 +441,7 @@ private fun SubmitFeedbackContent(
             Text(
                 text = "${uiState.contentCharCount}/500",
                 fontSize = 11.sp,
-                color = Color.TextSecondary,
+                color = TextSecondary,
                 modifier = Modifier.align(Alignment.End)
             )
 
@@ -454,7 +454,7 @@ private fun SubmitFeedbackContent(
                 Text(
                     text = "联系方式",
                     fontSize = 12.sp,
-                    color = Color.TextSecondary
+                    color = TextSecondary
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 BasicTextField(
@@ -462,9 +462,9 @@ private fun SubmitFeedbackContent(
                     onValueChange = onContactChange,
                     textStyle = androidx.compose.ui.text.TextStyle(
                         fontSize = 14.sp,
-                        color = Color.TextPrimary
+                        color = TextPrimary
                     ),
-                    cursorBrush = SolidColor(Color.Primary),
+                    cursorBrush = SolidColor(Primary),
                     modifier = Modifier
                         .weight(1f)
                         .height(44.dp)
@@ -479,7 +479,7 @@ private fun SubmitFeedbackContent(
                                 Text(
                                     text = "选填",
                                     fontSize = 14.sp,
-                                    color = Color.TextSecondary
+                                    color = TextSecondary
                                 )
                             }
                             innerTextField()
