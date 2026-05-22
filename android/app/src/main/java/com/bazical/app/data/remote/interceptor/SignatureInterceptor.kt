@@ -20,8 +20,9 @@ class SignatureInterceptor @Inject constructor() : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
 
-        // 只对 /api/v1/bazi/* 添加签名
-        if (!originalRequest.url.encodedPath.contains("/api/v1/bazi")) {
+        // 只对 /api/v1/bazi/* 和 /api/v1/feedback* 添加签名
+        val path = originalRequest.url.encodedPath
+        if (!path.contains("/api/v1/bazi") && !path.contains("/api/v1/feedback")) {
             return chain.proceed(originalRequest)
         }
 
