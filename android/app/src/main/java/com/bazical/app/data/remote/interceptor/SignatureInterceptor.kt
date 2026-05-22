@@ -26,7 +26,7 @@ class SignatureInterceptor @Inject constructor() : Interceptor {
             return chain.proceed(originalRequest)
         }
 
-        val timestamp = (System.currentTimeMillis() / 1000).toString()
+        val timestamp = System.currentTimeMillis().toString()
         val bodyString = getRequestBodyString(originalRequest)
 
         val signature = sha256(APP_KEY + timestamp + bodyString)
