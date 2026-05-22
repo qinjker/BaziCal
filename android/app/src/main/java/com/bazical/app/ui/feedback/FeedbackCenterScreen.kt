@@ -39,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.bazical.app.domain.model.Feedback
 import com.bazical.app.domain.model.FeedbackStatus
 import com.bazical.app.domain.model.FeedbackType
+import com.bazical.app.ui.theme.Color
 
 @Composable
 fun FeedbackCenterScreen(
@@ -56,14 +57,14 @@ fun FeedbackCenterScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(com.bazical.app.ui.theme.Color.Background)
+            .background(Color.Background)
             .imePadding()
     ) {
         // 顶部 Tab 切换
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(com.bazical.app.ui.theme.Color.Surface)
+                .background(Color.Surface)
                 .padding(horizontal = 20.dp)
         ) {
             TabButton(
@@ -118,7 +119,7 @@ private fun TabButton(
         Text(
             text = text,
             fontSize = 15.sp,
-            color = if (isSelected) com.bazical.app.ui.theme.Color.TextPrimary else com.bazical.app.ui.theme.Color.TextSecondary,
+            color = if (isSelected) Color.TextPrimary else Color.TextSecondary,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
         )
         if (isSelected) {
@@ -128,7 +129,7 @@ private fun TabButton(
                     .width(40.dp)
                     .height(3.dp)
                     .background(
-                        color = com.bazical.app.ui.theme.Color.Primary,
+                        color = Color.Primary,
                         shape = RoundedCornerShape(2.dp)
                     )
             )
@@ -149,7 +150,7 @@ private fun FeedbackListContent(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = com.bazical.app.ui.theme.Color.Primary)
+                CircularProgressIndicator(color = Color.Primary)
             }
         }
         feedbacks.isEmpty() -> {
@@ -182,7 +183,7 @@ private fun FeedbackItem(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(com.bazical.app.ui.theme.Color.Surface)
+            .background(Color.Surface)
             .clickable { onClick() }
             .padding(18.dp)
     ) {
@@ -197,7 +198,7 @@ private fun FeedbackItem(
                 Text(
                     text = formatTimeAgo(feedback.createdAt),
                     fontSize = 12.sp,
-                    color = com.bazical.app.ui.theme.Color.TextSecondary
+                    color = Color.TextSecondary
                 )
             }
 
@@ -207,7 +208,7 @@ private fun FeedbackItem(
             Text(
                 text = feedback.content,
                 fontSize = 14.sp,
-                color = com.bazical.app.ui.theme.Color.TextPrimary,
+                color = Color.TextPrimary,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 lineHeight = 22.sp
@@ -222,7 +223,7 @@ private fun FeedbackItem(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
-                            color = com.bazical.app.ui.theme.Color.Background,
+                            color = Color.Background,
                             shape = RoundedCornerShape(12.dp)
                         )
                         .padding(12.dp),
@@ -233,8 +234,8 @@ private fun FeedbackItem(
                             .size(28.dp)
                             .background(
                                 color = if (lastReply.isFromAdmin)
-                                    com.bazical.app.ui.theme.Color.Primary
-                                else com.bazical.app.ui.theme.Color.Success,
+                                    Color.Primary
+                                else Color.Success,
                                 shape = CircleShape
                             ),
                         contentAlignment = Alignment.Center
@@ -249,12 +250,12 @@ private fun FeedbackItem(
                         Text(
                             text = lastReply.authorName,
                             fontSize = 12.sp,
-                            color = com.bazical.app.ui.theme.Color.TextSecondary
+                            color = Color.TextSecondary
                         )
                         Text(
                             text = lastReply.content,
                             fontSize = 13.sp,
-                            color = com.bazical.app.ui.theme.Color.TextSecondary,
+                            color = Color.TextSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -264,7 +265,7 @@ private fun FeedbackItem(
                             modifier = Modifier
                                 .size(8.dp)
                                 .background(
-                                    color = com.bazical.app.ui.theme.Color.Primary,
+                                    color = Color.Primary,
                                     shape = CircleShape
                                 )
                         )
@@ -282,7 +283,7 @@ private fun FeedbackItem(
                 Text(
                     text = "💬 ${feedback.replyCount}条回复",
                     fontSize = 12.sp,
-                    color = com.bazical.app.ui.theme.Color.TextSecondary
+                    color = Color.TextSecondary
                 )
                 StatusBadge(status = feedback.status)
             }
@@ -293,10 +294,10 @@ private fun FeedbackItem(
 @Composable
 private fun TypeBadge(type: FeedbackType) {
     val (bgColor, textColor) = when (type) {
-        FeedbackType.功能建议 -> com.bazical.app.ui.theme.Color.SuccessBg to com.bazical.app.ui.theme.Color.Success
-        FeedbackType.问题反馈 -> com.bazical.app.ui.theme.Color.ErrorBg to com.bazical.app.ui.theme.Color.Primary
-        FeedbackType.体验优化 -> com.bazical.app.ui.theme.Color.InfoBg to com.bazical.app.ui.theme.Color.Info
-        FeedbackType.其他 -> com.bazical.app.ui.theme.Color.Background to com.bazical.app.ui.theme.Color.TextSecondary
+        FeedbackType.功能建议 -> Color.SuccessBg to Color.Success
+        FeedbackType.问题反馈 -> Color.ErrorBg to Color.Primary
+        FeedbackType.体验优化 -> Color.InfoBg to Color.Info
+        FeedbackType.其他 -> Color.Background to Color.TextSecondary
     }
 
     Box(
@@ -316,10 +317,10 @@ private fun TypeBadge(type: FeedbackType) {
 @Composable
 private fun StatusBadge(status: FeedbackStatus) {
     val (bgColor, textColor) = when (status) {
-        FeedbackStatus.pending -> com.bazical.app.ui.theme.Color.WarningBg to com.bazical.app.ui.theme.Color.Warning
-        FeedbackStatus.reviewed -> com.bazical.app.ui.theme.Color.InfoBg to com.bazical.app.ui.theme.Color.Info
-        FeedbackStatus.replied -> com.bazical.app.ui.theme.Color.SuccessBg to com.bazical.app.ui.theme.Color.Success
-        FeedbackStatus.closed -> com.bazical.app.ui.theme.Color.Background to com.bazical.app.ui.theme.Color.TextSecondary
+        FeedbackStatus.pending -> Color.WarningBg to Color.Warning
+        FeedbackStatus.reviewed -> Color.InfoBg to Color.Info
+        FeedbackStatus.replied -> Color.SuccessBg to Color.Success
+        FeedbackStatus.closed -> Color.Background to Color.TextSecondary
     }
 
     Box(
@@ -350,13 +351,13 @@ private fun EmptyFeedbackState(onRetry: () -> Unit) {
         Text(
             text = "还没有提交过反馈",
             fontSize = 14.sp,
-            color = com.bazical.app.ui.theme.Color.TextSecondary
+            color = Color.TextSecondary
         )
         Spacer(modifier = Modifier.height(20.dp))
         Button(
             onClick = onRetry,
             colors = ButtonDefaults.buttonColors(
-                containerColor = com.bazical.app.ui.theme.Color.Primary
+                containerColor = Color.Primary
             ),
             shape = RoundedCornerShape(14.dp)
         ) {
@@ -383,7 +384,7 @@ private fun SubmitFeedbackContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
-                .background(com.bazical.app.ui.theme.Color.Surface)
+                .background(Color.Surface)
                 .padding(18.dp)
         ) {
             // 类型选择
@@ -409,7 +410,7 @@ private fun SubmitFeedbackContent(
                     .fillMaxWidth()
                     .height(100.dp)
                     .background(
-                        color = com.bazical.app.ui.theme.Color.Background,
+                        color = Color.Background,
                         shape = RoundedCornerShape(12.dp)
                     )
                     .padding(14.dp)
@@ -419,9 +420,9 @@ private fun SubmitFeedbackContent(
                     onValueChange = onContentChange,
                     textStyle = androidx.compose.ui.text.TextStyle(
                         fontSize = 15.sp,
-                        color = com.bazical.app.ui.theme.Color.TextPrimary
+                        color = Color.TextPrimary
                     ),
-                    cursorBrush = SolidColor(com.bazical.app.ui.theme.Color.Primary),
+                    cursorBrush = SolidColor(Color.Primary),
                     modifier = Modifier.fillMaxSize(),
                     decorationBox = { innerTextField ->
                         Box {
@@ -429,7 +430,7 @@ private fun SubmitFeedbackContent(
                                 Text(
                                     text = "请描述您的建议或遇到的问题...",
                                     fontSize = 15.sp,
-                                    color = com.bazical.app.ui.theme.Color.TextSecondary
+                                    color = Color.TextSecondary
                                 )
                             }
                             innerTextField()
@@ -440,7 +441,7 @@ private fun SubmitFeedbackContent(
             Text(
                 text = "${uiState.contentCharCount}/500",
                 fontSize = 11.sp,
-                color = com.bazical.app.ui.theme.Color.TextSecondary,
+                color = Color.TextSecondary,
                 modifier = Modifier.align(Alignment.End)
             )
 
@@ -453,7 +454,7 @@ private fun SubmitFeedbackContent(
                 Text(
                     text = "联系方式",
                     fontSize = 12.sp,
-                    color = com.bazical.app.ui.theme.Color.TextSecondary
+                    color = Color.TextSecondary
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 BasicTextField(
@@ -461,14 +462,14 @@ private fun SubmitFeedbackContent(
                     onValueChange = onContactChange,
                     textStyle = androidx.compose.ui.text.TextStyle(
                         fontSize = 14.sp,
-                        color = com.bazical.app.ui.theme.Color.TextPrimary
+                        color = Color.TextPrimary
                     ),
-                    cursorBrush = SolidColor(com.bazical.app.ui.theme.Color.Primary),
+                    cursorBrush = SolidColor(Color.Primary),
                     modifier = Modifier
                         .weight(1f)
                         .height(44.dp)
                         .background(
-                            color = com.bazical.app.ui.theme.Color.Background,
+                            color = Color.Background,
                             shape = RoundedCornerShape(10.dp)
                         )
                         .padding(horizontal = 14.dp),
@@ -478,7 +479,7 @@ private fun SubmitFeedbackContent(
                                 Text(
                                     text = "选填",
                                     fontSize = 14.sp,
-                                    color = com.bazical.app.ui.theme.Color.TextSecondary
+                                    color = Color.TextSecondary
                                 )
                             }
                             innerTextField()
@@ -498,15 +499,15 @@ private fun SubmitFeedbackContent(
                 .fillMaxWidth()
                 .height(50.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = com.bazical.app.ui.theme.Color.Primary,
-                disabledContainerColor = com.bazical.app.ui.theme.Color.Disabled
+                containerColor = Color.Primary,
+                disabledContainerColor = Color.Disabled
             ),
             shape = RoundedCornerShape(14.dp)
         ) {
             if (uiState.isSubmitting) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(20.dp),
-                    color = com.bazical.app.ui.theme.Color.Surface,
+                    color = Color.Surface,
                     strokeWidth = 2.dp
                 )
             } else {
@@ -524,7 +525,7 @@ private fun SubmitFeedbackContent(
             Text(
                 text = error,
                 fontSize = 12.sp,
-                color = com.bazical.app.ui.theme.Color.Primary
+                color = Color.Primary
             )
         }
     }
@@ -541,8 +542,8 @@ private fun TypeButton(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
             .background(
-                color = if (isSelected) com.bazical.app.ui.theme.Color.Primary
-                else com.bazical.app.ui.theme.Color.Background
+                color = if (isSelected) Color.Primary
+                else Color.Background
             )
             .clickable { onClick() }
             .padding(10.dp),
@@ -553,8 +554,8 @@ private fun TypeButton(
         Text(
             text = typeItem.displayName,
             fontSize = 11.sp,
-            color = if (isSelected) com.bazical.app.ui.theme.Color.Surface
-            else com.bazical.app.ui.theme.Color.TextSecondary
+            color = if (isSelected) Color.Surface
+            else Color.TextSecondary
         )
     }
 }
