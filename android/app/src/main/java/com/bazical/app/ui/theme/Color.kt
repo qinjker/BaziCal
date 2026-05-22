@@ -30,6 +30,7 @@ val Error = Color(0xFFE74C3C)
 val OnError = Color.White
 val Success = Color(0xFF5A8A6A)         // 墨绿 - 保存按钮、成功状态
 val Warning = Color(0xFFD4A843)         // 暖金 - 财类十神标签
+val Info = Color(0xFF2196F3)            // 蓝 - 信息状态
 
 // Five Elements Colors - 五行颜色
 val WuXingMu = Color(0xFF4ade80)        // 木 - 绿
