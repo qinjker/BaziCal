@@ -365,7 +365,6 @@ export const getMonthlyCalendar = (
       lunarDate,
       holiday,
       branchShishen,
-      messages: generateDailyMessages(shishen, 3), // Energy level 3 for monthly
     });
   }
 

@@ -86,8 +86,7 @@ class BaziRepositoryImpl @Inject constructor(
                     jieqi = dto.jieqi,
                     lunarDate = dto.lunarDate,
                     holiday = dto.holiday,
-                    branchShishen = dto.branchShishen,
-                    messages = dto.messages ?: emptyList()
+                    branchShishen = dto.branchShishen
                 )
             }
             Result.success(CalendarMonth(year, month, days))

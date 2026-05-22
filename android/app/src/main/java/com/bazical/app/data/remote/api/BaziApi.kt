@@ -35,7 +35,7 @@ interface BaziApi {
     // ==================== 反馈相关 API ====================
 
     @POST("api/v1/feedback")
-    suspend fun submitFeedback(@Body request: FeedbackRequest): ApiResponse<FeedbackSubmitResponse>
+    suspend fun submitFeedback(@Body request: FeedbackRequest): ApiResponse<Map<String, Any>>
 
     @GET("api/v1/feedbacks")
     suspend fun getMyFeedbacks(
@@ -54,5 +54,5 @@ interface BaziApi {
     suspend fun addFeedbackReply(
         @Path("id") id: String,
         @Body request: ReplyRequest
-    ): ApiResponse<FeedbackSubmitResponse>
+    ): ApiResponse<Map<String, Any>>
 }
