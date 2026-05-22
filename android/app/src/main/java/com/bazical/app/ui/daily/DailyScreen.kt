@@ -347,37 +347,21 @@ fun DailyScreen(
 
                             Spacer(modifier = Modifier.height(18.dp))
 
-                            uiState.messages.forEach { message ->
-                                Text(
-                                    text = "「$message」",
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = TextPrimary,
-                                    lineHeight = 34.sp,
-                                    modifier = Modifier.padding(bottom = 20.dp)
-                                )
-                            }
-
-                            uiState.messages.takeIf { it.isNotEmpty() }?.let { messages ->
-                                Column {
-                                    messages.drop(1).forEach { msg ->
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(6.dp)
-                                                    .background(Color(0xFFD4A843), CircleShape)
-                                            )
-                                            Spacer(modifier = Modifier.width(12.dp))
-                                            Text(
-                                                text = msg,
-                                                fontSize = 14.sp,
-                                                color = Color(0xFF5A4A3A)
-                                            )
-                                        }
-                                        Spacer(modifier = Modifier.height(12.dp))
-                                    }
+                            // Messages with elegant layout
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                uiState.messages.forEach { message ->
+                                    Text(
+                                        text = "「$message」",
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = TextPrimary,
+                                        lineHeight = 30.sp,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(vertical = 6.dp)
+                                    )
                                 }
                             }
                         }
