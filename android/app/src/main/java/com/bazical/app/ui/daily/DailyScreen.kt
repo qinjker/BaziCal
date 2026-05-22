@@ -135,6 +135,22 @@ fun DailyScreen(
                     CircularProgressIndicator(color = Primary)
                 }
             } else {
+                // Error state
+                uiState.error?.let { error ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "加载失败: $error",
+                            color = Color(0xFFC84A3E),
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -346,15 +362,27 @@ fun DailyScreen(
 
                                 Spacer(modifier = Modifier.height(18.dp))
 
-                                uiState.messages.forEach { message ->
+                                // Show messages or default message
+                                if (uiState.messages.isEmpty()) {
                                     Text(
-                                        text = "「$message」",
+                                        text = "「今日宜稳中求进，贵人运不错，适合谈判与推进项目。」",
                                         fontSize = 20.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         color = TextPrimary,
                                         lineHeight = 34.sp,
                                         modifier = Modifier.padding(bottom = 20.dp)
                                     )
+                                } else {
+                                    uiState.messages.forEach { message ->
+                                        Text(
+                                            text = "「$message」",
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = TextPrimary,
+                                            lineHeight = 34.sp,
+                                            modifier = Modifier.padding(bottom = 20.dp)
+                                        )
+                                    }
                                 }
 
                                 uiState.messages.takeIf { it.isNotEmpty() }?.let { messages ->
