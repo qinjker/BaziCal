@@ -311,120 +311,120 @@ fun DailyScreen(
                         }
 
                         Spacer(modifier = Modifier.height(20.dp))
+                    } // End of dayData?.let
 
-                        // Message Card
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 20.dp)
-                                .shadow(
-                                    elevation = 4.dp,
-                                    shape = RoundedCornerShape(22.dp),
-                                    spotColor = Color.Black.copy(alpha = 0.08f)
+                    // Message Card - Always show (independent of dayData)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp)
+                            .shadow(
+                                elevation = 4.dp,
+                                shape = RoundedCornerShape(22.dp),
+                                spotColor = Color.Black.copy(alpha = 0.08f)
+                            )
+                            .clip(RoundedCornerShape(22.dp))
+                            .background(Color.White)
+                            .padding(26.dp)
+                    ) {
+                        Column {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "💬",
+                                    fontSize = 20.sp
                                 )
-                                .clip(RoundedCornerShape(22.dp))
-                                .background(Color.White)
-                                .padding(26.dp)
-                        ) {
-                            Column {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "💬",
-                                        fontSize = 20.sp
-                                    )
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                    Text(
-                                        text = "今日寄语",
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = Color(0xFFB8A892),
-                                        letterSpacing = 2.sp
-                                    )
-                                }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = "今日寄语",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color(0xFFB8A892),
+                                    letterSpacing = 2.sp
+                                )
+                            }
 
-                                Spacer(modifier = Modifier.height(18.dp))
+                            Spacer(modifier = Modifier.height(18.dp))
 
-                                uiState.messages.forEach { message ->
-                                    Text(
-                                        text = "「$message」",
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = TextPrimary,
-                                        lineHeight = 34.sp,
-                                        modifier = Modifier.padding(bottom = 20.dp)
-                                    )
-                                }
+                            uiState.messages.forEach { message ->
+                                Text(
+                                    text = "「$message」",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = TextPrimary,
+                                    lineHeight = 34.sp,
+                                    modifier = Modifier.padding(bottom = 20.dp)
+                                )
+                            }
 
-                                uiState.messages.takeIf { it.isNotEmpty() }?.let { messages ->
-                                    Column {
-                                        messages.drop(1).forEach { msg ->
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .size(6.dp)
-                                                        .background(Color(0xFFD4A843), CircleShape)
-                                                )
-                                                Spacer(modifier = Modifier.width(12.dp))
-                                                Text(
-                                                    text = msg,
-                                                    fontSize = 14.sp,
-                                                    color = Color(0xFF5A4A3A)
-                                                )
-                                            }
-                                            Spacer(modifier = Modifier.height(12.dp))
+                            uiState.messages.takeIf { it.isNotEmpty() }?.let { messages ->
+                                Column {
+                                    messages.drop(1).forEach { msg ->
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(6.dp)
+                                                    .background(Color(0xFFD4A843), CircleShape)
+                                            )
+                                            Spacer(modifier = Modifier.width(12.dp))
+                                            Text(
+                                                text = msg,
+                                                fontSize = 14.sp,
+                                                color = Color(0xFF5A4A3A)
+                                            )
                                         }
+                                        Spacer(modifier = Modifier.height(12.dp))
                                     }
                                 }
                             }
                         }
-
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        // Action Bar
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 20.dp)
-                                .shadow(
-                                    elevation = 6.dp,
-                                    shape = RoundedCornerShape(20.dp),
-                                    spotColor = Color.Black.copy(alpha = 0.08f)
-                                )
-                                .clip(RoundedCornerShape(20.dp))
-                                .background(Color.White)
-                                .padding(16.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                ActionItem(
-                                    icon = Icons.Default.Share,
-                                    label = "分享",
-                                    isPrimary = true,
-                                    onClick = { }
-                                )
-                                ActionItem(
-                                    icon = Icons.Default.Save,
-                                    label = "保存",
-                                    isPrimary = false,
-                                    onClick = { }
-                                )
-                                ActionItem(
-                                    icon = Icons.Default.CalendarToday,
-                                    label = "日历",
-                                    isPrimary = false,
-                                    onClick = onNavigateBack
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(100.dp))
                     }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Action Bar
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp)
+                            .shadow(
+                                elevation = 6.dp,
+                                shape = RoundedCornerShape(20.dp),
+                                spotColor = Color.Black.copy(alpha = 0.08f)
+                            )
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(Color.White)
+                            .padding(16.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            ActionItem(
+                                icon = Icons.Default.Share,
+                                label = "分享",
+                                isPrimary = true,
+                                onClick = { }
+                            )
+                            ActionItem(
+                                icon = Icons.Default.Save,
+                                label = "保存",
+                                isPrimary = false,
+                                onClick = { }
+                            )
+                            ActionItem(
+                                icon = Icons.Default.CalendarToday,
+                                label = "日历",
+                                isPrimary = false,
+                                onClick = onNavigateBack
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(100.dp))
                 }
             }
         }
