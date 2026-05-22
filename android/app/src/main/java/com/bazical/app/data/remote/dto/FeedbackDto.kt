@@ -52,6 +52,6 @@ data class RepliesResponse(
 )
 
 @JsonClass(generateAdapter = true)
-data class EmptyResponse(
+data class FeedbackSubmitResponse(
     @Json(name = "success") val success: Boolean = true
 )
