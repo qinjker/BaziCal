@@ -6,7 +6,6 @@ import com.bazical.app.data.remote.dto.CalculateResponse
 import com.bazical.app.data.remote.dto.CalendarResponse
 import com.bazical.app.data.remote.dto.FeedbackListResponse
 import com.bazical.app.data.remote.dto.FeedbackRequest
-import com.bazical.app.data.remote.dto.FeedbackSubmitResponse
 import com.bazical.app.data.remote.dto.FeedbackDto
 import com.bazical.app.data.remote.dto.ReplyRequest
 import com.bazical.app.data.remote.dto.RepliesResponse
