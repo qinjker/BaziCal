@@ -39,11 +39,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.bazical.app.domain.model.Feedback
 import com.bazical.app.domain.model.FeedbackStatus
 import com.bazical.app.domain.model.FeedbackType
+import com.bazical.app.ui.components.BottomTabBar
+import com.bazical.app.ui.components.TabItem
 import com.bazical.app.ui.theme.*
 
 @Composable
 fun FeedbackCenterScreen(
     onNavigateToDetail: (String) -> Unit,
+    currentRoute: String? = null,
+    onTabClick: ((TabItem) -> Unit)? = null,
     viewModel: FeedbackCenterViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -60,45 +64,55 @@ fun FeedbackCenterScreen(
             .background(Background)
             .imePadding()
     ) {
-        // 顶部 Tab 切换
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Surface)
-                .padding(horizontal = 20.dp)
-        ) {
-            TabButton(
-                text = "📋 我的反馈",
-                isSelected = uiState.selectedTab == FeedbackTab.LIST,
-                onClick = { viewModel.selectTab(FeedbackTab.LIST) },
-                modifier = Modifier.weight(1f)
-            )
-            TabButton(
-                text = "✏️ 提交反馈",
-                isSelected = uiState.selectedTab == FeedbackTab.SUBMIT,
-                onClick = { viewModel.selectTab(FeedbackTab.SUBMIT) },
-                modifier = Modifier.weight(1f)
-            )
+        Column(modifier = Modifier.weight(1f)) {
+            // 顶部 Tab 切换
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Surface)
+                    .padding(horizontal = 20.dp)
+            ) {
+                TabButton(
+                    text = "📋 我的反馈",
+                    isSelected = uiState.selectedTab == FeedbackTab.LIST,
+                    onClick = { viewModel.selectTab(FeedbackTab.LIST) },
+                    modifier = Modifier.weight(1f)
+                )
+                TabButton(
+                    text = "✏️ 提交反馈",
+                    isSelected = uiState.selectedTab == FeedbackTab.SUBMIT,
+                    onClick = { viewModel.selectTab(FeedbackTab.SUBMIT) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            when (uiState.selectedTab) {
+                FeedbackTab.LIST -> {
+                    FeedbackListContent(
+                        feedbacks = uiState.feedbacks,
+                        isLoading = uiState.isLoading,
+                        onItemClick = onNavigateToDetail,
+                        onRetry = { viewModel.loadFeedbacks() }
+                    )
+                }
+                FeedbackTab.SUBMIT -> {
+                    SubmitFeedbackContent(
+                        uiState = uiState,
+                        onTypeSelect = { viewModel.selectFeedbackType(it) },
+                        onContentChange = { viewModel.updateFeedbackContent(it) },
+                        onContactChange = { viewModel.updateFeedbackContact(it) },
+                        onSubmit = { viewModel.submitFeedback() }
+                    )
+                }
+            }
         }
 
-        when (uiState.selectedTab) {
-            FeedbackTab.LIST -> {
-                FeedbackListContent(
-                    feedbacks = uiState.feedbacks,
-                    isLoading = uiState.isLoading,
-                    onItemClick = onNavigateToDetail,
-                    onRetry = { viewModel.loadFeedbacks() }
-                )
-            }
-            FeedbackTab.SUBMIT -> {
-                SubmitFeedbackContent(
-                    uiState = uiState,
-                    onTypeSelect = { viewModel.selectFeedbackType(it) },
-                    onContentChange = { viewModel.updateFeedbackContent(it) },
-                    onContactChange = { viewModel.updateFeedbackContact(it) },
-                    onSubmit = { viewModel.submitFeedback() }
-                )
-            }
+        // 底部 TabBar
+        if (currentRoute != null && onTabClick != null) {
+            BottomTabBar(
+                currentRoute = currentRoute,
+                onTabClick = onTabClick
+            )
         }
     }
 }

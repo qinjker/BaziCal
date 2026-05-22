@@ -175,6 +175,28 @@ fun BaziCalNavHost(
             FeedbackCenterScreen(
                 onNavigateToDetail = { id ->
                     navController.navigate(Screen.FeedbackDetail.createRoute(id))
+                },
+                currentRoute = currentRoute,
+                onTabClick = { tab ->
+                    when (tab) {
+                        TabItem.Calendar -> {
+                            navController.navigate(Screen.Calendar.route) {
+                                popUpTo(Screen.Calendar.route) { inclusive = true }
+                            }
+                        }
+                        TabItem.Today -> {
+                            val today = java.time.LocalDate.now().toString()
+                            navController.navigate(Screen.Daily.createRoute(today))
+                        }
+                        TabItem.Home -> {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(Screen.Calendar.route) { inclusive = true }
+                            }
+                        }
+                        TabItem.Feedback -> {
+                            // Already on feedback
+                        }
+                    }
                 }
             )
         }
