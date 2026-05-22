@@ -3,6 +3,7 @@ package com.bazical.app.ui.daily
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bazical.app.domain.model.CalendarDay
 import com.bazical.app.domain.repository.BaziRepository
 import com.bazical.app.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -51,7 +52,20 @@ class DailyViewModel @Inject constructor(
                         onSuccess = { detail ->
                             _uiState.update {
                                 it.copy(
-                                    dayData = null, // Not using CalendarDay anymore
+                                    dayData = CalendarDay(
+                                        date = detail.date,
+                                        ganzhi = listOf(detail.ganzhi[0].toString(), detail.ganzhi[1].toString()),
+                                        wuxing = "",
+                                        yi = emptyList(),
+                                        ji = emptyList(),
+                                        star = "",
+                                        luck = "",
+                                        shishen = detail.shishen,
+                                        jieqi = null,
+                                        lunarDate = null,
+                                        holiday = null,
+                                        branchShishen = detail.branchShishen
+                                    ),
                                     loading = false,
                                     messages = detail.messages
                                 )
