@@ -6,6 +6,7 @@ import express from 'express';
 import cors from 'cors';
 import { config } from './config';
 import { initDatabase } from './config/init-db';
+import { initStaticMessages } from './llm/message.service';
 import routes from './routes';
 import { ipRateLimiter, apiKeyRateLimiter } from './middleware/ratelimit';
 
@@ -46,6 +47,9 @@ const startServer = async () => {
   try {
     // 初始化数据库
     await initDatabase();
+
+    // 初始化静态寄语库
+    await initStaticMessages();
 
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);

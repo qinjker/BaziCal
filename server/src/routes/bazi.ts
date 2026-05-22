@@ -3,7 +3,7 @@
  */
 
 import { Router } from 'express';
-import { calculate, getCalendar, convertSolarToLunar, getUserById, getDaily } from '../controllers/bazi.controller';
+import { calculate, getCalendar, convertSolarToLunar, getUserById, getDaily, createFeedback, getFeedbackReplies, createFeedbackReply, getMyFeedbacksHandler, getDailyMessage, getFeedbackDetail } from '../controllers/bazi.controller';
 import { signatureMiddleware } from '../middleware/signature';
 
 const router = Router();
@@ -40,5 +40,41 @@ router.get('/user/:userId', getUserById);
  * 获取指定日期的详细信息
  */
 router.get('/daily/:date', getDaily);
+
+/**
+ * POST /api/v1/bazi/daily-message
+ * 获取每日寄语
+ */
+router.post('/daily-message', getDailyMessage);
+
+/**
+ * POST /api/v1/feedback
+ * 用户提交反馈
+ */
+router.post('/feedback', createFeedback);
+
+/**
+ * GET /api/v1/feedbacks
+ * 获取我的反馈列表
+ */
+router.get('/feedbacks', getMyFeedbacksHandler);
+
+/**
+ * GET /api/v1/feedbacks/:id/replies
+ * 获取反馈的回复列表
+ */
+router.get('/feedbacks/:id/replies', getFeedbackReplies);
+
+/**
+ * POST /api/v1/feedbacks/:id/replies
+ * 用户添加回复
+ */
+router.post('/feedbacks/:id/replies', createFeedbackReply);
+
+/**
+ * GET /api/v1/feedbacks/:id
+ * 获取单条反馈详情
+ */
+router.get('/feedbacks/:id', getFeedbackDetail);
 
 export default router;

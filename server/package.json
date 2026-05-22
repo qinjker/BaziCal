@@ -1,7 +1,7 @@
 {
   "name": "bazical-server",
   "version": "1.0.0",
-  "description": "八字历后端服务",
+  "description": "十神能历后端服务",
   "main": "dist/app.js",
   "scripts": {
     "dev": "ts-node-dev --respawn src/app.ts",
