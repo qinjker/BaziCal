@@ -442,7 +442,7 @@ private fun SubmitFeedbackContent(
                         Box {
                             if (uiState.feedbackContent.isEmpty()) {
                                 Text(
-                                    text = "请描述您的建议或遇到的问题...",
+                                    text = "请详细描述您遇到的问题或建议，至少10个字",
                                     fontSize = 15.sp,
                                     color = TextSecondary
                                 )
@@ -491,7 +491,7 @@ private fun SubmitFeedbackContent(
                         Box {
                             if (uiState.feedbackContact.isEmpty()) {
                                 Text(
-                                    text = "选填",
+                                    text = "选填，便于我们回复您",
                                     fontSize = 14.sp,
                                     color = TextSecondary
                                 )
