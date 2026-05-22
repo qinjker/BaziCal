@@ -122,13 +122,52 @@ async function main() {
 
   const healthOk = await testHealth();
   const calcOk = await testCalculate();
+  const feedbackOk = await testFeedback();
 
   console.log('\n========== 测试结果 ==========');
   console.log(`健康检查: ${healthOk ? '✅ 通过' : '❌ 失败'}`);
   console.log(`八字计算: ${calcOk ? '✅ 通过' : '❌ 失败'}`);
+  console.log(`反馈提交: ${feedbackOk ? '✅ 通过' : '❌ 失败'}`);
   console.log('==============================\n');
 
-  process.exit(healthOk && calcOk ? 0 : 1);
+  process.exit(healthOk && calcOk && feedbackOk ? 0 : 1);
+}
+
+/**
+ * 测试提交反馈
+ */
+async function testFeedback() {
+  console.log('\n📡 测试 POST /api/v1/feedback...');
+
+  const timestamp = Date.now().toString();
+  const body = {
+    type: '功能建议',
+    content: '测试反馈内容，希望增加春节提醒功能',
+    contact: '微信号：test123'
+  };
+  const signature = generateSignature(APP_KEY, timestamp, body);
+
+  try {
+    const result = await request({
+      hostname: HOST,
+      port: PORT,
+      path: '/api/v1/feedback',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-App-Key': APP_KEY,
+        'X-Timestamp': timestamp,
+        'X-Signature': signature
+      }
+    }, body);
+
+    console.log(`   状态: ${result.status}`);
+    console.log(`   响应: ${JSON.stringify(result.data)}`);
+    return result.status === 200;
+  } catch (err) {
+    console.log(`   ❌ 失败: ${err.message}`);
+    return false;
+  }
 }
 
 main();

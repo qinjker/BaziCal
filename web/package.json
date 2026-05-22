@@ -1,7 +1,7 @@
 {
   "name": "bazical-web",
   "version": "1.0.0",
-  "description": "八字历前端",
+  "description": "十神能历前端",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

@@ -3,8 +3,10 @@ package com.bazical.app.di
 import com.bazical.app.data.remote.api.BaziApi
 import com.bazical.app.data.remote.interceptor.SignatureInterceptor
 import com.bazical.app.data.repository.BaziRepositoryImpl
+import com.bazical.app.data.repository.FeedbackRepositoryImpl
 import com.bazical.app.data.repository.UserRepositoryImpl
 import com.bazical.app.domain.repository.BaziRepository
+import com.bazical.app.domain.repository.FeedbackRepository
 import com.bazical.app.domain.repository.UserRepository
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -82,6 +84,12 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideUserRepository(impl: UserRepositoryImpl): UserRepository {
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideFeedbackRepository(impl: FeedbackRepositoryImpl): FeedbackRepository {
         return impl
     }
 }

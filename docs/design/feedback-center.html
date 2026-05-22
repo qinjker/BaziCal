@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>反馈中心 - 十神能量日历</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #F7F4EF;
+        }
+
+        .phone-container {
+            width: 100%;
+            max-width: 390px;
+            min-height: 100vh;
+            margin: 0 auto;
+            background: #F7F4EF;
+        }
+
+        /* 顶部Tab切换 */
+        .top-tabs {
+            display: flex;
+            background: white;
+            padding: 0 20px;
+            border-bottom: 1px solid rgba(232, 224, 213, 0.8);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 16px 0;
+            background: none;
+            border: none;
+            font-size: 15px;
+            color: #8B7355;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .tab-btn.active {
+            color: #2C1810;
+            font-weight: 600;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(145deg, #D65A4E 0%, #B8443A 100%);
+            border-radius: 2px;
+        }
+
+        /* 反馈列表 */
+        .feedback-list {
+            padding: 16px;
+            display: none;
+        }
+
+        .feedback-list.active {
+            display: block;
+        }
+
+        /* 反馈卡片 */
+        .feedback-item {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 12px rgba(44, 24, 16, 0.06);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .feedback-item:active {
+            transform: scale(0.98);
+        }
+
+        /* 卡片头部：类型 + 时间 */
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .type-badge {
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .type-badge.suggestion {
+            background: #E8F5E922;
+            color: #4CAF50;
+        }
+
+        .type-badge.bug {
+            background: #FFEBEE22;
+            color: #C84A3E;
+        }
+
+        .type-badge.optimization {
+            background: #E3F2FD22;
+            color: #2196F3;
+        }
+
+        .type-badge.other {
+            background: #F5F5F522;
+            color: #8B7355;
+        }
+
+        .item-time {
+            font-size: 12px;
+            color: #B8A892;
+        }
+
+        /* 反馈内容预览 */
+        .item-content {
+            font-size: 14px;
+            color: #2C1810;
+            line-height: 1.6;
+            margin-bottom: 14px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* 最新回复预览 */
+        .reply-preview {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px;
+            background: #FAF6F0;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .reply-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .reply-avatar.admin {
+            background: linear-gradient(145deg, #D65A4E 0%, #B8443A 100%);
+        }
+
+        .reply-avatar.user {
+            background: #4CAF50;
+        }
+
+        .reply-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .reply-name {
+            font-size: 12px;
+            color: #8B7355;
+            margin-bottom: 4px;
+        }
+
+        .reply-text {
+            font-size: 13px;
+            color: #5A4A3A;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 未读标记 */
+        .unread-dot {
+            width: 8px;
+            height: 8px;
+            background: #C84A3E;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 6px;
+        }
+
+        /* 卡片底部：回复数 + 状态 */
+        .item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reply-count {
+            font-size: 12px;
+            color: #B8A892;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .status-badge.pending {
+            background: #FFF3E022;
+            color: #E65100;
+        }
+
+        .status-badge.replied {
+            background: #E8F5E922;
+            color: #4CAF50;
+        }
+
+        .status-badge.closed {
+            background: #F5F5F522;
+            color: #999;
+        }
+
+        /* 提交反馈表单 - 紧凑版 */
+        .submit-form {
+            padding: 16px;
+            display: none;
+        }
+
+        .submit-form.active {
+            display: block;
+        }
+
+        /* 紧凑表单卡片 */
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 14px;
+        }
+
+        /* 类型选择 - 紧凑单行 */
+        .type-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .type-btn {
+            flex: 1;
+            padding: 10px 8px;
+            background: #FAF6F0;
+            border: 1.5px solid #E8E0D5;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 13px;
+            color: #5A4A3A;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .type-btn:active {
+            transform: scale(0.97);
+        }
+
+        .type-btn.selected {
+            background: linear-gradient(145deg, #D65A4E 0%, #B8443A 100%);
+            color: white;
+            border-color: #C84A3E;
+        }
+
+        .type-btn .type-icon {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .type-btn .type-label {
+            display: block;
+            font-size: 11px;
+        }
+
+        /* 内容输入 - 紧凑 */
+        .content-row {
+            margin-bottom: 14px;
+        }
+
+        .content-textarea {
+            width: 100%;
+            height: 100px;
+            background: #FAF6F0;
+            border: 1.5px solid #E8E0D5;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 15px;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #2C1810;
+            resize: none;
+            transition: all 0.2s;
+        }
+
+        .content-textarea:focus {
+            outline: none;
+            border-color: #C84A3E;
+            box-shadow: 0 0 0 4px rgba(200, 74, 62, 0.1);
+        }
+
+        .content-textarea::placeholder {
+            color: #B8A892;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 11px;
+            color: #B8A892;
+            margin-top: 6px;
+        }
+
+        /* 联系方式 - 紧凑单行 */
+        .contact-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .contact-label {
+            font-size: 12px;
+            color: #8B7355;
+            white-space: nowrap;
+        }
+
+        .contact-input {
+            flex: 1;
+            height: 44px;
+            background: #FAF6F0;
+            border: 1.5px solid #E8E0D5;
+            border-radius: 10px;
+            padding: 0 14px;
+            font-size: 14px;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #2C1810;
+            transition: all 0.2s;
+        }
+
+        .contact-input:focus {
+            outline: none;
+            border-color: #C84A3E;
+            box-shadow: 0 0 0 4px rgba(200, 74, 62, 0.1);
+        }
+
+        .contact-input::placeholder {
+            color: #B8A892;
+        }
+
+        /* 提交按钮 */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(145deg, #D65A4E 0%, #B8443A 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(200, 74, 62, 0.3);
+            transition: all 0.2s;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        .submit-btn:disabled {
+            background: #E8E0D5;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+        }
+
+        .empty-text {
+            font-size: 14px;
+            color: #8B7355;
+            margin-bottom: 20px;
+        }
+
+        /* 底部Tab栏 */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 390px;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+            border-top: 1px solid rgba(232, 224, 213, 0.8);
+            z-index: 100;
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px 12px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .tab-icon {
+            font-size: 24px;
+            margin-bottom: 3px;
+        }
+
+        .tab-label {
+            font-size: 10px;
+            color: #B8A892;
+            font-weight: 500;
+        }
+
+        .tab-item.active .tab-icon,
+        .tab-item.active .tab-label {
+            color: #C84A3E;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <!-- 顶部Tab切换 -->
+        <div class="top-tabs">
+            <button class="tab-btn active" onclick="switchTab('list')">
+                📋 我的反馈
+            </button>
+            <button class="tab-btn" onclick="switchTab('submit')">
+                ✏️ 提交反馈
+            </button>
+        </div>
+
+        <!-- 反馈列表 -->
+        <div class="feedback-list active" id="listTab">
+            <!-- 卡片示例1：待处理，有未读 -->
+            <div class="feedback-item" onclick="window.location.href='feedback-messages.html'">
+                <div class="item-header">
+                    <span class="type-badge suggestion">功能建议</span>
+                    <span class="item-time">3天前</span>
+                </div>
+                <div class="item-content">希望能增加春节期间的特别提醒功能，显示哪些日子是 auspicious 的...</div>
+                <div class="reply-preview">
+                    <div class="reply-avatar user">👤</div>
+                    <div class="reply-info">
+                        <div class="reply-name">我</div>
+                        <div class="reply-text">希望增加春节提醒功能，显示吉凶方位...</div>
+                    </div>
+                    <div class="unread-dot"></div>
+                </div>
+                <div class="item-footer">
+                    <span class="reply-count">💬 3条回复</span>
+                    <span class="status-badge pending">待处理</span>
+                </div>
+            </div>
+
+            <!-- 卡片示例2：已回复，有未读 -->
+            <div class="feedback-item" onclick="window.location.href='feedback-messages.html'">
+                <div class="item-header">
+                    <span class="type-badge optimization">体验优化</span>
+                    <span class="item-time">1周前</span>
+                </div>
+                <div class="item-content">日历滑动有时候不够流畅，希望优化一下动画效果...</div>
+                <div class="reply-preview">
+                    <div class="reply-avatar admin">👨‍💼</div>
+                    <div class="reply-info">
+                        <div class="reply-name">客服小八</div>
+                        <div class="reply-text">感谢反馈，已记录，会在下次更新中优化...</div>
+                    </div>
+                    <div class="unread-dot"></div>
+                </div>
+                <div class="item-footer">
+                    <span class="reply-count">💬 2条回复</span>
+                    <span class="status-badge replied">已回复</span>
+                </div>
+            </div>
+
+            <!-- 卡片示例3：已回复，无未读 -->
+            <div class="feedback-item" onclick="window.location.href='feedback-messages.html'">
+                <div class="item-header">
+                    <span class="type-badge bug">问题反馈</span>
+                    <span class="item-time">2周前</span>
+                </div>
+                <div class="item-content">推送通知有时候收不到...</div>
+                <div class="reply-preview">
+                    <div class="reply-avatar admin">👨‍💼</div>
+                    <div class="reply-info">
+                        <div class="reply-name">客服小八</div>
+                        <div class="reply-text">已修复，请更新到最新版本...</div>
+                    </div>
+                </div>
+                <div class="item-footer">
+                    <span class="reply-count">💬 4条回复</span>
+                    <span class="status-badge replied">已回复</span>
+                </div>
+            </div>
+
+            <!-- 空状态（无数据时显示） -->
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">💬</div>
+                <p class="empty-text">还没有提交过反馈</p>
+                <button class="submit-btn" onclick="switchTab('submit')" style="max-width: 200px;">立即反馈</button>
+            </div>
+        </div>
+
+        <!-- 提交反馈表单 -->
+        <div class="submit-form" id="submitTab">
+            <div class="form-card">
+                <!-- 类型选择 - 单行4个 -->
+                <div class="type-row">
+                    <div class="type-btn selected" onclick="selectType(this, '功能建议')">
+                        <span class="type-icon">💡</span>
+                        <span class="type-label">功能建议</span>
+                    </div>
+                    <div class="type-btn" onclick="selectType(this, '问题反馈')">
+                        <span class="type-icon">🐛</span>
+                        <span class="type-label">问题反馈</span>
+                    </div>
+                    <div class="type-btn" onclick="selectType(this, '体验优化')">
+                        <span class="type-icon">✨</span>
+                        <span class="type-label">体验优化</span>
+                    </div>
+                    <div class="type-btn" onclick="selectType(this, '其他')">
+                        <span class="type-icon">📌</span>
+                        <span class="type-label">其他</span>
+                    </div>
+                </div>
+
+                <!-- 内容输入 -->
+                <div class="content-row">
+                    <textarea class="content-textarea" id="feedbackContent" placeholder="请描述您的建议或遇到的问题..." oninput="updateCounter()"></textarea>
+                    <div class="char-counter"><span id="charCount">0</span>/500</div>
+                </div>
+
+                <!-- 联系方式 - 单行 -->
+                <div class="contact-row">
+                    <span class="contact-label">联系方式</span>
+                    <input type="text" class="contact-input" placeholder="选填">
+                </div>
+            </div>
+
+            <!-- 提交按钮 -->
+            <button class="submit-btn" id="submitBtn" onclick="handleSubmit()" disabled>提交反馈</button>
+        </div>
+    </div>
+
+    <!-- 底部Tab栏 -->
+    <div class="tab-bar">
+        <a href="calendar.html" class="tab-item">
+            <div class="tab-icon">📅</div>
+            <div class="tab-label">月历</div>
+        </a>
+        <a href="detail.html" class="tab-item">
+            <div class="tab-icon">✨</div>
+            <div class="tab-label">今日</div>
+        </a>
+        <a href="onboarding.html" class="tab-item">
+            <div class="tab-icon">📝</div>
+            <div class="tab-label">生辰</div>
+        </a>
+        <a href="#" class="tab-item active" onclick="return false;">
+            <div class="tab-icon">💬</div>
+            <div class="tab-label">反馈</div>
+        </a>
+    </div>
+
+    <script>
+        let selectedType = '功能建议';
+        let hasFeedback = true; // 模拟有数据，实际应从接口获取
+
+        function switchTab(tab) {
+            const listTab = document.getElementById('listTab');
+            const submitTab = document.getElementById('submitTab');
+            const buttons = document.querySelectorAll('.top-tabs .tab-btn');
+
+            if (tab === 'list') {
+                listTab.classList.add('active');
+                submitTab.classList.remove('active');
+                buttons[0].classList.add('active');
+                buttons[1].classList.remove('active');
+            } else {
+                listTab.classList.remove('active');
+                submitTab.classList.add('active');
+                buttons[0].classList.remove('active');
+                buttons[1].classList.add('active');
+            }
+        }
+
+        function selectType(element, type) {
+            document.querySelectorAll('.type-btn').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedType = type;
+            checkSubmitEnabled();
+        }
+
+        function updateCounter() {
+            const content = document.getElementById('feedbackContent').value;
+            document.getElementById('charCount').textContent = content.length;
+            checkSubmitEnabled();
+        }
+
+        function checkSubmitEnabled() {
+            const content = document.getElementById('feedbackContent').value;
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = content.trim().length < 10;
+        }
+
+        function handleSubmit() {
+            const btn = document.getElementById('submitBtn');
+            btn.textContent = '提交中...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                alert('提交成功！');
+                // 提交成功后切换到列表，并刷新列表（实际应重新获取数据）
+                hasFeedback = true;
+                updateListDisplay();
+                switchTab('list');
+                btn.textContent = '提交反馈';
+            }, 800);
+        }
+
+        function updateListDisplay() {
+            const emptyState = document.getElementById('emptyState');
+            const feedbackItems = document.querySelectorAll('.feedback-item');
+
+            if (hasFeedback) {
+                emptyState.style.display = 'none';
+                feedbackItems.forEach(item => item.style.display = 'block');
+            } else {
+                emptyState.style.display = 'flex';
+                feedbackItems.forEach(item => item.style.display = 'none');
+            }
+        }
+
+        // 初始化：首次进入时判断是否显示空状态
+        // hasFeedback = false; // 设为 false 可测试空状态效果
+        updateListDisplay();
+    </script>
+</body>
+</html>

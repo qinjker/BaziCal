@@ -68,3 +68,10 @@ val BranchHai = Color(0xFF60a5fa)       // 亥 - 蓝
 val TenGodGold = Color(0xFFD4A843)      // 财类 - 暖金
 val TenGodGreen = Color(0xFF5A8A6A)     // 印类 - 墨绿
 val TenGodRed = Color(0xFFC84A3E)        // 官杀/伤官 - 朱砂红
+
+// Additional UI Colors
+val SuccessBg = Color(0xFFE8F5E9)
+val ErrorBg = Color(0xFFFFEBEE)
+val InfoBg = Color(0xFFE3F2FD)
+val WarningBg = Color(0xFFFFF3E0)
+val Disabled = Color(0xFFE8E0D5)

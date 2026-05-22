@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { apiService } from '@/api';
+import AdminLayout from './components/AdminLayout.vue';
 import dayjs from 'dayjs';
 
 interface User {
@@ -62,7 +63,6 @@ const formatDate = (dateStr: string) => {
 };
 
 const formatBirthday = (birthday: string) => {
-  // 如果是 ISO 格式的日期字符串，只取日期部分
   if (birthday.includes('T')) {
     return dayjs(birthday).format('YYYY-MM-DD');
   }
@@ -79,94 +79,81 @@ const getHourName = (hour: number, minute: number) => {
   const m = minute.toString().padStart(2, '0');
   return `${h}:${m}`;
 };
-
-const logout = () => {
-  localStorage.removeItem('admin_token');
-  router.push('/admin/login');
-};
 </script>
 
 <template>
-  <div class="admin-page">
-    <!-- 顶部导航 -->
-    <div class="header">
-      <div class="title">用户管理</div>
-      <button class="logout-btn" @click="logout">退出</button>
-    </div>
-
-    <!-- 加载状态 -->
-    <div v-if="loading" class="loading">加载中...</div>
-
-    <!-- 用户列表 -->
-    <div v-else class="user-list">
-      <div class="list-header">
-        <span>用户名</span>
-        <span>生日</span>
-        <span>时辰</span>
-        <span>八字</span>
-        <span>注册时间</span>
+  <AdminLayout>
+    <div class="admin-page">
+      <div class="page-header">
+        <h2 class="page-title">用户管理</h2>
+        <span class="user-count">共 {{ total }} 位用户</span>
       </div>
 
-      <div v-for="user in users" :key="user.id" class="user-item">
-        <span class="user-name">{{ user.name }}</span>
-        <span class="user-birthday">{{ formatBirthday(user.birthday) }}</span>
-        <span class="user-hour">{{ getHourName(user.hour, user.minute) }}</span>
-        <span class="user-bazi">{{ getBaziString(user) }}</span>
-        <span class="user-date">{{ formatDate(user.createdAt) }}</span>
+      <div v-if="loading" class="loading">加载中...</div>
+
+      <div v-else class="user-list">
+        <div class="list-header">
+          <span>用户名</span>
+          <span>生日</span>
+          <span>时辰</span>
+          <span>八字</span>
+          <span>注册时间</span>
+        </div>
+
+        <div v-for="user in users" :key="user.id" class="user-item">
+          <span class="user-name">{{ user.name }}</span>
+          <span class="user-birthday">{{ formatBirthday(user.birthday) }}</span>
+          <span class="user-hour">{{ getHourName(user.hour, user.minute) }}</span>
+          <span class="user-bazi">{{ getBaziString(user) }}</span>
+          <span class="user-date">{{ formatDate(user.createdAt) }}</span>
+        </div>
+
+        <div v-if="users.length === 0" class="empty">暂无用户数据</div>
       </div>
 
-      <div v-if="users.length === 0" class="empty">暂无用户数据</div>
+      <div v-if="total > pageSize" class="pagination">
+        <button
+          class="page-btn"
+          :disabled="page === 1"
+          @click="handlePageChange(page - 1)"
+        >
+          上一页
+        </button>
+        <span class="page-info">{{ page }} / {{ Math.ceil(total / pageSize) }}</span>
+        <button
+          class="page-btn"
+          :disabled="page >= Math.ceil(total / pageSize)"
+          @click="handlePageChange(page + 1)"
+        >
+          下一页
+        </button>
+      </div>
     </div>
-
-    <!-- 分页 -->
-    <div v-if="total > pageSize" class="pagination">
-      <button
-        class="page-btn"
-        :disabled="page === 1"
-        @click="handlePageChange(page - 1)"
-      >
-        上一页
-      </button>
-      <span class="page-info">{{ page }} / {{ Math.ceil(total / pageSize) }}</span>
-      <button
-        class="page-btn"
-        :disabled="page >= Math.ceil(total / pageSize)"
-        @click="handlePageChange(page + 1)"
-      >
-        下一页
-      </button>
-    </div>
-  </div>
+  </AdminLayout>
 </template>
 
 <style scoped>
 .admin-page {
-  min-height: 100vh;
-  background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
-  padding: 15px;
+  padding: 30px;
   color: #fff;
 }
 
-.header {
+.page-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
-.title {
-  font-size: 20px;
+.page-title {
+  font-size: 24px;
   font-weight: bold;
+  margin: 0;
 }
 
-.logout-btn {
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  border-radius: 20px;
-  color: #fff;
+.user-count {
   font-size: 14px;
-  cursor: pointer;
+  color: #888;
 }
 
 .loading {
@@ -185,19 +172,25 @@ const logout = () => {
   display: grid;
   grid-template-columns: 80px 100px 60px 1fr 120px;
   gap: 10px;
-  padding: 15px;
-  background: rgba(255, 255, 255, 0.1);
+  padding: 15px 20px;
+  background: rgba(255, 255, 255, 0.08);
   font-size: 12px;
   color: #888;
+  font-weight: 500;
 }
 
 .user-item {
   display: grid;
   grid-template-columns: 80px 100px 60px 1fr 120px;
   gap: 10px;
-  padding: 15px;
+  padding: 18px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   font-size: 14px;
+  transition: background 0.2s;
+}
+
+.user-item:hover {
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .user-item:last-child {
@@ -206,6 +199,15 @@ const logout = () => {
 
 .user-name {
   color: #f6d365;
+  font-weight: 500;
+}
+
+.user-birthday {
+  color: #ccc;
+}
+
+.user-hour {
+  color: #ccc;
 }
 
 .user-bazi {
@@ -229,21 +231,26 @@ const logout = () => {
   align-items: center;
   justify-content: center;
   gap: 20px;
-  margin-top: 20px;
+  margin-top: 25px;
 }
 
 .page-btn {
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.1);
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.08);
   border: none;
   border-radius: 20px;
   color: #fff;
   font-size: 14px;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .page-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 

@@ -183,9 +183,6 @@ CREATE TABLE feedback (
   user_id         VARCHAR(64) COMMENT '提交者user_id（非必须，用于已登录用户）',
   device_id       VARCHAR(128) COMMENT '设备ID（用于关联用户）',
   status          VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'reviewed', 'replied', 'closed')),
-  reply           TEXT COMMENT '管理员回复内容',
-  replied_by      VARCHAR(32) COMMENT '回复人用户名',
-  replied_at      TIMESTAMP COMMENT '回复时间',
   created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -208,9 +205,6 @@ CREATE INDEX idx_feedback_created_at ON feedback(created_at DESC);
 | user_id | VARCHAR(64) | 提交者user_id（已登录用户） |
 | device_id | VARCHAR(128) | 设备ID（用于关联未登录用户） |
 | status | VARCHAR(20) | 处理状态 |
-| reply | TEXT | 管理员回复内容 |
-| replied_by | VARCHAR(32) | 回复人用户名 |
-| replied_at | TIMESTAMP | 回复时间 |
 | created_at | TIMESTAMP | 提交时间 |
 | updated_at | TIMESTAMP | 更新时间 |
 
@@ -220,8 +214,146 @@ CREATE INDEX idx_feedback_created_at ON feedback(created_at DESC);
 |------|------|
 | pending | 待处理（默认） |
 | reviewed | 已查看 |
-| replied | 已回复 |
+| replied | 已回复（当有回复时自动更新） |
 | closed | 已关闭 |
+
+---
+
+### 4.1 feedback_replies（反馈回复表）
+
+存储反馈的对话记录，支持盖楼功能。
+
+```sql
+CREATE TABLE feedback_replies (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  feedback_id     UUID NOT NULL REFERENCES feedback(id) ON DELETE CASCADE,
+  content         TEXT NOT NULL COMMENT '回复内容',
+  author_type     VARCHAR(10) NOT NULL CHECK (author_type IN ('user', 'admin')) COMMENT '回复者类型：user=用户，admin=管理员',
+  author_id       VARCHAR(64) NOT NULL COMMENT '回复者ID（user_id或admin username）',
+  author_name     VARCHAR(32) NOT NULL COMMENT '回复者显示名称',
+  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_feedback_replies_feedback_id ON feedback_replies(feedback_id);
+CREATE INDEX idx_feedback_replies_created_at ON feedback_replies(created_at ASC);
+```
+
+**字段说明：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | UUID | 主键 |
+| feedback_id | UUID | 关联的反馈ID |
+| content | TEXT | 回复内容 |
+| author_type | VARCHAR(10) | 回复者类型（user/admin） |
+| author_id | VARCHAR(64) | 回复者ID |
+| author_name | VARCHAR(32) | 回复者显示名称 |
+| created_at | TIMESTAMP | 回复时间 |
+
+**说明：** 用户和管理员都可以回复，通过 author_type 区分。查询时按 created_at 升序排列即可形成盖楼效果。
+
+---
+
+### 5. static_messages（静态寄语库）
+
+存储预生成的静态寄语，用于 LLM 不可用时的最终降级。
+
+```sql
+CREATE TABLE static_messages (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  content         TEXT NOT NULL,
+  category        VARCHAR(50) DEFAULT 'general',
+  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_static_messages_category ON static_messages(category);
+```
+
+**字段说明：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | UUID | 主键 |
+| content | TEXT | 寄语内容 |
+| category | VARCHAR(50) | 分类（默认 general） |
+| created_at | TIMESTAMP | 创建时间 |
+
+**说明：** 项目启动时检查是否有 100 条记录，无则调用 LLM 生成 100 条入库。
+
+---
+
+### 6. daily_messages（每日寄语缓存）
+
+按生日和日期缓存 LLM 生成的寄语。
+
+```sql
+CREATE TABLE daily_messages (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  birthday          DATE NOT NULL,
+  date              DATE NOT NULL,
+  messages          TEXT[] NOT NULL,
+  prompt_tokens     INTEGER,
+  completion_tokens INTEGER,
+  generated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  expires_at        TIMESTAMP NOT NULL,
+  UNIQUE(birthday, date)
+);
+
+CREATE INDEX idx_daily_messages_birthday_date ON daily_messages(birthday, date);
+CREATE INDEX idx_daily_messages_expires ON daily_messages(expires_at);
+```
+
+**字段说明：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | UUID | 主键 |
+| birthday | DATE | 生日日期（共享缓存粒度） |
+| date | DATE | 当日日期 |
+| messages | TEXT[] | 寄语数组（3条） |
+| prompt_tokens | INTEGER | 提示词 token 数 |
+| completion_tokens | INTEGER | 回复 token 数 |
+| generated_at | TIMESTAMP | 生成时间 |
+| expires_at | TIMESTAMP | 过期时间（当天 23:59:59） |
+
+**说明：** 同一生日的用户共享每日寄语，缓存 Key 为 `birthday + date`。
+
+---
+
+### 7. llm_usage_logs（LLM 使用日志）
+
+记录 LLM 调用情况，用于成本分析和问题排查。
+
+```sql
+CREATE TABLE llm_usage_logs (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  provider          VARCHAR(50) NOT NULL,
+  model             VARCHAR(100) NOT NULL,
+  prompt_tokens     INTEGER,
+  completion_tokens  INTEGER,
+  response_time     INTEGER,
+  success           BOOLEAN DEFAULT true,
+  error_message     TEXT,
+  created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_llm_usage_logs_provider ON llm_usage_logs(provider);
+CREATE INDEX idx_llm_usage_logs_created ON llm_usage_logs(created_at);
+```
+
+**字段说明：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | UUID | 主键 |
+| provider | VARCHAR(50) | 提供商（minimax/qwen） |
+| model | VARCHAR(100) | 模型名称 |
+| prompt_tokens | INTEGER | 提示词 token 数 |
+| completion_tokens | INTEGER | 回复 token 数 |
+| response_time | INTEGER | 响应时间（毫秒） |
+| success | BOOLEAN | 是否成功 |
+| error_message | TEXT | 错误信息 |
+| created_at | TIMESTAMP | 创建时间 |
 
 ---
 

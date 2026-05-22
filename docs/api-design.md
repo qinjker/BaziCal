@@ -384,7 +384,69 @@
 
 ---
 
-### 6. 获取反馈列表（管理后台）
+### 6. 获取我的反馈列表
+
+**GET** `/api/v1/feedbacks`
+
+获取当前用户的反馈列表，需要签名验证。
+
+**Request Query:**
+```
+?page=1&pageSize=20
+```
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| page | int | ❌ | 页码 (默认1) |
+| pageSize | int | ❌ | 每页数量 (默认20) |
+
+**Response:**
+```json
+{
+  "code": 0,
+  "data": {
+    "feedbacks": [
+      {
+        "id": "uuid-xxx",
+        "type": "功能建议",
+        "content": "希望增加春节提醒功能",
+        "contact": "微信号：xxx",
+        "status": "replied",
+        "latestReply": {
+          "author_type": "admin",
+          "author_name": "客服小八",
+          "content": "感谢反馈，已记录..."
+        },
+        "replyCount": 3,
+        "created_at": "2026-05-20T12:00:00Z"
+      }
+    ],
+    "total": 5,
+    "page": 1,
+    "pageSize": 20
+  }
+}
+```
+
+**Response 字段说明：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | UUID | 反馈ID |
+| type | string | 反馈类型 |
+| content | string | 反馈内容 |
+| contact | string | 联系方式 |
+| status | string | 状态 (pending/reviewed/replied/closed) |
+| latestReply | object | 最新一条回复（用于列表展示预览） |
+| latestReply.author_type | string | 回复者类型 (user/admin) |
+| latestReply.author_name | string | 回复者名称 |
+| latestReply.content | string | 回复内容预览 |
+| replyCount | int | 回复总数 |
+| created_at | string | 提交时间 |
+
+---
+
+### 7. 获取反馈列表（管理后台）
 
 **GET** `/api/v1/admin/feedbacks`
 
@@ -416,8 +478,16 @@
         "user_id": "xxx",
         "device_id": "xxx",
         "status": "pending",
-        "reply": null,
-        "replied_at": null,
+        "replies": [
+          {
+            "id": "reply-uuid",
+            "content": "感谢您的反馈，我们已记录",
+            "author_type": "admin",
+            "author_id": "admin1",
+            "author_name": "客服小八",
+            "created_at": "2026-05-21T10:00:00Z"
+          }
+        ],
         "created_at": "2026-05-20T12:00:00Z"
       }
     ],
@@ -428,18 +498,66 @@
 }
 ```
 
+**Response 字段说明：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| replies | array | 回复列表，按时间升序排列形成盖楼效果 |
+
 ---
 
-### 7. 回复反馈（管理后台）
+### 8. 获取反馈的回复列表
 
-**POST** `/api/v1/admin/feedbacks/:id/reply`
+**GET** `/api/v1/feedbacks/:id/replies`
 
-回复用户反馈，需要管理员认证。
+获取指定反馈的所有回复（支持盖楼展示），需要签名验证。
 
-**Request:**
+**Response:**
 ```json
 {
-  "reply": "感谢您的反馈，我们已记录并在后续版本中考虑。"
+  "code": 0,
+  "data": {
+    "replies": [
+      {
+        "id": "reply-uuid-1",
+        "content": "希望增加春节提醒功能",
+        "author_type": "user",
+        "author_id": "user-xxx",
+        "author_name": "用户",
+        "created_at": "2026-05-20T12:00:00Z"
+      },
+      {
+        "id": "reply-uuid-2",
+        "content": "感谢您的反馈，我们已记录",
+        "author_type": "admin",
+        "author_id": "admin1",
+        "author_name": "客服小八",
+        "created_at": "2026-05-21T10:00:00Z"
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 9. 添加反馈回复（支持盖楼）
+
+**POST** `/api/v1/feedbacks/:id/replies`
+
+用户或管理员添加回复，需要签名验证（用户）或管理员认证（管理员）。
+
+**用户提交 Request:**
+```json
+{
+  "content": "追问：能具体说说计划吗？"
+}
+```
+
+**管理员提交 Request:**
+```json
+{
+  "content": "感谢您的反馈，我们已记录并在后续版本中考虑。"
 }
 ```
 
@@ -453,7 +571,30 @@
 
 ---
 
-### 8. 更新反馈状态（管理后台）
+### 10. 回复反馈（管理后台 - 兼容旧版）
+
+**POST** `/api/v1/admin/feedbacks/:id/reply`
+
+回复用户反馈（内部调用添加回复接口），需要管理员认证。
+
+**Request:**
+```json
+{
+  "content": "感谢您的反馈，我们已记录并在后续版本中考虑。"
+}
+```
+
+**Response:**
+```json
+{
+  "code": 0,
+  "message": "回复成功"
+}
+```
+
+---
+
+### 11. 更新反馈状态（管理后台）
 
 **PATCH** `/api/v1/admin/feedbacks/:id/status`
 
@@ -473,6 +614,60 @@
   "message": "状态已更新"
 }
 ```
+
+---
+
+### 12. 获取每日寄语
+
+**POST** `/api/v1/bazi/daily-message`
+
+获取指定生日和日期的正能量寄语，需要签名验证。
+
+**Request:**
+```json
+{
+  "birthday": "1990-01-15",
+  "date": "2026-05-21"
+}
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| birthday | string | ✅ | 生日日期 (YYYY-MM-DD) |
+| date | string | ✅ | 当日日期 (YYYY-MM-DD) |
+
+**Response:**
+```json
+{
+  "code": 0,
+  "data": {
+    "birthday": "1990-01-15",
+    "date": "2026-05-21",
+    "messages": [
+      "今天的你思维清晰，稳重的特质让你处理问题格外得心应手",
+      "正官星旺，今日贵人运强，多与人交流会有意想不到的收获",
+      "保持平和心态，你的踏实和耐心正在为你积累好运"
+    ],
+    "source": "ai",
+    "model": "abab6.5s-chat",
+    "cached": false
+  }
+}
+```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| birthday | string | 生日日期 |
+| date | string | 当日日期 |
+| messages | string[] | 寄语数组（3条） |
+| source | string | 来源：ai=LLM生成，static=静态寄语库 |
+| model | string | 使用的模型名称 |
+| cached | boolean | 是否命中缓存 |
+
+**说明：**
+- 优先从缓存获取，未命中则调用 LLM 生成
+- LLM 降级顺序：MiniMax → Qwen → 静态寄语库
+- 缓存过期时间：当天 23:59:59
 
 ---
 

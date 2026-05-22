@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>反馈详情 - 十神能量日历</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #F7F4EF;
+        }
+
+        .phone-container {
+            width: 100%;
+            max-width: 390px;
+            min-height: 100vh;
+            margin: 0 auto;
+            background: #F7F4EF;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: white;
+            border-bottom: 1px solid rgba(232, 224, 213, 0.8);
+        }
+
+        .nav-back {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #2C1810;
+            font-size: 24px;
+            border-radius: 12px;
+        }
+
+        .nav-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 18px;
+            color: #2C1810;
+            margin: 0;
+        }
+
+        .nav-status {
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .nav-status.pending {
+            background: #FFF3E022;
+            color: #E65100;
+        }
+
+        .nav-status.replied {
+            background: #E8F5E922;
+            color: #4CAF50;
+        }
+
+        /* 对话区域 */
+        .messages-container {
+            padding: 16px;
+            padding-bottom: 90px;
+        }
+
+        /* 反馈原始内容卡片 */
+        .original-card {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(44, 24, 16, 0.06);
+        }
+
+        .original-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .type-badge {
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .type-badge.suggestion { background: #E8F5E922; color: #4CAF50; }
+        .type-badge.bug { background: #FFEBEE22; color: #C84A3E; }
+        .type-badge.optimization { background: #E3F2FD22; color: #2196F3; }
+
+        .original-time {
+            font-size: 12px;
+            color: #B8A892;
+        }
+
+        .original-content {
+            font-size: 15px;
+            color: #2C1810;
+            line-height: 1.7;
+        }
+
+        /* 消息气泡 */
+        .message-item {
+            display: flex;
+            margin-bottom: 12px;
+        }
+
+        .message-item.user {
+            flex-direction: row;
+        }
+
+        .message-item.admin {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .message-item.user .message-avatar {
+            background: linear-gradient(145deg, #4CAF50 0%, #388E3C 100%);
+        }
+
+        .message-item.admin .message-avatar {
+            background: linear-gradient(145deg, #D65A4E 0%, #B8443A 100%);
+        }
+
+        .message-bubble {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            margin: 0 10px;
+        }
+
+        .message-item.user .message-bubble {
+            background: white;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(44, 24, 16, 0.08);
+        }
+
+        .message-item.admin .message-bubble {
+            background: linear-gradient(145deg, #D65A4E 0%, #B8443A 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-name {
+            font-size: 11px;
+            margin-bottom: 4px;
+            opacity: 0.7;
+        }
+
+        .message-item.admin .message-name {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .message-text {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message-time {
+            font-size: 10px;
+            margin-top: 6px;
+            opacity: 0.6;
+        }
+
+        .message-item.admin .message-time {
+            color: rgba(255,255,255,0.8);
+            text-align: right;
+        }
+
+        /* 底部输入框 */
+        .input-area {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 390px;
+            background: white;
+            border-top: 1px solid rgba(232, 224, 213, 0.8);
+            padding: 12px 16px;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+        }
+
+        .input-field {
+            flex: 1;
+            background: #FAF6F0;
+            border: 1.5px solid #E8E0D5;
+            border-radius: 14px;
+            padding: 12px 16px;
+            font-size: 15px;
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #2C1810;
+            resize: none;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #C84A3E;
+        }
+
+        .input-field::placeholder {
+            color: #B8A892;
+        }
+
+        .btn-send {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(145deg, #D65A4E 0%, #B8443A 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(200, 74, 62, 0.3);
+        }
+
+        .btn-send:active {
+            transform: scale(0.95);
+        }
+
+        .btn-send:disabled {
+            background: #E8E0D5;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* 底部Tab栏 */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 390px;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+            border-top: 1px solid rgba(232, 224, 213, 0.8);
+            z-index: 50;
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px 12px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .tab-icon {
+            font-size: 24px;
+            margin-bottom: 3px;
+        }
+
+        .tab-label {
+            font-size: 10px;
+            color: #B8A892;
+            font-weight: 500;
+        }
+
+        .tab-item.active .tab-icon,
+        .tab-item.active .tab-label {
+            color: #C84A3E;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <!-- 导航栏 -->
+        <div class="navbar">
+            <a href="feedback-center.html" class="nav-back">←</a>
+            <h1 class="nav-title">反馈详情</h1>
+            <span class="nav-status replied">已回复</span>
+        </div>
+
+        <!-- 对话区域 -->
+        <div class="messages-container">
+            <!-- 原始反馈 -->
+            <div class="original-card">
+                <div class="original-header">
+                    <span class="type-badge suggestion">功能建议</span>
+                    <span class="original-time">5月18日 14:32</span>
+                </div>
+                <div class="original-content">希望能增加春节期间的特别提醒功能，显示哪些日子是 auspicious 的，适合做什么事情。</div>
+            </div>
+
+            <!-- 用户消息 -->
+            <div class="message-item user">
+                <div class="message-avatar">👤</div>
+                <div class="message-bubble">
+                    <div class="message-name">我</div>
+                    <div class="message-text">补充：最好能显示每日的吉凶方位和宜忌事项</div>
+                    <div class="message-time">5月18日 14:35</div>
+                </div>
+            </div>
+
+            <!-- 管理员消息 -->
+            <div class="message-item admin">
+                <div class="message-avatar">👨‍💼</div>
+                <div class="message-bubble">
+                    <div class="message-name">客服小八</div>
+                    <div class="message-text">感谢您的建议！我们已记录并在下一个版本中考虑添加春节期间的特别提示功能。</div>
+                    <div class="message-time">5月21日 10:15</div>
+                </div>
+            </div>
+
+            <!-- 管理员再次回复 -->
+            <div class="message-item admin">
+                <div class="message-avatar">👨‍💼</div>
+                <div class="message-bubble">
+                    <div class="message-name">客服小八</div>
+                    <div class="message-text">您提到的吉凶方位和宜忌功能也很实用～</div>
+                    <div class="message-time">5月21日 10:18</div>
+                </div>
+            </div>
+
+            <!-- 用户追问 -->
+            <div class="message-item user">
+                <div class="message-avatar">👤</div>
+                <div class="message-bubble">
+                    <div class="message-name">我</div>
+                    <div class="message-text">太好了，期待新版本！另外日历能否支持深色模式？</div>
+                    <div class="message-time">5月21日 11:30</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部输入框 -->
+        <div class="input-area">
+            <textarea class="input-field" id="msgInput" placeholder="输入回复内容..." oninput="toggleSendBtn()"></textarea>
+            <button class="btn-send" id="sendBtn" disabled onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleSendBtn() {
+            const input = document.getElementById('msgInput');
+            const btn = document.getElementById('sendBtn');
+            btn.disabled = input.value.trim().length === 0;
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('msgInput');
+            if (input.value.trim()) {
+                alert('消息已发送: ' + input.value);
+                input.value = '';
+                toggleSendBtn();
+            }
+        }
+    </script>
+</body>
+</html>

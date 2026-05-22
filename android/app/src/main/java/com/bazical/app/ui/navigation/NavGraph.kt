@@ -14,6 +14,8 @@ import androidx.navigation.navArgument
 import com.bazical.app.ui.calendar.CalendarScreen
 import com.bazical.app.ui.components.TabItem
 import com.bazical.app.ui.daily.DailyScreen
+import com.bazical.app.ui.feedback.FeedbackCenterScreen
+import com.bazical.app.ui.feedback.FeedbackDetailScreen
 import com.bazical.app.ui.home.HomeScreen
 import com.bazical.app.ui.splash.SplashScreen
 
@@ -23,6 +25,10 @@ sealed class Screen(val route: String) {
     data object Calendar : Screen("calendar")
     data object Daily : Screen("daily/{date}") {
         fun createRoute(date: String) = "daily/$date"
+    }
+    data object FeedbackCenter : Screen("feedback_center")
+    data object FeedbackDetail : Screen("feedback_detail/{id}") {
+        fun createRoute(id: String) = "feedback_detail/$id"
     }
 }
 
@@ -75,7 +81,7 @@ fun BaziCalNavHost(
                             // Already on home
                         }
                         TabItem.Feedback -> {
-                            // TODO
+                            navController.navigate(Screen.FeedbackCenter.route)
                         }
                     }
                 }
@@ -157,10 +163,30 @@ fun BaziCalNavHost(
                             }
                         }
                         TabItem.Feedback -> {
-                            // TODO
+                            navController.navigate(Screen.FeedbackCenter.route)
                         }
                     }
                 }
+            )
+        }
+
+        composable(Screen.FeedbackCenter.route) {
+            currentRoute = "feedback"
+            FeedbackCenterScreen(
+                onNavigateToDetail = { id ->
+                    navController.navigate(Screen.FeedbackDetail.createRoute(id))
+                }
+            )
+        }
+
+        composable(
+            route = Screen.FeedbackDetail.route,
+            arguments = listOf(
+                navArgument("id") { type = NavType.StringType }
+            )
+        ) {
+            FeedbackDetailScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }

@@ -4,10 +4,16 @@ import com.bazical.app.data.remote.dto.ApiResponse
 import com.bazical.app.data.remote.dto.CalculateRequest
 import com.bazical.app.data.remote.dto.CalculateResponse
 import com.bazical.app.data.remote.dto.CalendarResponse
+import com.bazical.app.data.remote.dto.FeedbackListResponse
+import com.bazical.app.data.remote.dto.FeedbackRequest
+import com.bazical.app.data.remote.dto.FeedbackDto
+import com.bazical.app.data.remote.dto.ReplyRequest
+import com.bazical.app.data.remote.dto.RepliesResponse
 import com.bazical.app.data.remote.dto.SolarToLunarResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface BaziApi {
@@ -24,4 +30,28 @@ interface BaziApi {
 
     @GET("api/v1/bazi/solar-to-lunar")
     suspend fun solarToLunar(@Query("date") date: String): ApiResponse<SolarToLunarResponse>
+
+    // ==================== 反馈相关 API ====================
+
+    @POST("api/v1/feedback")
+    suspend fun submitFeedback(@Body request: FeedbackRequest): ApiResponse<Unit>
+
+    @GET("api/v1/feedbacks")
+    suspend fun getMyFeedbacks(
+        @Query("device_id") deviceId: String,
+        @Query("page") page: Int = 1,
+        @Query("pageSize") pageSize: Int = 20
+    ): ApiResponse<FeedbackListResponse>
+
+    @GET("api/v1/feedbacks/{id}")
+    suspend fun getFeedbackDetail(@Path("id") id: String): ApiResponse<FeedbackDto>
+
+    @GET("api/v1/feedbacks/{id}/replies")
+    suspend fun getFeedbackReplies(@Path("id") id: String): ApiResponse<RepliesResponse>
+
+    @POST("api/v1/feedbacks/{id}/replies")
+    suspend fun addFeedbackReply(
+        @Path("id") id: String,
+        @Body request: ReplyRequest
+    ): ApiResponse<Unit>
 }
