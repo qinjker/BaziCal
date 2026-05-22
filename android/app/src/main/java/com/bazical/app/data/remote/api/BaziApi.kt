@@ -10,6 +10,7 @@ import com.bazical.app.data.remote.dto.FeedbackDto
 import com.bazical.app.data.remote.dto.ReplyRequest
 import com.bazical.app.data.remote.dto.RepliesResponse
 import com.bazical.app.data.remote.dto.SolarToLunarResponse
+import com.bazical.app.data.remote.dto.DailyDetailResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -30,6 +31,12 @@ interface BaziApi {
 
     @GET("api/v1/bazi/solar-to-lunar")
     suspend fun solarToLunar(@Query("date") date: String): ApiResponse<SolarToLunarResponse>
+
+    @GET("api/v1/bazi/daily/{date}")
+    suspend fun getDailyDetail(
+        @Path("date") date: String,
+        @Query("userId") userId: String
+    ): ApiResponse<DailyDetailResponse>
 
     // ==================== 反馈相关 API ====================
 

@@ -59,3 +59,31 @@ data class ShiShenDto(
     @Json(name = "day") val day: String,
     @Json(name = "hour") val hour: String
 )
+
+// ==================== 每日详情 DTO ====================
+
+@JsonClass(generateAdapter = true)
+data class DailyDetailResponse(
+    @Json(name = "date") val date: String,
+    @Json(name = "ganzhi") val ganzhi: String,
+    @Json(name = "shishen") val shishen: String,
+    @Json(name = "branchShishen") val branchShishen: String,
+    @Json(name = "energy") val energy: EnergyDto,
+    @Json(name = "lucky") val lucky: LuckyDto,
+    @Json(name = "messages") val messages: List<String>,
+    @Json(name = "tags") val tags: List<String>
+)
+
+@JsonClass(generateAdapter = true)
+data class EnergyDto(
+    @Json(name = "level") val level: Int,
+    @Json(name = "description") val description: String
+)
+
+@JsonClass(generateAdapter = true)
+data class LuckyDto(
+    @Json(name = "direction") val direction: String,
+    @Json(name = "time") val time: String,
+    @Json(name = "color") val color: String,
+    @Json(name = "number") val number: Int
+)

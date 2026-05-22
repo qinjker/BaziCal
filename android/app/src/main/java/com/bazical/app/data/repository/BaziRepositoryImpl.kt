@@ -6,6 +6,7 @@ import com.bazical.app.data.remote.dto.CalculateRequest
 import com.bazical.app.domain.model.BaZi
 import com.bazical.app.domain.model.CalendarDay
 import com.bazical.app.domain.model.CalendarMonth
+import com.bazical.app.domain.model.DailyDetail
 import com.bazical.app.domain.model.Gender
 import com.bazical.app.domain.model.LunarDate
 import com.bazical.app.domain.model.Pillars
@@ -100,6 +101,31 @@ class BaziRepositoryImpl @Inject constructor(
             val apiResponse = api.solarToLunar(date)
             val response = apiResponse.data ?: throw Exception(apiResponse.message)
             Result.success(LunarDate(response.lunarYear, response.lunarMonth, response.lunarDay, false))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getDailyDetail(userId: String, date: String): Result<DailyDetail> {
+        return try {
+            val apiResponse = api.getDailyDetail(date, userId)
+            val response = apiResponse.data ?: throw Exception(apiResponse.message)
+            Result.success(
+                DailyDetail(
+                    date = response.date,
+                    ganzhi = response.ganzhi,
+                    shishen = response.shishen,
+                    branchShishen = response.branchShishen,
+                    energyLevel = response.energy.level,
+                    energyDescription = response.energy.description,
+                    luckyDirection = response.lucky.direction,
+                    luckyTime = response.lucky.time,
+                    luckyColor = response.lucky.color,
+                    luckyNumber = response.lucky.number,
+                    messages = response.messages,
+                    tags = response.tags
+                )
+            )
         } catch (e: Exception) {
             Result.failure(e)
         }
