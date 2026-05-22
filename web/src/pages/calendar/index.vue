@@ -89,6 +89,11 @@ const viewDaily = (day: DailyData) => {
 
 // 跳转到今日详情
 const goToDaily = () => {
+  userStore.restore();
+  if (!userStore.user) {
+    alert('请先输入生日信息，查看您的专属八字日历');
+    return;
+  }
   router.push(`/daily?date=${dayjs().format('YYYY-MM-DD')}`);
 };
 
