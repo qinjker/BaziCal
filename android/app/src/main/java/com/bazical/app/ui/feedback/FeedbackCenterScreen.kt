@@ -119,7 +119,7 @@ private fun TabButton(
         Text(
             text = text,
             fontSize = 15.sp,
-            color = if (isSelected) Color.TextPrimary else Color.TextSecondary,
+            color = if (isSelected) TextPrimary else TextSecondary,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
         )
         if (isSelected) {
@@ -150,7 +150,7 @@ private fun FeedbackListContent(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = Color.Primary)
+                CircularProgressIndicator(color = Primary)
             }
         }
         feedbacks.isEmpty() -> {
@@ -223,7 +223,7 @@ private fun FeedbackItem(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
-                            color = Color.Background,
+                            color = Background,
                             shape = RoundedCornerShape(12.dp)
                         )
                         .padding(12.dp),
@@ -234,8 +234,8 @@ private fun FeedbackItem(
                             .size(28.dp)
                             .background(
                                 color = if (lastReply.isFromAdmin)
-                                    Color.Primary
-                                else Color.Success,
+                                    Primary
+                                else Success,
                                 shape = CircleShape
                             ),
                         contentAlignment = Alignment.Center
@@ -294,10 +294,10 @@ private fun FeedbackItem(
 @Composable
 private fun TypeBadge(type: FeedbackType) {
     val (bgColor, textColor) = when (type) {
-        FeedbackType.功能建议 -> Color.SuccessBg to Color.Success
-        FeedbackType.问题反馈 -> Color.ErrorBg to Color.Primary
-        FeedbackType.体验优化 -> Color.InfoBg to Color.Info
-        FeedbackType.其他 -> Color.Background to Color.TextSecondary
+        FeedbackType.功能建议 -> SuccessBg to Success
+        FeedbackType.问题反馈 -> ErrorBg to Primary
+        FeedbackType.体验优化 -> InfoBg to Info
+        FeedbackType.其他 -> Background to TextSecondary
     }
 
     Box(
@@ -317,10 +317,10 @@ private fun TypeBadge(type: FeedbackType) {
 @Composable
 private fun StatusBadge(status: FeedbackStatus) {
     val (bgColor, textColor) = when (status) {
-        FeedbackStatus.pending -> Color.WarningBg to Color.Warning
-        FeedbackStatus.reviewed -> Color.InfoBg to Color.Info
-        FeedbackStatus.replied -> Color.SuccessBg to Color.Success
-        FeedbackStatus.closed -> Color.Background to Color.TextSecondary
+        FeedbackStatus.pending -> WarningBg to Warning
+        FeedbackStatus.reviewed -> InfoBg to Info
+        FeedbackStatus.replied -> SuccessBg to Success
+        FeedbackStatus.closed -> Background to TextSecondary
     }
 
     Box(
@@ -357,7 +357,7 @@ private fun EmptyFeedbackState(onRetry: () -> Unit) {
         Button(
             onClick = onRetry,
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Primary
+                containerColor = Primary
             ),
             shape = RoundedCornerShape(14.dp)
         ) {
@@ -410,7 +410,7 @@ private fun SubmitFeedbackContent(
                     .fillMaxWidth()
                     .height(100.dp)
                     .background(
-                        color = Color.Background,
+                        color = Background,
                         shape = RoundedCornerShape(12.dp)
                     )
                     .padding(14.dp)
@@ -469,7 +469,7 @@ private fun SubmitFeedbackContent(
                         .weight(1f)
                         .height(44.dp)
                         .background(
-                            color = Color.Background,
+                            color = Background,
                             shape = RoundedCornerShape(10.dp)
                         )
                         .padding(horizontal = 14.dp),
@@ -499,15 +499,15 @@ private fun SubmitFeedbackContent(
                 .fillMaxWidth()
                 .height(50.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Primary,
-                disabledContainerColor = Color.Disabled
+                containerColor = Primary,
+                disabledContainerColor = Disabled
             ),
             shape = RoundedCornerShape(14.dp)
         ) {
             if (uiState.isSubmitting) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(20.dp),
-                    color = Color.Surface,
+                    color = Surface,
                     strokeWidth = 2.dp
                 )
             } else {
@@ -525,7 +525,7 @@ private fun SubmitFeedbackContent(
             Text(
                 text = error,
                 fontSize = 12.sp,
-                color = Color.Primary
+                color = Primary
             )
         }
     }
@@ -542,8 +542,8 @@ private fun TypeButton(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
             .background(
-                color = if (isSelected) Color.Primary
-                else Color.Background
+                color = if (isSelected) Primary
+                else Background
             )
             .clickable { onClick() }
             .padding(10.dp),
@@ -554,8 +554,8 @@ private fun TypeButton(
         Text(
             text = typeItem.displayName,
             fontSize = 11.sp,
-            color = if (isSelected) Color.Surface
-            else Color.TextSecondary
+            color = if (isSelected) Surface
+            else TextSecondary
         )
     }
 }
