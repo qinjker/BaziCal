@@ -303,7 +303,7 @@ private fun ReplyBubble(reply: Reply) {
                 fontSize = 10.sp,
                 color = TextSecondary,
                 modifier = Modifier.padding(top = 6.dp, start = if (isAdmin) 0.dp else 0.dp),
-                textAlign = if (isAdmin) Alignment.End else Alignment.Start
+                textAlign = if (isAdmin) TextAlign.End else TextAlign.Start
             )
         }
 
