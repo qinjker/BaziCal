@@ -6,16 +6,14 @@ import com.bazical.app.wallpaper.controller.WallpaperController
 import com.bazical.app.wallpaper.renderer.CalendarRenderer
 import kotlinx.coroutines.*
 
-typealias WallpaperEngineBase = WallpaperService.Engine
-
 class BaziCalWallpaperService : WallpaperService() {
 
-    override fun onCreateEngine(): WallpaperEngineBase {
+    override fun onCreateEngine(): WallpaperService.Engine {
         return WallpaperEngine()
     }
 }
 
-class WallpaperEngine : WallpaperEngineBase() {
+class WallpaperEngine : WallpaperService.Engine() {
 
     private var renderer: CalendarRenderer? = null
     private var controller: WallpaperController? = null
@@ -77,8 +75,7 @@ class WallpaperEngine : WallpaperEngineBase() {
         yOffsetStep: Float,
         page: Int
     ) {
-        // Handle page-based wallpaper scrolling (multiple pages)
-        super.onOffsetsChanged(xOffset, yOffset, xPixelOffset, yPixelOffset, xOffsetStep, yPixelOffset, page)
+        super.onOffsetsChanged(xOffset, yOffset, xPixelOffset, yPixelOffset, xOffsetStep, yOffsetStep, page)
     }
 
     override fun onTouchEvent(event: android.view.MotionEvent): Boolean {
@@ -108,7 +105,7 @@ class WallpaperEngine : WallpaperEngineBase() {
         renderJob = scope.launch {
             while (isVisible) {
                 render()
-                delay(16) // ~60fps
+                delay(16)
             }
         }
     }
@@ -120,7 +117,6 @@ class WallpaperEngine : WallpaperEngineBase() {
 
     private fun render() {
         if (currentYear == 0 || calendarDays.isEmpty()) {
-            // Initialize with current date if no data
             val now = java.time.LocalDate.now()
             if (currentYear == 0) {
                 currentYear = now.year
