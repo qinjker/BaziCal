@@ -24,6 +24,7 @@ class WallpaperEngine : WallpaperService.Engine() {
         super.onCreate(surfaceHolder)
         renderer = CalendarRenderer(surfaceHolder)
         controller = renderer?.let { WallpaperController(it) }
+        controller?.init()
 
         // Get screen density for font scaling
         val displayMetrics = resources.displayMetrics
