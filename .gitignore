@@ -41,4 +41,20 @@ web/dist/
 
 # Claude
 .claude/
-ios/
+
+# iOS
+ios/.DS_Store
+ios/*.xcodeproj/
+ios/*.xcworkspace/
+ios/Pods/
+ios/DerivedData/
+ios/build/
+ios/*.xcuserstate
+ios/*.xcuserdatad
+ios/*.hmap
+ios/*.dSYM.zip
+ios/Preview\ Assets/
+ios/Assets.xcassets/
+ios/*.ipa
+ios/*.app
+ios/*.entitlements

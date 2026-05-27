@@ -1,0 +1,65 @@
+name: BaziCalApp
+options:
+  bundleIdPrefix: com.bazical
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "15.0"
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    TARGETED_DEVICE_FAMILY: "1"
+    INFOPLIST_FILE: BaziCalApp/Resources/Info.plist
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: ""
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+
+targets:
+  BaziCalApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: BaziCalApp
+        excludes:
+          - "**/.DS_Store"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bazical.app
+        INFOPLIST_FILE: BaziCalApp/Resources/Info.plist
+        GENERATE_INFOPLIST_FILE: false
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGNING_REQUIRED: "NO"
+        CODE_SIGNING_ALLOWED: "NO"
+
+  BaziCalTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: BaziCalTests
+        excludes:
+          - "**/.DS_Store"
+    dependencies:
+      - target: BaziCalApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bazical.app.tests
+        GENERATE_INFOPLIST_FILE: true
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/BaziCalApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BaziCalApp"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+schemes:
+  BaziCalApp:
+    build:
+      targets:
+        BaziCalApp: all
+        BaziCalTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - BaziCalTests
+    archive:
+      config: Release
