@@ -268,9 +268,10 @@ fun CalendarScreen(
                 )
                 .clickable {
                     try {
-                        val wallpaperManager = WallpaperManager.getInstance(context)
-                        val component = ComponentName(context, com.bazical.app.wallpaper.BaziCalWallpaperService::class.java)
-                        wallpaperManager.setWallpaperComponent(component)
+                        val intent = Intent("android.service.wallpaper.LIVE_WALLPAPER_CHOOSER").apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        context.startActivity(intent)
                     } catch (e: Exception) {
                         showPermissionDialog = true
                     }
