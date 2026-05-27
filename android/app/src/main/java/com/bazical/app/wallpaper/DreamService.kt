@@ -35,10 +35,6 @@ class BaziCalDreamService : DreamService() {
         super.onDreamingStopped()
     }
 
-    override fun onDetachFromWindow() {
-        super.onDetachFromWindow()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
     }
