@@ -1,8 +1,7 @@
 package com.bazical.app.wallpaper
 
 import android.service.dreams.DreamService
-import android.view.ViewGroup
-import androidx.compose.ui.platform.ComposeView
+import android.widget.FrameLayout
 import com.bazical.app.ui.theme.BaziCalTheme
 
 class BaziCalDreamService : DreamService() {
@@ -15,20 +14,8 @@ class BaziCalDreamService : DreamService() {
 
     override fun onDreamingStarted() {
         super.onDreamingStarted()
-        // Use ComposeView for DreamService content
-        val composeView = ComposeView(this).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-        }
-        setContentView(composeView)
-        composeView.setContent {
-            BaziCalTheme {
-                // TODO: Show calendar content here
-                // For now, this is a placeholder
-            }
-        }
+        val layout = FrameLayout(this)
+        setContentView(layout)
     }
 
     override fun onDreamingStopped() {
