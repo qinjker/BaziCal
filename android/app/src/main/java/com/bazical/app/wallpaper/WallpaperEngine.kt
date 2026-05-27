@@ -132,9 +132,9 @@ class BaziCalWallpaperService : WallpaperService() {
 
     private var engine: WallpaperEngine? = null
 
-    override fun onCreateEngine(): Engine {
+    override fun onCreateEngine(): WallpaperService.Engine {
         engine = WallpaperEngine()
-        return engine as Engine
+        return engine!!
     }
 
     override fun onDestroy() {
