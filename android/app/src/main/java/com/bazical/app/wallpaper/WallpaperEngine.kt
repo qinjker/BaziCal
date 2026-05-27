@@ -8,12 +8,12 @@ import kotlinx.coroutines.*
 
 class BaziCalWallpaperService : WallpaperService() {
 
-    override fun onCreateEngine(): WallpaperService.Engine {
-        return WallpaperEngine()
-    }
+    private val engine by lazy { WallpaperEngineImpl() }
+
+    override fun onCreateEngine(): Engine = engine
 }
 
-class WallpaperEngine : WallpaperService.Engine() {
+internal class WallpaperEngineImpl : WallpaperService.Engine() {
 
     private var renderer: CalendarRenderer? = null
     private var controller: WallpaperController? = null
@@ -33,11 +33,9 @@ class WallpaperEngine : WallpaperService.Engine() {
         controller = renderer?.let { WallpaperController(it) }
         controller?.init()
 
-        // Get screen density for font scaling
         val displayMetrics = resources.displayMetrics
         renderer?.setDensity(displayMetrics.density)
 
-        // Set touch listening for scrolling
         isFocusable = true
     }
 
@@ -90,14 +88,6 @@ class WallpaperEngine : WallpaperService.Engine() {
         if (isVisible) {
             render()
         }
-    }
-
-    fun scrollToNextMonth() {
-        controller?.scrollToNextMonth()
-    }
-
-    fun scrollToPrevMonth() {
-        controller?.scrollToPrevMonth()
     }
 
     private fun scheduleRender() {
