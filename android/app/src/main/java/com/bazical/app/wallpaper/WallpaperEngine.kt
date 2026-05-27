@@ -6,6 +6,13 @@ import com.bazical.app.wallpaper.controller.WallpaperController
 import com.bazical.app.wallpaper.renderer.CalendarRenderer
 import kotlinx.coroutines.*
 
+class BaziCalWallpaperService : WallpaperService() {
+
+    override fun onCreateEngine(): WallpaperService.Engine {
+        return WallpaperEngine()
+    }
+}
+
 class WallpaperEngine : WallpaperService.Engine() {
 
     private var renderer: CalendarRenderer? = null
@@ -124,21 +131,6 @@ class WallpaperEngine : WallpaperService.Engine() {
     override fun onDestroy() {
         stopRendering()
         scope.cancel()
-        super.onDestroy()
-    }
-}
-
-class BaziCalWallpaperService : WallpaperService() {
-
-    private var engine: WallpaperEngine? = null
-
-    override fun onCreateEngine(): WallpaperService.Engine {
-        engine = WallpaperEngine()
-        return engine!!
-    }
-
-    override fun onDestroy() {
-        engine = null
         super.onDestroy()
     }
 }
