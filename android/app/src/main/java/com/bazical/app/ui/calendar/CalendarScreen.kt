@@ -1,7 +1,5 @@
 package com.bazical.app.ui.calendar
 
-import android.app.WallpaperManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -237,17 +235,10 @@ fun CalendarScreen(
                     )
                 )
                 .clickable {
-                    val wallpaperManager = WallpaperManager.getInstance(context)
-                    try {
-                        wallpaperManager.setWallpaperComponent(
-                            ComponentName(context, com.bazical.app.wallpaper.BaziCalWallpaperService::class.java)
-                        )
-                    } catch (e: Exception) {
-                        // Fallback: open wallpaper settings
-                        val intent = Intent("android.service.wallpaper.LIVE_WALLPAPER_CHOOSER")
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        context.startActivity(intent)
-                    }
+                    // Open system live wallpaper chooser
+                    val intent = Intent("android.service.wallpaper.LIVE_WALLPAPER_CHOOSER")
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(intent)
                 }
                 .padding(16.dp),
             contentAlignment = Alignment.Center
