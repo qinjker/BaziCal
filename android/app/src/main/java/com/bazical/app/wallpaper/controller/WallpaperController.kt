@@ -1,6 +1,5 @@
 package com.bazical.app.wallpaper.controller
 
-import android.view.MotionEvent
 import java.time.LocalDate
 
 class WallpaperController {
@@ -8,10 +7,6 @@ class WallpaperController {
     private var currentMonth: Int = LocalDate.now().monthValue
 
     fun init() {}
-
-    fun onTouchEvent(event: MotionEvent): Boolean {
-        return true
-    }
 
     fun scrollToNextMonth() {
         if (currentMonth == 12) {

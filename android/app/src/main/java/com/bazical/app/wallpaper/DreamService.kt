@@ -2,7 +2,6 @@ package com.bazical.app.wallpaper
 
 import android.service.dreams.DreamService
 import android.widget.FrameLayout
-import com.bazical.app.ui.theme.BaziCalTheme
 
 class BaziCalDreamService : DreamService() {
 

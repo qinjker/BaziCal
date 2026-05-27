@@ -35,8 +35,6 @@ class BaziCalWallpaperService : WallpaperService() {
 
             val displayMetrics = resources.displayMetrics
             renderer?.setDensity(displayMetrics.density)
-
-            isFocusable = true
         }
 
         override fun onSurfaceCreated(holder: SurfaceHolder) {
@@ -69,15 +67,15 @@ class BaziCalWallpaperService : WallpaperService() {
             yOffset: Float,
             xPixelOffset: Float,
             yPixelOffset: Float,
-            xOffsetStep: Float,
-            yOffsetStep: Float,
+            xOffsetStep: Int,
+            yOffsetStep: Int,
             page: Int
         ) {
             super.onOffsetsChanged(xOffset, yOffset, xPixelOffset, yPixelOffset, xOffsetStep, yOffsetStep, page)
         }
 
-        override fun onTouchEvent(event: android.view.MotionEvent): Boolean {
-            return super.onTouchEvent(event)
+        override fun onTouchEvent(event: android.view.MotionEvent) {
+            super.onTouchEvent(event)
         }
 
         fun setCalendarData(year: Int, month: Int, days: List<com.bazical.app.domain.model.CalendarDay>) {
