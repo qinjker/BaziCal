@@ -1,5 +1,7 @@
 package com.bazical.app.ui.calendar
 
+import android.app.WallpaperManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -23,8 +25,13 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,6 +67,31 @@ fun CalendarScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    var showPermissionDialog by remember { mutableStateOf(false) }
+
+    if (showPermissionDialog) {
+        AlertDialog(
+            onDismissRequest = { showPermissionDialog = false },
+            title = { Text("需要授权") },
+            text = { Text("请到设置 → 壁纸 → 动态壁纸 中选择「八字历」") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showPermissionDialog = false
+                    val intent = Intent("android.service.wallpaper.LIVE_WALLPAPER_CHOOSER").apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    context.startActivity(intent)
+                }) {
+                    Text("去设置")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPermissionDialog = false }) {
+                    Text("取消")
+                }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -235,10 +267,13 @@ fun CalendarScreen(
                     )
                 )
                 .clickable {
-                    val intent = Intent("android.service.wallpaper.LIVE_WALLPAPER_CHOOSER").apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    try {
+                        val wallpaperManager = WallpaperManager.getInstance(context)
+                        val component = ComponentName(context, com.bazical.app.wallpaper.BaziCalWallpaperService::class.java)
+                        wallpaperManager.setWallpaperComponent(component)
+                    } catch (e: Exception) {
+                        showPermissionDialog = true
                     }
-                    context.startActivity(intent)
                 }
                 .padding(16.dp),
             contentAlignment = Alignment.Center
