@@ -2,7 +2,6 @@ package com.bazical.app.ui.calendar
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -235,9 +234,9 @@ fun CalendarScreen(
                     )
                 )
                 .clickable {
-                    // Open system live wallpaper chooser
-                    val intent = Intent("android.service.wallpaper.LIVE_WALLPAPER_CHOOSER")
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    val intent = Intent("android.service.wallpaper.LIVE_WALLPAPER_CHOOSER").apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
                     context.startActivity(intent)
                 }
                 .padding(16.dp),
