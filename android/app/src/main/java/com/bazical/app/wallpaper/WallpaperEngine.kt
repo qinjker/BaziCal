@@ -65,13 +65,12 @@ class BaziCalWallpaperService : WallpaperService() {
         override fun onOffsetsChanged(
             xOffset: Float,
             yOffset: Float,
-            xPixelOffset: Float,
-            yPixelOffset: Float,
-            xOffsetStep: Int,
-            yOffsetStep: Int,
-            page: Int
+            xOffsetStep: Float,
+            yOffsetStep: Float,
+            xPixelOffset: Int,
+            yPixelOffset: Int
         ) {
-            super.onOffsetsChanged(xOffset, yOffset, xPixelOffset, yPixelOffset, xOffsetStep, yOffsetStep, page)
+            super.onOffsetsChanged(xOffset, yOffset, xOffsetStep, yOffsetStep, xPixelOffset, yPixelOffset)
         }
 
         override fun onTouchEvent(event: android.view.MotionEvent) {
