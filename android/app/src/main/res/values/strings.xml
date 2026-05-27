@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">能量日历</string>
+    <string name="wallpaper_service_label">八字历动态壁纸</string>
+    <string name="dream_service_label">八字历屏保</string>
+    <string name="wallpaper_description">基于个人生辰八字的个性化命理日历</string>
 </resources>
