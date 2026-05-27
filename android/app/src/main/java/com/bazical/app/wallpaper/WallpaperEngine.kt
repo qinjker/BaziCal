@@ -6,14 +6,16 @@ import com.bazical.app.wallpaper.controller.WallpaperController
 import com.bazical.app.wallpaper.renderer.CalendarRenderer
 import kotlinx.coroutines.*
 
+typealias WallpaperEngineBase = WallpaperService.Engine
+
 class BaziCalWallpaperService : WallpaperService() {
 
-    override fun onCreateEngine(): WallpaperService.Engine {
+    override fun onCreateEngine(): WallpaperEngineBase {
         return WallpaperEngine()
     }
 }
 
-class WallpaperEngine : WallpaperService.Engine() {
+class WallpaperEngine : WallpaperEngineBase() {
 
     private var renderer: CalendarRenderer? = null
     private var controller: WallpaperController? = null
