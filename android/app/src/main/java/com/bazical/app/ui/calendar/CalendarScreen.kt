@@ -1,7 +1,5 @@
 package com.bazical.app.ui.calendar
 
-import android.app.WallpaperManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -72,22 +70,11 @@ fun CalendarScreen(
     if (showPermissionDialog) {
         AlertDialog(
             onDismissRequest = { showPermissionDialog = false },
-            title = { Text("需要授权") },
-            text = { Text("请到设置 → 壁纸 → 动态壁纸 中选择「八字历」") },
+            title = { Text("添加小组件") },
+            text = { Text("请长按桌面空白区域 → 添加小组件 → 找到「能量日历」并添加") },
             confirmButton = {
-                TextButton(onClick = {
-                    showPermissionDialog = false
-                    val intent = Intent("android.service.wallpaper.LIVE_WALLPAPER_CHOOSER").apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }
-                    context.startActivity(intent)
-                }) {
-                    Text("去设置")
-                }
-            },
-            dismissButton = {
                 TextButton(onClick = { showPermissionDialog = false }) {
-                    Text("取消")
+                    Text("知道了")
                 }
             }
         )
@@ -255,7 +242,7 @@ fun CalendarScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Set Wallpaper Button
+        // Add Widget Button
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -267,20 +254,13 @@ fun CalendarScreen(
                     )
                 )
                 .clickable {
-                    try {
-                        val intent = Intent("android.service.wallpaper.LIVE_WALLPAPER_CHOOSER").apply {
-                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        }
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        showPermissionDialog = true
-                    }
+                    showPermissionDialog = true
                 }
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "设为壁纸",
+                text = "添加到桌面",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.White
