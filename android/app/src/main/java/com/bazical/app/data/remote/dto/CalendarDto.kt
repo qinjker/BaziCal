@@ -21,5 +21,6 @@ data class CalendarDayDto(
     @Json(name = "jieqi") val jieqi: String?,
     @Json(name = "lunarDate") val lunarDate: String?,
     @Json(name = "holiday") val holiday: String?,
-    @Json(name = "branchShishen") val branchShishen: String
+    @Json(name = "branchShishen") val branchShishen: String,
+    @Json(name = "monthShishen") val monthShishen: String
 )
