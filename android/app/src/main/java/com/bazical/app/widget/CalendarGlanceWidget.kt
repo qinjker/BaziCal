@@ -25,7 +25,7 @@ import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.ColorProvider as GlanceColorProvider
+import androidx.glance.unit.ColorProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -78,7 +78,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                 Text(
                     text = "八字历",
                     style = TextStyle(
-                        color = GlanceColorProvider(day = primaryColor, night = primaryColor),
+                        color = ColorProvider(primaryColor),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -86,7 +86,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                 Text(
                     text = if (userBaZi != null) " 【${userBaZi.dayStem}${userBaZi.dayBranch}】" else "",
                     style = TextStyle(
-                        color = GlanceColorProvider(day = Color(0xFFD4A843), night = Color(0xFFD4A843)),
+                        color = ColorProvider(Color(0xFFD4A843)),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -94,7 +94,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                 Text(
                     text = "  ${today.format(formatter)}",
                     style = TextStyle(
-                        color = GlanceColorProvider(day = secondaryColor, night = secondaryColor),
+                        color = ColorProvider(secondaryColor),
                         fontSize = 9.sp
                     )
                 )
@@ -110,7 +110,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                     Text(
                         text = listOf("日", "一", "二", "三", "四", "五", "六")[index],
                         style = TextStyle(
-                            color = GlanceColorProvider(
+                            color = ColorProvider(
                                 day = if (index == 0 || index == 6) weekendColor else secondaryColor,
                                 night = if (index == 0 || index == 6) weekendColor else secondaryColor
                             ),
@@ -171,7 +171,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
             Text(
                 text = dayInfo.dayNumber.toString(),
                 style = TextStyle(
-                    color = GlanceColorProvider(day = textColor, night = textColor),
+                    color = ColorProvider(day = textColor, night = textColor),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -191,7 +191,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                 Text(
                     text = dayInfo.lunarDate,
                     style = TextStyle(
-                        color = GlanceColorProvider(day = displayColor, night = displayColor),
+                        color = ColorProvider(day = displayColor, night = displayColor),
                         fontSize = 7.sp
                     ),
                     maxLines = 1
@@ -203,7 +203,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                 Text(
                     text = "${dayInfo.stem} ${dayInfo.shishen}",
                     style = TextStyle(
-                        color = GlanceColorProvider(day = stemColor, night = stemColor),
+                        color = ColorProvider(day = stemColor, night = stemColor),
                         fontSize = 8.sp,
                         fontWeight = FontWeight.SemiBold
                     ),
@@ -216,7 +216,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                 Text(
                     text = "${dayInfo.branch} ${dayInfo.branchShishen}",
                     style = TextStyle(
-                        color = GlanceColorProvider(day = branchColor, night = branchColor),
+                        color = ColorProvider(day = branchColor, night = branchColor),
                         fontSize = 8.sp,
                         fontWeight = FontWeight.SemiBold
                     ),
