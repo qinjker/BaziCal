@@ -1,12 +1,16 @@
 package com.bazical.app.widget
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.provideContent
@@ -22,19 +26,27 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider as GlanceColorProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle as JavaTextStyle
+import java.util.Locale
+
+private val Context.dataStore by preferencesDataStore(name = "user_prefs")
 
 class CalendarGlanceWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
-            CalendarContent()
+            CalendarContent(context)
         }
     }
 
     @Composable
-    private fun CalendarContent() {
+    private fun CalendarContent(context: Context) {
         val today = LocalDate.now()
         val formatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日")
         val primaryColor = Color(0xFF2C1810)
@@ -42,10 +54,13 @@ class CalendarGlanceWidget : GlanceAppWidget() {
         val weekendColor = Color(0xFFC84A3E)
         val todayBgColor = Color(0xFFC84A3E)
 
-        // 获取本月数据
+        // 加载用户八字数据
+        val userBaZi = loadUserBaZi(context)
         val year = today.year
         val month = today.monthValue
-        val days = getMonthDays(year, month)
+
+        // 获取当月日历数据
+        val monthDays = getMonthDaysWithBazi(context, year, month, userBaZi)
 
         Column(
             modifier = GlanceModifier
@@ -55,7 +70,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
             horizontalAlignment = Alignment.Start,
             verticalAlignment = Alignment.Top
         ) {
-            // 标题栏
+            // 标题栏 - 用户日主信息
             Row(
                 modifier = GlanceModifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -65,6 +80,14 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                     style = TextStyle(
                         color = GlanceColorProvider(day = primaryColor, night = primaryColor),
                         fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+                Text(
+                    text = if (userBaZi != null) " 【${userBaZi.dayStem}${userBaZi.dayBranch}】" else "",
+                    style = TextStyle(
+                        color = GlanceColorProvider(day = Color(0xFFD4A843), night = Color(0xFFD4A843)),
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -101,14 +124,14 @@ class CalendarGlanceWidget : GlanceAppWidget() {
             }
 
             // 日期网格
-            days.forEach { week ->
+            monthDays.forEach { week ->
                 Row(
                     modifier = GlanceModifier
                         .fillMaxWidth()
                         .height(60.dp)
                 ) {
                     week.forEach { dayInfo ->
-                        DayCell(
+                        DayCellWidget(
                             dayInfo = dayInfo,
                             todayBgColor = todayBgColor,
                             primaryColor = primaryColor,
@@ -123,8 +146,8 @@ class CalendarGlanceWidget : GlanceAppWidget() {
     }
 
     @Composable
-    private fun DayCell(
-        dayInfo: DayCellInfo,
+    private fun DayCellWidget(
+        dayInfo: DayCellInfoWidget,
         todayBgColor: Color,
         primaryColor: Color,
         secondaryColor: Color,
@@ -237,58 +260,131 @@ class CalendarGlanceWidget : GlanceAppWidget() {
         }
     }
 
-    private fun getMonthDays(year: Int, month: Int): List<List<DayCellInfo>> {
+    /**
+     * 从 SharedPreferences 加载用户八字数据
+     * 注意：Glance widget运行在独立进程，使用SharedPreferences更可靠
+     */
+    private fun loadUserBaZi(context: Context): UserBaZiData? {
+        return try {
+            runBlocking {
+                withContext(Dispatchers.IO) {
+                    val sharedPrefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                    val baziJsonStr = sharedPrefs.getString("bazi_json", null) ?: return@withContext null
+                    parseUserBaZi(baziJsonStr)
+                }
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
+     * 解析八字数据
+     */
+    private fun parseUserBaZi(baziJson: String): UserBaZiData? {
+        return try {
+            val parts = baziJson.split("|")
+            if (parts.size < 5) return null
+
+            val (yearStem, yearBranch) = parts[0].split(",")
+            val (monthStem, monthBranch) = parts[1].split(",")
+            val (dayStem, dayBranch) = parts[2].split(",")
+            val (hourStem, hourBranch) = parts[3].split(",")
+
+            UserBaZiData(
+                yearStem = yearStem,
+                yearBranch = yearBranch,
+                monthStem = monthStem,
+                monthBranch = monthBranch,
+                dayStem = dayStem,
+                dayBranch = dayBranch,
+                hourStem = hourStem,
+                hourBranch = hourBranch
+            )
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
+     * 获取当月的日历数据，使用用户八字计算十神
+     */
+    private fun getMonthDaysWithBazi(
+        context: Context,
+        year: Int,
+        month: Int,
+        userBaZi: UserBaZiData?
+    ): List<List<DayCellInfoWidget>> {
         val today = LocalDate.now()
         val firstDayOfMonth = LocalDate.of(year, month, 1)
         val daysInMonth = firstDayOfMonth.lengthOfMonth()
         val startDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7 // 0 = Sunday
 
-        // 生成当月日期数据（模拟数据，实际应从API获取）
-        val monthDays = mutableListOf<DayCellInfo>()
+        // 天干列表和索引
+        val stems = listOf("甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸")
+        val branches = listOf("子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥")
+
+        // 用户日干索引（用于计算十神）
+        val userDayStemIdx = if (userBaZi != null) {
+            stems.indexOf(userBaZi.dayStem).takeIf { it >= 0 } ?: 0
+        } else {
+            0
+        }
+
+        // 生成当月日期数据
+        val monthDays = mutableListOf<DayCellInfoWidget>()
         for (day in 1..daysInMonth) {
             val date = LocalDate.of(year, month, day)
             val isToday = date == today
             val dayOfWeek = date.dayOfWeek.value % 7
             val isWeekend = dayOfWeek == 0 || dayOfWeek == 6
 
-            // 模拟天干地支（实际应从API获取）
-            val stemIndex = (day - 1) % 10
+            // 计算当天的天干地支（简化版，基于日历算法）
+            val dayIndex = (day - 1) % 10
             val branchIndex = (day - 1) % 12
-            val stems = listOf("甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸")
-            val branches = listOf("子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥")
-            val shishens = listOf("正官", "七杀", "正印", "枭神", "比肩", "劫财", "食神", "伤官", "正财", "偏财")
-            val branchShishens = listOf("比肩", "劫财", "食神", "伤官", "正财", "偏财", "正官", "七杀", "正印", "枭神", "比肩", "劫财")
 
-            // 模拟农历日期
+            // 使用用户日干计算十神
+            val shishen = if (userBaZi != null) {
+                calculateShishen(userDayStemIdx, dayIndex)
+            } else {
+                ""
+            }
+            val branchShishen = if (userBaZi != null) {
+                calculateShishen(userDayStemIdx, branchIndex)
+            } else {
+                ""
+            }
+
+            // 农历日期（简化版）
             val lunarNums = listOf("初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
                 "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
                 "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十")
             val lunarIndex = (day - 1) % 30
 
-            monthDays.add(DayCellInfo(
+            monthDays.add(DayCellInfoWidget(
                 dayNumber = day,
                 lunarDate = lunarNums[lunarIndex],
                 isJieqi = false,
-                stem = stems[stemIndex],
-                shishen = shishens[stemIndex],
+                stem = stems[dayIndex],
+                shishen = shishen,
                 branch = branches[branchIndex],
-                branchShishen = branchShishens[branchIndex],
+                branchShishen = branchShishen,
                 isToday = isToday,
                 isWeekend = isWeekend
             ))
         }
 
         // 构建6周的数据
-        val weeks = mutableListOf<List<DayCellInfo>>()
+        val weeks = mutableListOf<List<DayCellInfoWidget>>()
         var currentDay = 0
 
         for (week in 0 until 6) {
-            val weekDays = mutableListOf<DayCellInfo>()
+            val weekDays = mutableListOf<DayCellInfoWidget>()
             for (dayOfWeek in 0 until 7) {
                 val cellIndex = week * 7 + dayOfWeek
                 if (cellIndex < startDayOfWeek || currentDay >= daysInMonth) {
-                    // 填充空白或其他月的日期
-                    weekDays.add(DayCellInfo(
+                    // 填充空白
+                    weekDays.add(DayCellInfoWidget(
                         dayNumber = 0,
                         lunarDate = "",
                         isJieqi = false,
@@ -310,9 +406,59 @@ class CalendarGlanceWidget : GlanceAppWidget() {
 
         return weeks
     }
+
+    /**
+     * 计算十神（使用传统算法）
+     */
+    private fun calculateShishen(userDayStemIdx: Int, targetIdx: Int): String {
+        // 天干索引对应的五行索引: 0,1→木(0), 2,3→火(1), 4,5→土(2), 6,7→金(3), 8,9→水(4)
+        val userElementIdx = Math.floor(userDayStemIdx.toDouble() / 2).toInt() % 5
+        val targetElementIdx = Math.floor(targetIdx.toDouble() / 2).toInt() % 5
+
+        // 计算五行生克关系
+        var relation = targetElementIdx - userElementIdx
+        if (relation < 0) relation += 5
+
+        // 判断阴阳
+        val userIsYang = userDayStemIdx % 2 == 0
+        val targetIsYang = targetIdx % 2 == 0
+        val isSameYinYang = userIsYang == targetIsYang
+
+        // 十神口诀
+        // 同我者: 比肩/劫财
+        // 我生者: 食神/伤官
+        // 我克者: 偏财/正财
+        // 克我者: 七杀/正官
+        // 生我者: 偏印/正印
+        return when (relation) {
+            0 -> if (isSameYinYang) "比肩" else "劫财"
+            1 -> if (isSameYinYang) "食神" else "伤官"
+            2 -> if (isSameYinYang) "偏财" else "正财"
+            3 -> if (isSameYinYang) "七杀" else "正官"
+            4 -> if (isSameYinYang) "偏印" else "正印"
+            else -> "比肩"
+        }
+    }
 }
 
-data class DayCellInfo(
+/**
+ * 用户八字数据（简化）
+ */
+data class UserBaZiData(
+    val yearStem: String,
+    val yearBranch: String,
+    val monthStem: String,
+    val monthBranch: String,
+    val dayStem: String,
+    val dayBranch: String,
+    val hourStem: String,
+    val hourBranch: String
+)
+
+/**
+ * 日历单元格数据（Widget用）
+ */
+data class DayCellInfoWidget(
     val dayNumber: Int,
     val lunarDate: String,
     val isJieqi: Boolean,

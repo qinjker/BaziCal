@@ -146,6 +146,10 @@ class UserRepositoryImpl @Inject constructor(
         userDataStore.saveBaZi(bazi)
     }
 
+    override suspend fun getBaZi(): BaZi? {
+        return userDataStore.getBaZi()
+    }
+
     override suspend fun getUser(): User? {
         return userDataStore.getUser()
     }

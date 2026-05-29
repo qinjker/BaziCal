@@ -16,6 +16,7 @@ interface BaziRepository {
 interface UserRepository {
     suspend fun saveUser(user: User)
     suspend fun saveBaZi(bazi: BaZi)
+    suspend fun getBaZi(): BaZi?
     suspend fun getUser(): User?
     suspend fun hasUserData(): Boolean
     suspend fun getUserId(): String?

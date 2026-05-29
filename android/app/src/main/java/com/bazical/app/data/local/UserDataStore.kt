@@ -49,12 +49,53 @@ class UserDataStore @Inject constructor(
     }
 
     suspend fun saveBaZi(bazi: BaZi) {
-        // 简化存储，实际可使用 JSON 序列化
+        // 存储八字完整数据，包含十神
         context.dataStore.edit { prefs ->
-            prefs[KEY_BAZI_JSON] = "${bazi.year.stem},${bazi.year.branch}|" +
-                    "${bazi.month.stem},${bazi.month.branch}|" +
-                    "${bazi.day.stem},${bazi.day.branch}|" +
-                    "${bazi.hour.stem},${bazi.hour.branch}"
+            prefs[KEY_BAZI_JSON] = buildString {
+                // 四柱天干地支
+                append("${bazi.year.stem},${bazi.year.branch}|")
+                append("${bazi.month.stem},${bazi.month.branch}|")
+                append("${bazi.day.stem},${bazi.day.branch}|")
+                append("${bazi.hour.stem},${bazi.hour.branch}|")
+                // 十神
+                append("${bazi.shishen.year},${bazi.shishen.month},${bazi.shishen.day},${bazi.shishen.hour}|")
+                // 五行
+                append("${bazi.wuxing.mu},${bazi.wuxing.huo},${bazi.wuxing.tu},${bazi.wuxing.jin},${bazi.wuxing.shui}")
+            }
+        }
+    }
+
+    suspend fun getBaZi(): BaZi? {
+        val prefs = context.dataStore.data.first()
+        val baziJson = prefs[KEY_BAZI_JSON] ?: return null
+
+        return try {
+            val parts = baziJson.split("|")
+            if (parts.size < 6) return null
+
+            val (yearStem, yearBranch) = parts[0].split(",")
+            val (monthStem, monthBranch) = parts[1].split(",")
+            val (dayStem, dayBranch) = parts[2].split(",")
+            val (hourStem, hourBranch) = parts[3].split(",")
+            val (shishenYear, shishenMonth, shishenDay, shishenHour) = parts[4].split(",")
+            val wuxingParts = parts[5].split(",")
+
+            BaZi(
+                year = Pillars(yearStem, yearBranch),
+                month = Pillars(monthStem, monthBranch),
+                day = Pillars(dayStem, dayBranch),
+                hour = Pillars(hourStem, hourBranch),
+                shishen = ShiShen(shishenYear, shishenMonth, shishenDay, shishenHour),
+                wuxing = WuXing(
+                    mu = wuxingParts[0].toInt(),
+                    huo = wuxingParts[1].toInt(),
+                    tu = wuxingParts[2].toInt(),
+                    jin = wuxingParts[3].toInt(),
+                    shui = wuxingParts[4].toInt()
+                )
+            )
+        } catch (e: Exception) {
+            null
         }
     }
 
