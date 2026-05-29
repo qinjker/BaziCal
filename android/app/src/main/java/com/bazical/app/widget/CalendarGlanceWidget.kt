@@ -1,16 +1,13 @@
 package com.bazical.app.widget
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.GlanceTheme
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.provideContent
@@ -30,10 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
-import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle as JavaTextStyle
-import java.util.Locale
 
 private val Context.dataStore by preferencesDataStore(name = "user_prefs")
 
@@ -54,13 +48,13 @@ class CalendarGlanceWidget : GlanceAppWidget() {
         val weekendColor = Color(0xFFC84A3E)
         val todayBgColor = Color(0xFFC84A3E)
 
-        // 加载用户八字数据
+        // Load user BaZi data
         val userBaZi = loadUserBaZi(context)
         val year = today.year
         val month = today.monthValue
 
-        // 获取当月日历数据
-        val monthDays = getMonthDaysWithBazi(context, year, month, userBaZi)
+        // Get month calendar data
+        val monthDays = getMonthDaysWithBazi(year, month, userBaZi)
 
         Column(
             modifier = GlanceModifier
@@ -70,7 +64,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
             horizontalAlignment = Alignment.Start,
             verticalAlignment = Alignment.Top
         ) {
-            // 标题栏 - 用户日主信息
+            // Title bar with user day pillar info
             Row(
                 modifier = GlanceModifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -84,7 +78,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                     )
                 )
                 Text(
-                    text = if (userBaZi != null) " 【${userBaZi.dayStem}${userBaZi.dayBranch}】" else "",
+                    text = if (userBaZi != null) "【${userBaZi.dayStem}${userBaZi.dayBranch}】" else "",
                     style = TextStyle(
                         color = ColorProvider(Color(0xFFD4A843)),
                         fontSize = 10.sp,
@@ -92,7 +86,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                     )
                 )
                 Text(
-                    text = "  ${today.format(formatter)}",
+                    text = " ${today.format(formatter)}",
                     style = TextStyle(
                         color = ColorProvider(secondaryColor),
                         fontSize = 9.sp
@@ -100,30 +94,27 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                 )
             }
 
-            // 星期标题行
+            // Weekday headers
             Row(
                 modifier = GlanceModifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
             ) {
                 repeat(7) { index ->
+                    val isWeekend = index == 0 || index == 6
                     Text(
                         text = listOf("日", "一", "二", "三", "四", "五", "六")[index],
                         style = TextStyle(
-                            color = ColorProvider(
-                                day = if (index == 0 || index == 6) weekendColor else secondaryColor,
-                                night = if (index == 0 || index == 6) weekendColor else secondaryColor
-                            ),
+                            color = ColorProvider(if (isWeekend) weekendColor else secondaryColor),
                             fontSize = 8.sp,
                             fontWeight = FontWeight.Medium
                         ),
-                        modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
-                        textAlign = androidx.glance.text.TextAlign.Center
+                        modifier = GlanceModifier.fillMaxWidth().defaultWeight()
                     )
                 }
             }
 
-            // 日期网格
+            // Date grid
             monthDays.forEach { week ->
                 Row(
                     modifier = GlanceModifier
@@ -156,7 +147,6 @@ class CalendarGlanceWidget : GlanceAppWidget() {
     ) {
         val bgColor = if (dayInfo.isToday) todayBgColor else Color(0xFFFAFAF8)
         val textColor = if (dayInfo.isToday) Color.White else if (dayInfo.isWeekend) weekendColor else primaryColor
-        val lunarColor = if (dayInfo.isToday) Color.White.copy(alpha = 0.7f) else secondaryColor
         val stemColor = if (dayInfo.isToday) Color.White else getStemColor(dayInfo.stem)
         val branchColor = if (dayInfo.isToday) Color.White else getBranchColor(dayInfo.branch)
 
@@ -167,43 +157,40 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                 .padding(1.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 第1行：公历日期
+            // Row 1: Gregorian date
             Text(
                 text = dayInfo.dayNumber.toString(),
                 style = TextStyle(
-                    color = ColorProvider(day = textColor, night = textColor),
+                    color = ColorProvider(textColor),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Medium
                 )
             )
 
-            // 第2行：农历/节气
+            // Row 2: Lunar/jieqi
             if (dayInfo.lunarDate.isNotEmpty()) {
-                val displayColor = if (dayInfo.isToday) {
-                    Color.White.copy(alpha = 0.7f)
-                } else if (dayInfo.isJieqi) {
-                    Color(0xFF10B981)
-                } else if (dayInfo.lunarDate.contains("初一") || dayInfo.lunarDate.contains("十五")) {
-                    Color(0xFFE74C3C)
-                } else {
-                    secondaryColor
+                val displayColor = when {
+                    dayInfo.isToday -> Color.White.copy(alpha = 0.7f)
+                    dayInfo.isJieqi -> Color(0xFF10B981)
+                    dayInfo.lunarDate.contains("初一") || dayInfo.lunarDate.contains("十五") -> Color(0xFFE74C3C)
+                    else -> secondaryColor
                 }
                 Text(
                     text = dayInfo.lunarDate,
                     style = TextStyle(
-                        color = ColorProvider(day = displayColor, night = displayColor),
+                        color = ColorProvider(displayColor),
                         fontSize = 7.sp
                     ),
                     maxLines = 1
                 )
             }
 
-            // 第3行：天干+十神
+            // Row 3: Stem + Shishen
             if (dayInfo.stem.isNotEmpty()) {
                 Text(
                     text = "${dayInfo.stem} ${dayInfo.shishen}",
                     style = TextStyle(
-                        color = ColorProvider(day = stemColor, night = stemColor),
+                        color = ColorProvider(stemColor),
                         fontSize = 8.sp,
                         fontWeight = FontWeight.SemiBold
                     ),
@@ -211,12 +198,12 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                 )
             }
 
-            // 第4行：地支+地支十神
+            // Row 4: Branch + BranchShishen
             if (dayInfo.branch.isNotEmpty()) {
                 Text(
                     text = "${dayInfo.branch} ${dayInfo.branchShishen}",
                     style = TextStyle(
-                        color = ColorProvider(day = branchColor, night = branchColor),
+                        color = ColorProvider(branchColor),
                         fontSize = 8.sp,
                         fontWeight = FontWeight.SemiBold
                     ),
@@ -260,10 +247,6 @@ class CalendarGlanceWidget : GlanceAppWidget() {
         }
     }
 
-    /**
-     * 从 SharedPreferences 加载用户八字数据
-     * 注意：Glance widget运行在独立进程，使用SharedPreferences更可靠
-     */
     private fun loadUserBaZi(context: Context): UserBaZiData? {
         return try {
             runBlocking {
@@ -278,13 +261,10 @@ class CalendarGlanceWidget : GlanceAppWidget() {
         }
     }
 
-    /**
-     * 解析八字数据
-     */
     private fun parseUserBaZi(baziJson: String): UserBaZiData? {
         return try {
             val parts = baziJson.split("|")
-            if (parts.size < 5) return null
+            if (parts.size < 4) return null
 
             val (yearStem, yearBranch) = parts[0].split(",")
             val (monthStem, monthBranch) = parts[1].split(",")
@@ -306,11 +286,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
         }
     }
 
-    /**
-     * 获取当月的日历数据，使用用户八字计算十神
-     */
     private fun getMonthDaysWithBazi(
-        context: Context,
         year: Int,
         month: Int,
         userBaZi: UserBaZiData?
@@ -318,20 +294,17 @@ class CalendarGlanceWidget : GlanceAppWidget() {
         val today = LocalDate.now()
         val firstDayOfMonth = LocalDate.of(year, month, 1)
         val daysInMonth = firstDayOfMonth.lengthOfMonth()
-        val startDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7 // 0 = Sunday
+        val startDayOfWeek = firstDayOfMonth.dayOfWeek.value % 7
 
-        // 天干列表和索引
         val stems = listOf("甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸")
         val branches = listOf("子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥")
 
-        // 用户日干索引（用于计算十神）
         val userDayStemIdx = if (userBaZi != null) {
             stems.indexOf(userBaZi.dayStem).takeIf { it >= 0 } ?: 0
         } else {
             0
         }
 
-        // 生成当月日期数据
         val monthDays = mutableListOf<DayCellInfoWidget>()
         for (day in 1..daysInMonth) {
             val date = LocalDate.of(year, month, day)
@@ -339,23 +312,16 @@ class CalendarGlanceWidget : GlanceAppWidget() {
             val dayOfWeek = date.dayOfWeek.value % 7
             val isWeekend = dayOfWeek == 0 || dayOfWeek == 6
 
-            // 计算当天的天干地支（简化版，基于日历算法）
             val dayIndex = (day - 1) % 10
             val branchIndex = (day - 1) % 12
 
-            // 使用用户日干计算十神
             val shishen = if (userBaZi != null) {
                 calculateShishen(userDayStemIdx, dayIndex)
-            } else {
-                ""
-            }
+            } else ""
             val branchShishen = if (userBaZi != null) {
                 calculateShishen(userDayStemIdx, branchIndex)
-            } else {
-                ""
-            }
+            } else ""
 
-            // 农历日期（简化版）
             val lunarNums = listOf("初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
                 "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
                 "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十")
@@ -374,7 +340,6 @@ class CalendarGlanceWidget : GlanceAppWidget() {
             ))
         }
 
-        // 构建6周的数据
         val weeks = mutableListOf<List<DayCellInfoWidget>>()
         var currentDay = 0
 
@@ -383,7 +348,6 @@ class CalendarGlanceWidget : GlanceAppWidget() {
             for (dayOfWeek in 0 until 7) {
                 val cellIndex = week * 7 + dayOfWeek
                 if (cellIndex < startDayOfWeek || currentDay >= daysInMonth) {
-                    // 填充空白
                     weekDays.add(DayCellInfoWidget(
                         dayNumber = 0,
                         lunarDate = "",
@@ -407,29 +371,17 @@ class CalendarGlanceWidget : GlanceAppWidget() {
         return weeks
     }
 
-    /**
-     * 计算十神（使用传统算法）
-     */
     private fun calculateShishen(userDayStemIdx: Int, targetIdx: Int): String {
-        // 天干索引对应的五行索引: 0,1→木(0), 2,3→火(1), 4,5→土(2), 6,7→金(3), 8,9→水(4)
         val userElementIdx = Math.floor(userDayStemIdx.toDouble() / 2).toInt() % 5
         val targetElementIdx = Math.floor(targetIdx.toDouble() / 2).toInt() % 5
 
-        // 计算五行生克关系
         var relation = targetElementIdx - userElementIdx
         if (relation < 0) relation += 5
 
-        // 判断阴阳
         val userIsYang = userDayStemIdx % 2 == 0
         val targetIsYang = targetIdx % 2 == 0
         val isSameYinYang = userIsYang == targetIsYang
 
-        // 十神口诀
-        // 同我者: 比肩/劫财
-        // 我生者: 食神/伤官
-        // 我克者: 偏财/正财
-        // 克我者: 七杀/正官
-        // 生我者: 偏印/正印
         return when (relation) {
             0 -> if (isSameYinYang) "比肩" else "劫财"
             1 -> if (isSameYinYang) "食神" else "伤官"
@@ -441,9 +393,6 @@ class CalendarGlanceWidget : GlanceAppWidget() {
     }
 }
 
-/**
- * 用户八字数据（简化）
- */
 data class UserBaZiData(
     val yearStem: String,
     val yearBranch: String,
@@ -455,9 +404,6 @@ data class UserBaZiData(
     val hourBranch: String
 )
 
-/**
- * 日历单元格数据（Widget用）
- */
 data class DayCellInfoWidget(
     val dayNumber: Int,
     val lunarDate: String,
