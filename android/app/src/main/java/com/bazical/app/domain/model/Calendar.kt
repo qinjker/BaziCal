@@ -12,7 +12,8 @@ data class CalendarDay(
     val jieqi: String?,
     val lunarDate: String?,
     val holiday: String?,
-    val branchShishen: String
+    val branchShishen: String,
+    val monthShishen: String
 )
 
 data class CalendarMonth(

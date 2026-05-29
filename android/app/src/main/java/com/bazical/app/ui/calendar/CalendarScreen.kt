@@ -2,7 +2,11 @@ package com.bazical.app.ui.calendar
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.AlertDialog
@@ -37,18 +42,26 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bazical.app.domain.model.CalendarDay
 import com.bazical.app.ui.components.BottomTabBar
 import com.bazical.app.ui.components.TabItem
+import com.bazical.app.ui.share.ShareCardGenerator
+import com.bazical.app.ui.theme.Primary
 import com.bazical.app.ui.theme.TextPrimary
 import com.bazical.app.ui.theme.TextTertiary
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 import java.time.LocalDate
 
 private const val TAG = "CalendarScreen"
@@ -242,29 +255,72 @@ fun CalendarScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Add Widget Button
-        Box(
+        // Action Buttons Row
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(
-                    Brush.linearGradient(
-                        colors = listOf(Color(0xFFC84A3E), Color(0xFFA33D33))
-                    )
-                )
-                .clickable {
-                    showPermissionDialog = true
-                }
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
+                .padding(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = "添加到桌面",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.White
-            )
+            // Add Widget Button
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(Color(0xFFC84A3E), Color(0xFFA33D33))
+                        )
+                    )
+                    .clickable {
+                        showPermissionDialog = true
+                    }
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "添加到桌面",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
+                )
+            }
+
+            // Share Button
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(Color(0xFF5A8A6A), Color(0xFF4A7A5A))
+                        )
+                    )
+                    .clickable {
+                        shareCard(context, uiState)
+                    }
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = "分享",
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "分享能量",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -569,5 +625,63 @@ private fun getBranchColor(branch: String): Color {
         "戌" -> Color(0xFFa78bfa)
         "亥" -> Color(0xFF60a5fa)
         else -> TextPrimary
+    }
+}
+
+private fun shareCard(context: Context, uiState: CalendarUiState) {
+    try {
+        // Get today's date or current displayed date
+        val today = LocalDate.now()
+        val year = uiState.year.takeIf { it != 0 } ?: today.year
+        val month = uiState.month.takeIf { it != 0 } ?: today.monthValue
+        val day = today.dayOfMonth
+
+        // Find today's data from the days list
+        val todayDateStr = String.format("%04d-%02d-%02d", year, month, day)
+        val todayDayData = uiState.days.find { it.date == todayDateStr }
+
+        // Generate share bitmap
+        val bitmap = ShareCardGenerator.generateShareCard(
+            context = context,
+            year = year,
+            month = month,
+            day = day,
+            lunarDate = todayDayData?.lunarDate ?: "未知",
+            dayStem = uiState.dayStem ?: "",
+            dayBranch = uiState.dayBranch ?: "",
+            monthShishen = uiState.monthShishen ?: ""
+        )
+
+        // Save bitmap to cache directory
+        val cachePath = File(context.cacheDir, "images")
+        cachePath.mkdirs()
+        val file = File(cachePath, "share_card_${System.currentTimeMillis()}.png")
+        FileOutputStream(file).use { out ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+        }
+
+        // Get content URI using FileProvider
+        val contentUri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            file
+        )
+
+        // Create share intent
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "image/png"
+            putExtra(Intent.EXTRA_STREAM, contentUri)
+            putExtra(Intent.EXTRA_TEXT, "📅 今日能量 | 【${uiState.dayStem}${uiState.dayBranch} · ${uiState.monthShishen}】\n\n每一天，都算数\n\n来自 @BaziCal 八字历")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        // Show share dialog
+        val chooser = Intent.createChooser(shareIntent, "分享今日能量")
+        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(chooser)
+
+    } catch (e: Exception) {
+        Log.e(TAG, "Share failed: ${e.message}", e)
+        Toast.makeText(context, "分享失败，请重试", Toast.LENGTH_SHORT).show()
     }
 }

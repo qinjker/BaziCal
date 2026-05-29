@@ -42,6 +42,7 @@ export interface DailyResult {
   lunarDate: string;
   holiday: string;
   branchShishen: string;
+  monthShishen: string;
 }
 
 /**
@@ -293,13 +294,26 @@ export const getMonthlyCalendar = (
 
   // 获取日干的索引 (用于计算十神)
   const dayStemNames = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
-  const dayStemIndex = dayStemNames.indexOf(userBazi.day.stem);
+  const userDayStemIdx = dayStemNames.indexOf(userBazi.day.stem);
 
   // 获取当年的节气数据
   const solarTerms = getYearSolarTerms(year);
 
   // 获取当年节日
   const holidays = getYearHolidays(year);
+
+  // 计算当月月干的十神 (本月能量)
+  // 八字的"月"以节气为界，需用月中日期确定节气月
+  const midDay = Math.min(15, daysInMonth);
+  const midDaySolar = SolarDay.fromYmd(year, month, midDay);
+  const midDayLunar = midDaySolar.getLunarDay();
+  const midDayLunarYear = midDayLunar.getLunarMonth().getYear();
+  const midDayLunarMonth = midDayLunar.getLunarMonth().getMonth();
+  const midDayLunarDay = midDayLunar.getDay();
+  const midDayEightChar = LunarHour.fromYmdHms(midDayLunarYear, midDayLunarMonth, midDayLunarDay, 12, 0, 0).getEightChar();
+  const monthStem = midDayEightChar.getMonth().getHeavenStem();
+  const monthStemIdx = monthStem.getIndex();
+  const monthShishen = getTraditionalTenStar(userDayStemIdx, monthStemIdx);
 
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
@@ -365,6 +379,7 @@ export const getMonthlyCalendar = (
       lunarDate,
       holiday,
       branchShishen,
+      monthShishen,
     });
   }
 

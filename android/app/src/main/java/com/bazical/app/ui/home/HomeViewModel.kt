@@ -28,23 +28,6 @@ class HomeViewModel @Inject constructor(
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-    // 时辰到小时的映射
-    private val timeToHour = mapOf(
-        "" to 0,
-        "子时" to 23,
-        "丑时" to 1,
-        "寅时" to 3,
-        "卯时" to 5,
-        "辰时" to 7,
-        "巳时" to 9,
-        "午时" to 11,
-        "未时" to 13,
-        "申时" to 15,
-        "酉时" to 17,
-        "戌时" to 19,
-        "亥时" to 21
-    )
-
     fun updateName(name: String) {
         _uiState.update { it.copy(name = name) }
     }
@@ -52,11 +35,6 @@ class HomeViewModel @Inject constructor(
     fun updateBirthday(timestamp: Long) {
         _uiState.update { it.copy(birthday = timestamp) }
         convertSolarToLunar(timestamp)
-    }
-
-    fun updateTime(timeValue: String) {
-        val hour = timeToHour[timeValue] ?: 0
-        _uiState.update { it.copy(timeValue = timeValue, hour = hour) }
     }
 
     fun updateBirthdayType(type: String) {
@@ -96,7 +74,7 @@ class HomeViewModel @Inject constructor(
                 userId = "",
                 name = "用户", // 默认名字
                 birthday = birthdayStr,
-                hour = state.hour,
+                hour = 12, // 默认午时
                 minute = state.minute,
                 gender = state.gender,
                 birthdayType = state.birthdayType

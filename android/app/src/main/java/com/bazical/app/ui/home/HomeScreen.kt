@@ -217,50 +217,6 @@ fun HomeScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Time section
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "出生时辰（选填）",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = TextPrimary
-                    )
-                    Text(
-                        text = "选填可让结果更精准",
-                        fontSize = 12.sp,
-                        color = TextTertiary
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                // Time tags
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    val timeOptions = listOf(
-                        "" to "未知",
-                        "子时" to "子时", "丑时" to "丑时", "寅时" to "寅时",
-                        "卯时" to "卯时", "辰时" to "辰时", "巳时" to "巳时",
-                        "午时" to "午时", "未时" to "未时", "申时" to "申时",
-                        "酉时" to "酉时", "戌时" to "戌时", "亥时" to "亥时"
-                    )
-                    timeOptions.forEach { (value, label) ->
-                        TimeTag(
-                            text = label,
-                            selected = uiState.timeValue == value,
-                            onClick = { viewModel.updateTime(value) }
-                        )
-                    }
-                }
-
                 Spacer(modifier = Modifier.height(20.dp))
 
                 // Divider
@@ -352,34 +308,6 @@ fun HomeScreen(
         }
 
         Spacer(modifier = Modifier.height(20.dp))
-
-        // Tip box
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFFFFF9F5))
-                .padding(14.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.Top
-            ) {
-                Text(
-                    text = "💡",
-                    fontSize = 16.sp
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = "不填时辰也没关系，我们依然能为你生成专属日历",
-                    fontSize = 13.sp,
-                    color = TextTertiary,
-                    lineHeight = 18.sp
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
 
         // Submit button
         Button(
@@ -481,28 +409,6 @@ private fun DatePickerField(
             text = displayValue,
             fontSize = 16.sp,
             color = TextPrimary
-        )
-    }
-}
-
-@Composable
-private fun TimeTag(
-    text: String,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(10.dp))
-            .background(if (selected) Primary else Color(0xFFFAF6F0))
-            .border(1.5.dp, if (selected) Primary else Color(0xFFE8E0D5), RoundedCornerShape(10.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 10.dp)
-    ) {
-        Text(
-            text = text,
-            fontSize = 14.sp,
-            color = if (selected) Color.White else TextSecondary
         )
     }
 }
