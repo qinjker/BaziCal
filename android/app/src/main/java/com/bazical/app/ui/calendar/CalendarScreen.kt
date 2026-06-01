@@ -414,20 +414,24 @@ private fun CalendarGridFull(
 
         Log.d(TAG, "Day $dayNum: stem='$stemChar', branch='$branchChar', shishen='${day.shishen}', branchShishen='${day.branchShishen}', jieqi='${day.jieqi}', lunarDate='${day.lunarDate}', holiday='${day.holiday}', displayLunarDate='$displayLunarDate', isJieqiDay=$isJieqiDay")
 
-        allCells.add(CalendarCellData(
-            dayNumber = dayNum,
-            lunarDate = displayLunarDate,
-            isJieqi = isJieqiDay,
-            ganzhiIndex = if (day.ganzhi.isNotEmpty()) 0 else -1,
-            stem = stemChar,
-            shishen = day.shishen,
-            branch = branchChar,
-            branchShishen = day.branchShishen,
-            isOtherMonth = false,
-            isToday = isTodayCell,
-            isWeekend = isWeekendCell,
-            date = day.date
-        ))
+        // Only add if date is in the expected month (sanity check)
+        val isInExpectedMonth = date != null && date.year == year && date.monthValue == month
+        if (isInExpectedMonth) {
+            allCells.add(CalendarCellData(
+                dayNumber = dayNum,
+                lunarDate = displayLunarDate,
+                isJieqi = isJieqiDay,
+                ganzhiIndex = if (day.ganzhi.isNotEmpty()) 0 else -1,
+                stem = stemChar,
+                shishen = day.shishen,
+                branch = branchChar,
+                branchShishen = day.branchShishen,
+                isOtherMonth = false,
+                isToday = isTodayCell,
+                isWeekend = isWeekendCell,
+                date = day.date
+            ))
+        }
     }
 
     // Add next month days
