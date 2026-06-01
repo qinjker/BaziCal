@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -26,15 +28,12 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bazical.app.ui.components.BottomTabBar
@@ -365,37 +365,28 @@ fun HomeScreen(
 
     // Date picker dialog
     if (uiState.showDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = uiState.birthday ?: System.currentTimeMillis()
+        val currentYear = uiState.birthday?.let {
+            java.text.SimpleDateFormat("yyyy", java.util.Locale.getDefault()).format(Date(it)).toInt()
+        } ?: 1990
+        val currentMonth = uiState.birthday?.let {
+            java.text.SimpleDateFormat("MM", java.util.Locale.getDefault()).format(Date(it)).toInt()
+        } ?: 1
+        val currentDay = uiState.birthday?.let {
+            java.text.SimpleDateFormat("dd", java.util.Locale.getDefault()).format(Date(it)).toInt()
+        } ?: 1
+
+        WheelDatePickerDialog(
+            initialYear = currentYear,
+            initialMonth = currentMonth,
+            initialDay = currentDay,
+            onDateSelected = { year, month, day ->
+                val calendar = java.util.Calendar.getInstance()
+                calendar.set(year, month - 1, day)
+                viewModel.updateBirthday(calendar.timeInMillis)
+                viewModel.hideDatePicker()
+            },
+            onDismiss = { viewModel.hideDatePicker() }
         )
-        DatePickerDialog(
-            onDismissRequest = { viewModel.hideDatePicker() },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let { viewModel.updateBirthday(it) }
-                        viewModel.hideDatePicker()
-                    }
-                ) {
-                    Text("确定", color = Primary, fontWeight = FontWeight.SemiBold)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { viewModel.hideDatePicker() }) {
-                    Text("取消", color = TextTertiary)
-                }
-            },
-            shape = RoundedCornerShape(24.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(bottom = 16.dp)
-            ) {
-                DatePicker(
-                    state = datePickerState,
-                    showModeToggle = false
-                )
-            }
-        }
     }
 }
 
@@ -456,5 +447,162 @@ private fun CalendarTypeTag(
                 color = if (selected) Primary.copy(alpha = 0.7f) else TextTertiary
             )
         }
+    }
+}
+
+@Composable
+private fun WheelDatePickerDialog(
+    initialYear: Int,
+    initialMonth: Int,
+    initialDay: Int,
+    onDateSelected: (Int, Int, Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val yearRange = (1900..2100).toList()
+    val monthRange = (1..12).toList()
+    val currentYearIndex = yearRange.indexOf(initialYear).coerceAtLeast(0)
+    val currentMonthIndex = monthRange.indexOf(initialMonth).coerceAtLeast(0)
+    val daysInMonth = java.util.Calendar.getInstance().apply {
+        set(java.util.Calendar.YEAR, initialYear)
+        set(java.util.Calendar.MONTH, initialMonth - 1)
+    }.getActualMaximum(java.util.Calendar.DAY_OF_MONTH)
+    val dayRange = (1..daysInMonth).toList()
+    val currentDayIndex = dayRange.indexOf(initialDay.coerceAtMost(daysInMonth)).coerceAtLeast(0)
+
+    var yearIndex by mutableStateOf(currentYearIndex)
+    var monthIndex by mutableStateOf(currentMonthIndex)
+    var dayIndex by mutableStateOf(currentDayIndex)
+
+    val dayCount = java.util.Calendar.getInstance().apply {
+        set(java.util.Calendar.YEAR, yearRange[yearIndex])
+        set(java.util.Calendar.MONTH, monthRange[monthIndex] - 1)
+    }.getActualMaximum(java.util.Calendar.DAY_OF_MONTH)
+
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .background(Color.White)
+                .padding(vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "选择日期",
+                fontSize = 17.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = TextPrimary,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp)
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                WheelPicker(
+                    items = yearRange,
+                    selectedIndex = yearIndex,
+                    onSelectedIndexChanged = { yearIndex = it },
+                    modifier = Modifier.weight(1f),
+                    itemHeight = 40.dp
+                )
+
+                WheelPicker(
+                    items = monthRange,
+                    selectedIndex = monthIndex,
+                    onSelectedIndexChanged = { monthIndex = it },
+                    modifier = Modifier.weight(1f),
+                    itemHeight = 40.dp,
+                    suffix = "月"
+                )
+
+                WheelPicker(
+                    items = (1..dayCount).toList(),
+                    selectedIndex = dayIndex.coerceAtMost(dayCount - 1),
+                    onSelectedIndexChanged = { dayIndex = it },
+                    modifier = Modifier.weight(1f),
+                    itemHeight = 40.dp,
+                    suffix = "日"
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("取消", color = TextTertiary)
+                }
+                TextButton(
+                    onClick = {
+                        onDateSelected(
+                            yearRange[yearIndex],
+                            monthRange[monthIndex],
+                            dayIndex + 1
+                        )
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("确定", color = Primary, fontWeight = FontWeight.SemiBold)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun WheelPicker(
+    items: List<Int>,
+    selectedIndex: Int,
+    onSelectedIndexChanged: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    itemHeight: androidx.compose.ui.unit.Dp = 40.dp,
+    suffix: String = ""
+) {
+    Box(
+        modifier = modifier
+            .height(160.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color(0xFFFAF6F0)),
+        contentAlignment = Alignment.Center
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            contentPadding = PaddingValues(vertical = (160.dp - itemHeight) / 2)
+        ) {
+            items(items.size) { index ->
+                val isSelected = index == selectedIndex
+                Text(
+                    text = "${items[index]}$suffix",
+                    fontSize = if (isSelected) 18.sp else 14.sp,
+                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                    color = if (isSelected) TextPrimary else TextTertiary,
+                    modifier = Modifier
+                        .height(itemHeight)
+                        .fillMaxWidth()
+                        .clickable { onSelectedIndexChanged(index) },
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(itemHeight)
+                .border(1.dp, Primary.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+        )
     }
 }
