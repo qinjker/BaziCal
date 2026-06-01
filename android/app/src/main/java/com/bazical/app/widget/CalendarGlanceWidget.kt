@@ -192,7 +192,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                     style = TextStyle(
                         color = ColorProvider(day = stemColor, night = stemColor),
                         fontSize = 8.sp,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Medium
                     ),
                     maxLines = 1
                 )
@@ -205,7 +205,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                     style = TextStyle(
                         color = ColorProvider(day = branchColor, night = branchColor),
                         fontSize = 8.sp,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Medium
                     ),
                     maxLines = 1
                 )
