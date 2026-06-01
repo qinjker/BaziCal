@@ -70,13 +70,13 @@ fun BaziCalNavHost(
                     when (tab) {
                         TabItem.Calendar -> {
                             navController.navigate(Screen.Calendar.route) {
-                                popUpTo(Screen.Home.route) { inclusive = true }
+                                popUpTo(Screen.Calendar.route) { inclusive = true }
                             }
                         }
                         TabItem.Today -> {
-                            // Navigate to Home (birthday input page)
-                            navController.navigate(Screen.Home.route) {
-                                popUpTo(Screen.Home.route) { inclusive = true }
+                            // Navigate to Calendar to handle birthday check
+                            navController.navigate(Screen.Calendar.route) {
+                                popUpTo(Screen.Calendar.route) { inclusive = true }
                             }
                         }
                         TabItem.Home -> {
@@ -119,8 +119,10 @@ fun BaziCalNavHost(
                             }
                         }
                         TabItem.Today -> {
-                            val today = java.time.LocalDate.now().toString()
-                            navController.navigate(Screen.Daily.createRoute(today))
+                            // Navigate to Calendar to handle birthday check
+                            navController.navigate(Screen.Calendar.route) {
+                                popUpTo(Screen.Calendar.route) { inclusive = true }
+                            }
                         }
                         TabItem.Home -> {
                             if (currentRoute != "home") {
