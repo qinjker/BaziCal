@@ -82,7 +82,7 @@ fun CalendarScreen(
     var showBirthdayDialog by remember { mutableStateOf(false) }
 
     // Handle tab click with birthday check
-    val handleTabClick: (TabItem) -> Unit = remember { tab ->
+    val handleTabClick: (TabItem) -> Unit = { tab ->
         when (tab) {
             TabItem.Today -> {
                 if (uiState.userBirthday.isNotEmpty()) {
