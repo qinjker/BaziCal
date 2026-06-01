@@ -51,8 +51,8 @@ fun BottomTabBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFFFAF8F5).copy(alpha = 0.97f))
-            .padding(vertical = 8.dp, horizontal = 8.dp),
+            .background(Color.White)
+            .padding(vertical = 12.dp, horizontal = 8.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         TabItem.entries.forEach { tab ->
@@ -87,23 +87,23 @@ private fun TabItemView(
 ) {
     Column(
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .padding(6.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
             imageVector = icon,
             contentDescription = label,
             tint = if (isActive) activeColor else inactiveColor,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(28.dp)
         )
         Text(
             text = label,
-            fontSize = 10.sp,
+            fontSize = 12.sp,
             color = if (isActive) activeColor else inactiveColor,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(top = 3.dp)
+            fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
+            modifier = Modifier.padding(top = 4.dp)
         )
     }
 }

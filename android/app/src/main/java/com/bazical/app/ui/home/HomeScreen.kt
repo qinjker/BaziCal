@@ -375,16 +375,24 @@ fun HomeScreen(
                         viewModel.hideDatePicker()
                     }
                 ) {
-                    Text("确定", color = Primary)
+                    Text("确定", color = Primary, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.hideDatePicker() }) {
-                    Text("取消")
+                    Text("取消", color = TextTertiary)
                 }
-            }
+            },
+            shape = RoundedCornerShape(24.dp)
         ) {
-            DatePicker(state = datePickerState)
+            Column(
+                modifier = Modifier.padding(bottom = 16.dp)
+            ) {
+                DatePicker(
+                    state = datePickerState,
+                    showModeToggle = false
+                )
+            }
         }
     }
 }
@@ -398,17 +406,18 @@ private fun DatePickerField(
 ) {
     Box(
         modifier = modifier
-            .height(54.dp)
-            .clip(RoundedCornerShape(12.dp))
+            .height(56.dp)
+            .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFFAF6F0))
-            .border(1.5.dp, Color(0xFFE8E0D5), RoundedCornerShape(12.dp))
+            .border(1.5.dp, Color(0xFFE8E0D5), RoundedCornerShape(16.dp))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = displayValue,
-            fontSize = 16.sp,
-            color = TextPrimary
+            fontSize = 17.sp,
+            color = TextPrimary,
+            fontWeight = FontWeight.Medium
         )
     }
 }

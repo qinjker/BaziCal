@@ -459,8 +459,8 @@ private fun CalendarGridFull(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // Calculate rows needed (6 weeks = 6 rows)
-        val rows = 6
+        // Calculate rows needed (5 weeks = 5 rows for compact view)
+        val rows = 5
 
         for (rowIndex in 0 until rows) {
             Row(
