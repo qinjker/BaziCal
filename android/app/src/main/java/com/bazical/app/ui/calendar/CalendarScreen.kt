@@ -470,12 +470,12 @@ private fun CalendarGridFull(
         val stemChar = if (day.ganzhi.isNotEmpty()) day.ganzhi[0] else ""
         val branchChar = if (day.ganzhi.size > 1) day.ganzhi[1] else ""
 
-        // Build lunarDate - 优先级: holiday > jieqi > lunarDate (与 Web 端一致)
-        val holidayValue = day.holiday?.takeIf { it.isNotBlank() }
+        // Build lunarDate - 优先级: 节气 > 农历 > 节日
         val jieqiValue = day.jieqi?.takeIf { it.isNotBlank() }
         val lunarValue = day.lunarDate?.takeIf { it.isNotBlank() }
+        val holidayValue = day.holiday?.takeIf { it.isNotBlank() }
 
-        val displayLunarDate = holidayValue ?: jieqiValue ?: lunarValue
+        val displayLunarDate = jieqiValue ?: lunarValue ?: holidayValue
         val isJieqiDay = jieqiValue != null
 
         Log.d(TAG, "Day $dayNum: stem='$stemChar', branch='$branchChar', shishen='${day.shishen}', branchShishen='${day.branchShishen}', jieqi='${day.jieqi}', lunarDate='${day.lunarDate}', holiday='${day.holiday}', displayLunarDate='$displayLunarDate', isJieqiDay=$isJieqiDay")
@@ -566,6 +566,8 @@ private fun CalendarDayCellFromDesign(
     cell: CalendarCellData,
     modifier: Modifier = Modifier
 ) {
+    Log.d(TAG, "CalendarDayCell: day=${cell.dayNumber}, stem='${cell.stem}', shishen='${cell.shishen}', branch='${cell.branch}', branchShishen='${cell.branchShishen}', isOtherMonth=${cell.isOtherMonth}")
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -582,6 +584,7 @@ private fun CalendarDayCellFromDesign(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Day number (Row 1)
+        Log.d(TAG, "Row1: dayNumber=${cell.dayNumber}, isOtherMonth=${cell.isOtherMonth}")
         Text(
             text = cell.dayNumber.toString(),
             fontSize = 12.sp,
@@ -596,6 +599,7 @@ private fun CalendarDayCellFromDesign(
 
         // Lunar date or Jieqi
         val displayText = cell.lunarDate ?: ""
+        Log.d(TAG, "Row2: lunarDate='$displayText', isJieqi=${cell.isJieqi}")
         if (displayText.isNotEmpty()) {
             val lunarColor = when {
                 cell.isToday -> Color.White.copy(alpha = 0.7f)
@@ -612,6 +616,7 @@ private fun CalendarDayCellFromDesign(
         }
 
         // Only show ganzhi rows for current month days
+        Log.d(TAG, "Row3-4: stem='${cell.stem}', isOtherMonth=${cell.isOtherMonth}, shishen='${cell.shishen}', branch='${cell.branch}', branchShishen='${cell.branchShishen}'")
         if (!cell.isOtherMonth && cell.stem.isNotEmpty()) {
             // Stem + Shishen
             Text(
