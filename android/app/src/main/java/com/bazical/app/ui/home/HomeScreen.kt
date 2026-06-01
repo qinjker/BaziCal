@@ -46,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -469,9 +470,9 @@ private fun WheelDatePickerDialog(
     val dayRange = (1..daysInMonth).toList()
     val currentDayIndex = dayRange.indexOf(initialDay.coerceAtMost(daysInMonth)).coerceAtLeast(0)
 
-    var yearIndex by mutableStateOf(currentYearIndex)
-    var monthIndex by mutableStateOf(currentMonthIndex)
-    var dayIndex by mutableStateOf(currentDayIndex)
+    var yearIndex by remember { mutableStateOf(currentYearIndex) }
+    var monthIndex by remember { mutableStateOf(currentMonthIndex) }
+    var dayIndex by remember { mutableStateOf(currentDayIndex) }
 
     val dayCount = java.util.Calendar.getInstance().apply {
         set(java.util.Calendar.YEAR, yearRange[yearIndex])
