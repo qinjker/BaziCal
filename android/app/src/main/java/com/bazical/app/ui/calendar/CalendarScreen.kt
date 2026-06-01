@@ -86,10 +86,13 @@ fun CalendarScreen(
         when (tab) {
             TabItem.Today -> {
                 if (uiState.userBirthday.isNotEmpty()) {
-                    onTabClick(tab)
+                    onNavigateToToday()
                 } else {
                     showBirthdayDialog = true
                 }
+            }
+            TabItem.Home -> {
+                onNavigateToHome()
             }
             else -> onTabClick(tab)
         }

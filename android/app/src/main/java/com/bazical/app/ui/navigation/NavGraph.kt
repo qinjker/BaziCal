@@ -74,9 +74,9 @@ fun BaziCalNavHost(
                             }
                         }
                         TabItem.Today -> {
-                            // Navigate to Calendar which handles birthday check
-                            navController.navigate(Screen.Calendar.route) {
-                                popUpTo(Screen.Calendar.route) { inclusive = true }
+                            // Navigate to Home (birthday input page)
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(Screen.Home.route) { inclusive = true }
                             }
                         }
                         TabItem.Home -> {
