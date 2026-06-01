@@ -1,5 +1,11 @@
 package com.bazical.app.ui.daily
 
+import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
+import android.net.FileProvider
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,6 +42,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -47,6 +54,9 @@ import com.bazical.app.ui.components.TabItem
 import com.bazical.app.ui.theme.Primary
 import com.bazical.app.ui.theme.TextPrimary
 import com.bazical.app.ui.theme.TextTertiary
+import com.bazical.app.util.ShareCardGenerator
+import java.io.File
+import java.io.FileOutputStream
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -61,6 +71,7 @@ fun DailyScreen(
     viewModel: DailyViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日")
     val displayDate = try {
@@ -124,7 +135,21 @@ fun DailyScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.width(60.dp))
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(Color(0xFF5A8A6A))
+                        .clickable { shareCard(context, uiState) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.Share,
+                        contentDescription = "分享",
+                        tint = Color.White,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
             }
 
             if (uiState.loading) {
@@ -214,38 +239,42 @@ fun DailyScreen(
                             }
                         }
 
-                        // Share Main Button
+                        // Share Button - Simple and elegant
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 20.dp)
                                 .shadow(
-                                    elevation = 8.dp,
+                                    elevation = 4.dp,
                                     shape = RoundedCornerShape(16.dp),
-                                    spotColor = Color(0xFFC84A3E).copy(alpha = 0.3f)
+                                    spotColor = Color.Black.copy(alpha = 0.06f)
                                 )
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(
                                     Brush.linearGradient(
-                                        colors = listOf(Color(0xFFC84A3E), Color(0xFFA33D33))
+                                        colors = listOf(Color(0xFF5A8A6A), Color(0xFF4A7A5A))
                                     )
                                 )
-                                .clickable { }
-                                .padding(vertical = 16.dp),
+                                .clickable { shareCard(context, uiState) }
+                                .padding(vertical = 14.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    text = "✨ 生成分享卡",
-                                    fontSize = 17.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color.White
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.Share,
+                                    contentDescription = "分享",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(18.dp)
                                 )
+                                Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "分享今日能量给朋友",
-                                    fontSize = 12.sp,
-                                    color = Color.White.copy(alpha = 0.8f),
-                                    modifier = Modifier.padding(top = 4.dp)
+                                    text = "分享能量",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.White
                                 )
                             }
                         }
@@ -480,5 +509,63 @@ private fun ActionItem(
             fontWeight = FontWeight.Medium,
             color = if (isPrimary) Color(0xFFC84A3E) else Color(0xFF5A4A3A)
         )
+    }
+}
+
+private fun shareCard(context: Context, uiState: DailyUiState) {
+    try {
+        val date = uiState.date
+        val parts = date.split("-")
+        val year = parts.getOrNull(0)?.toIntOrNull() ?: LocalDate.now().year
+        val month = parts.getOrNull(1)?.toIntOrNull() ?: LocalDate.now().monthValue
+        val day = parts.getOrNull(2)?.toIntOrNull() ?: LocalDate.now().dayOfMonth
+
+        val dayData = uiState.dayData
+        val dayStem = dayData?.ganzhi?.firstOrNull() ?: ""
+        val dayBranch = dayData?.ganzhi?.getOrNull(1) ?: ""
+
+        // Generate share bitmap
+        val bitmap = ShareCardGenerator.generateShareCard(
+            context = context,
+            year = year,
+            month = month,
+            day = day,
+            lunarDate = dayData?.lunarDate ?: "未知",
+            dayStem = dayStem,
+            dayBranch = dayBranch,
+            monthShishen = dayData?.monthShishen ?: ""
+        )
+
+        // Save bitmap to cache directory
+        val cachePath = File(context.cacheDir, "images")
+        cachePath.mkdirs()
+        val file = File(cachePath, "share_card_${System.currentTimeMillis()}.png")
+        FileOutputStream(file).use { out ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+        }
+
+        // Get content URI using FileProvider
+        val contentUri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            file
+        )
+
+        // Create share intent
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "image/png"
+            putExtra(Intent.EXTRA_STREAM, contentUri)
+            putExtra(Intent.EXTRA_TEXT, "📅 今日能量 | 【${dayStem}${dayBranch} · ${dayData?.monthShishen ?: ""}】\n\n每一天，都算数\n\n来自 @BaziCal 八字历")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        // Show share dialog
+        val chooser = Intent.createChooser(shareIntent, "分享今日能量")
+        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(chooser)
+
+    } catch (e: Exception) {
+        Log.e("DailyScreen", "Share failed: ${e.message}", e)
+        Toast.makeText(context, "分享失败，请重试", Toast.LENGTH_SHORT).show()
     }
 }
