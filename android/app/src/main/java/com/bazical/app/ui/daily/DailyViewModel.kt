@@ -64,7 +64,8 @@ class DailyViewModel @Inject constructor(
                                         jieqi = null,
                                         lunarDate = null,
                                         holiday = null,
-                                        branchShishen = detail.branchShishen
+                                        branchShishen = detail.branchShishen,
+                                        monthShishen = ""
                                     ),
                                     loading = false,
                                     messages = detail.messages
