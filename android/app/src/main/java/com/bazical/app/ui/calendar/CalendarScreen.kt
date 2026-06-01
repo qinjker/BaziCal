@@ -294,42 +294,16 @@ fun CalendarScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Action Buttons Row
+        // Share Button - Simple and elegant
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.Center
         ) {
-            // Add Widget Button
             Box(
                 modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(Color(0xFFC84A3E), Color(0xFFA33D33))
-                        )
-                    )
-                    .clickable {
-                        showPermissionDialog = true
-                    }
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "添加到桌面",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White
-                )
-            }
-
-            // Share Button
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(24.dp))
                     .background(
                         Brush.linearGradient(
                             colors = listOf(Color(0xFF5A8A6A), Color(0xFF4A7A5A))
@@ -338,7 +312,7 @@ fun CalendarScreen(
                     .clickable {
                         shareCard(context, uiState)
                     }
-                    .padding(16.dp),
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Row(
@@ -351,11 +325,11 @@ fun CalendarScreen(
                         tint = Color.White,
                         modifier = Modifier.size(18.dp)
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "分享能量",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
                         color = Color.White
                     )
                 }
