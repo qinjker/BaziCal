@@ -55,7 +55,7 @@ import com.bazical.app.ui.components.TabItem
 import com.bazical.app.ui.theme.Primary
 import com.bazical.app.ui.theme.TextPrimary
 import com.bazical.app.ui.theme.TextTertiary
-import com.bazical.app.util.ShareCardGenerator
+import com.bazical.app.ui.share.ShareCardGenerator
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDate
