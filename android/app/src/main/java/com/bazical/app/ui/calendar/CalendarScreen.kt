@@ -73,12 +73,27 @@ fun CalendarScreen(
     onNavigateToToday: () -> Unit,
     onNavigateToFeedback: () -> Unit,
     currentRoute: String?,
-    onTabClick: (TabItem) -> Unit,
+    onTabClick: (tab: TabItem) -> Unit,
     viewModel: CalendarViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var showPermissionDialog by remember { mutableStateOf(false) }
+    var showBirthdayDialog by remember { mutableStateOf(false) }
+
+    // Handle tab click with birthday check
+    val handleTabClick: (TabItem) -> Unit = remember { tab ->
+        when (tab) {
+            TabItem.Today -> {
+                if (uiState.userBirthday.isNotEmpty()) {
+                    onTabClick(tab)
+                } else {
+                    showBirthdayDialog = true
+                }
+            }
+            else -> onTabClick(tab)
+        }
+    }
 
     if (showPermissionDialog) {
         AlertDialog(
@@ -88,6 +103,27 @@ fun CalendarScreen(
             confirmButton = {
                 TextButton(onClick = { showPermissionDialog = false }) {
                     Text("知道了")
+                }
+            }
+        )
+    }
+
+    if (showBirthdayDialog) {
+        AlertDialog(
+            onDismissRequest = { showBirthdayDialog = false },
+            title = { Text("请先输入生日") },
+            text = { Text("查看月历和今日详情前，请先输入您的生日信息") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showBirthdayDialog = false
+                    onNavigateToHome()
+                }) {
+                    Text("去输入")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showBirthdayDialog = false }) {
+                    Text("稍后")
                 }
             }
         )
@@ -361,7 +397,13 @@ fun CalendarScreen(
                     days = uiState.days,
                     year = uiState.year,
                     month = uiState.month,
-                    onDayClick = { day -> onNavigateToDaily(day.date) }
+                    onDayClick = { day ->
+                        if (uiState.userBirthday.isNotEmpty()) {
+                            onNavigateToDaily(day.date)
+                        } else {
+                            showBirthdayDialog = true
+                        }
+                    }
                 )
             }
         }
@@ -371,7 +413,7 @@ fun CalendarScreen(
         // Bottom Tab Bar
         BottomTabBar(
             currentRoute = currentRoute,
-            onTabClick = onTabClick
+            onTabClick = handleTabClick
         )
     }
 }
