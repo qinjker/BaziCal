@@ -3,9 +3,10 @@ package com.bazical.app.ui.daily
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.net.FileProvider
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -545,7 +546,7 @@ private fun shareCard(context: Context, uiState: DailyUiState) {
         }
 
         // Get content URI using FileProvider
-        val contentUri = FileProvider.getUriForFile(
+        val contentUri: Uri = FileProvider.getUriForFile(
             context,
             "${context.packageName}.fileprovider",
             file
