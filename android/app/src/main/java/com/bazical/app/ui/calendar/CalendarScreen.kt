@@ -450,6 +450,7 @@ private fun CalendarGridFull(
     }
 
     // Display in grid - 7 columns with flexible height
+    Log.d(TAG, "CalendarGridFull: allCells.size=${allCells.size}, firstCell=dayNumber=${allCells.firstOrNull()?.dayNumber}, stem=${allCells.firstOrNull()?.stem}")
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -466,8 +467,10 @@ private fun CalendarGridFull(
                 for (colIndex in 0 until 7) {
                     val cellIndex = rowIndex * 7 + colIndex
                     if (cellIndex < allCells.size) {
+                        val cell = allCells[cellIndex]
+                        Log.d(TAG, "Grid cell[$cellIndex]: dayNumber=${cell.dayNumber}, stem='${cell.stem}', isOtherMonth=${cell.isOtherMonth}")
                         CalendarDayCellFromDesign(
-                            cell = allCells[cellIndex],
+                            cell = cell,
                             modifier = Modifier.weight(1f)
                         )
                     } else {
