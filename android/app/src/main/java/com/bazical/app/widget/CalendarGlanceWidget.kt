@@ -22,8 +22,7 @@ import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.ColorProvider
-import androidx.glance.unit.unitColor
+import androidx.glance.color.ColorProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -73,7 +72,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                 Text(
                     text = "八字历",
                     style = TextStyle(
-                        color = ColorProvider(unitColor(primaryColor)),
+                        color = ColorProvider(primaryColor),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -81,7 +80,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                 Text(
                     text = if (userBaZi != null) "【${userBaZi.dayStem}${userBaZi.dayBranch}】" else "",
                     style = TextStyle(
-                        color = ColorProvider(unitColor(Color(0xFFD4A843))),
+                        color = ColorProvider(Color(0xFFD4A843)),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -89,7 +88,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                 Text(
                     text = " ${today.format(formatter)}",
                     style = TextStyle(
-                        color = ColorProvider(unitColor(secondaryColor)),
+                        color = ColorProvider(secondaryColor),
                         fontSize = 9.sp
                     )
                 )
@@ -106,7 +105,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                     Text(
                         text = listOf("日", "一", "二", "三", "四", "五", "六")[index],
                         style = TextStyle(
-                            color = ColorProvider(unitColor(if (isWeekend) weekendColor else secondaryColor)),
+                            color = ColorProvider(if (isWeekend) weekendColor else secondaryColor),
                             fontSize = 8.sp,
                             fontWeight = FontWeight.Medium
                         ),
@@ -162,7 +161,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
             Text(
                 text = dayInfo.dayNumber.toString(),
                 style = TextStyle(
-                    color = ColorProvider(unitColor(textColor)),
+                    color = ColorProvider(textColor),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -179,7 +178,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                 Text(
                     text = dayInfo.lunarDate,
                     style = TextStyle(
-                        color = ColorProvider(unitColor(displayColor)),
+                        color = ColorProvider(displayColor),
                         fontSize = 7.sp
                     ),
                     maxLines = 1
@@ -191,7 +190,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                 Text(
                     text = "${dayInfo.stem} ${dayInfo.shishen}",
                     style = TextStyle(
-                        color = ColorProvider(unitColor(stemColor)),
+                        color = ColorProvider(stemColor),
                         fontSize = 8.sp,
                         fontWeight = FontWeight.SemiBold
                     ),
@@ -204,7 +203,7 @@ class CalendarGlanceWidget : GlanceAppWidget() {
                 Text(
                     text = "${dayInfo.branch} ${dayInfo.branchShishen}",
                     style = TextStyle(
-                        color = ColorProvider(unitColor(branchColor)),
+                        color = ColorProvider(branchColor),
                         fontSize = 8.sp,
                         fontWeight = FontWeight.SemiBold
                     ),
