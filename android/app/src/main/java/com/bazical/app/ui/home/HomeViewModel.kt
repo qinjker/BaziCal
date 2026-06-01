@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.bazical.app.domain.model.Gender
 import com.bazical.app.domain.model.User
 import com.bazical.app.domain.usecase.CalculateBaziUseCase
+import com.bazical.app.domain.usecase.GetUserUseCase
 import com.bazical.app.domain.usecase.SolarToLunarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,13 +21,39 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val calculateBaziUseCase: CalculateBaziUseCase,
-    private val solarToLunarUseCase: SolarToLunarUseCase
+    private val solarToLunarUseCase: SolarToLunarUseCase,
+    private val getUserUseCase: GetUserUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+    init {
+        loadUserData()
+    }
+
+    private fun loadUserData() {
+        viewModelScope.launch {
+            getUserUseCase()?.let { user ->
+                // Parse birthday from stored string
+                val birthdayTimestamp = try {
+                    dateFormat.parse(user.birthday)?.time
+                } catch (e: Exception) {
+                    null
+                }
+                _uiState.update { it.copy(
+                    birthday = birthdayTimestamp,
+                    birthdayType = user.birthdayType
+                )}
+                // Convert to lunar if solar birthday
+                if (birthdayTimestamp != null && user.birthdayType == "solar") {
+                    convertSolarToLunar(birthdayTimestamp)
+                }
+            }
+        }
+    }
 
     fun updateName(name: String) {
         _uiState.update { it.copy(name = name) }

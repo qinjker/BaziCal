@@ -175,46 +175,47 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Date pickers
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                // Birthday input - Single elegant field
+                val displayDate = uiState.birthday?.let {
+                    SimpleDateFormat("yyyy 年 MM 月 dd 日", Locale.getDefault()).format(Date(it))
+                } ?: ""
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(64.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(0xFFFAF6F0))
+                        .border(1.5.dp, Color(0xFFE8E0D5), RoundedCornerShape(16.dp))
+                        .clickable { viewModel.showDatePicker() },
+                    contentAlignment = Alignment.Center
                 ) {
-                    // Year picker
-                    DatePickerField(
-                        value = uiState.birthday?.let {
-                            SimpleDateFormat("yyyy", Locale.getDefault()).format(Date(it))
-                        } ?: "",
-                        displayValue = uiState.birthday?.let {
-                            SimpleDateFormat("yyyy", Locale.getDefault()).format(Date(it))
-                        } ?: "年",
-                        modifier = Modifier.weight(1f),
-                        onClick = { viewModel.showDatePicker() }
-                    )
-
-                    // Month picker
-                    DatePickerField(
-                        value = uiState.birthday?.let {
-                            SimpleDateFormat("MM", Locale.getDefault()).format(Date(it)).padStart(2, '0')
-                        } ?: "",
-                        displayValue = uiState.birthday?.let {
-                            SimpleDateFormat("MM", Locale.getDefault()).format(Date(it)).padStart(2, '0')
-                        } ?: "月",
-                        modifier = Modifier.weight(1f),
-                        onClick = { viewModel.showDatePicker() }
-                    )
-
-                    // Day picker
-                    DatePickerField(
-                        value = uiState.birthday?.let {
-                            SimpleDateFormat("dd", Locale.getDefault()).format(Date(it)).padStart(2, '0')
-                        } ?: "",
-                        displayValue = uiState.birthday?.let {
-                            SimpleDateFormat("dd", Locale.getDefault()).format(Date(it)).padStart(2, '0')
-                        } ?: "日",
-                        modifier = Modifier.weight(1f),
-                        onClick = { viewModel.showDatePicker() }
-                    )
+                    if (displayDate.isNotEmpty()) {
+                        Text(
+                            text = displayDate,
+                            fontSize = 18.sp,
+                            color = TextPrimary,
+                            fontWeight = FontWeight.Medium
+                        )
+                    } else {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "点击选择生日",
+                                fontSize = 16.sp,
+                                color = TextTertiary
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Icon(
+                                imageVector = Icons.Default.CalendarMonth,
+                                contentDescription = "选择日期",
+                                tint = TextTertiary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
