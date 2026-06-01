@@ -132,7 +132,9 @@ fun BaziCalNavHost(
                             }
                         }
                         TabItem.Feedback -> {
-                            // TODO: Navigate to feedback
+                            navController.navigate(Screen.FeedbackCenter.route) {
+                                popUpTo(Screen.Daily.route) { inclusive = true }
+                            }
                         }
                     }
                 }
