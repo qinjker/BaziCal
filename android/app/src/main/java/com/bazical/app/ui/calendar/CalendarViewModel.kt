@@ -53,6 +53,8 @@ class CalendarViewModel @Inject constructor(
                     if (calendarMonth.days.isNotEmpty()) {
                         val firstDay = calendarMonth.days.first()
                         Log.d(TAG, "First day: date=${firstDay.date}, ganzhi=${firstDay.ganzhi}, shishen=${firstDay.shishen}, branchShishen=${firstDay.branchShishen}, lunarDate=${firstDay.lunarDate}")
+                    } else {
+                        Log.w(TAG, "loadCalendar: days is EMPTY!")
                     }
                     _uiState.update { it.copy(days = calendarMonth.days, loading = false) }
                 },
