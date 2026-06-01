@@ -45,16 +45,16 @@ class CalendarViewModel @Inject constructor(
     fun loadCalendar(year: Int, month: Int) {
         viewModelScope.launch {
             _uiState.update { it.copy(loading = true, year = year, month = month) }
-            Log.d(TAG, "loadCalendar: year=$year, month=$month")
+            Log.d(TAG, "loadCalendar START: year=$year, month=$month")
             val result = getCalendarUseCase(year, month)
             result.fold(
                 onSuccess = { calendarMonth ->
-                    Log.d(TAG, "loadCalendar success: ${calendarMonth.days.size} days")
+                    Log.d(TAG, "loadCalendar SUCCESS: calendarMonth.year=${calendarMonth.year}, calendarMonth.month=${calendarMonth.month}, days.size=${calendarMonth.days.size}")
                     if (calendarMonth.days.isNotEmpty()) {
                         val firstDay = calendarMonth.days.first()
-                        Log.d(TAG, "First day: date=${firstDay.date}, ganzhi=${firstDay.ganzhi}, shishen=${firstDay.shishen}, branchShishen=${firstDay.branchShishen}, lunarDate=${firstDay.lunarDate}")
+                        Log.d(TAG, "First day: date=${firstDay.date}, ganzhi=${firstDay.ganzhi}, shishen=${firstDay.shishen}")
                     } else {
-                        Log.w(TAG, "loadCalendar: days is EMPTY!")
+                        Log.w(TAG, "loadCalendar: calendarMonth.days is EMPTY!")
                     }
                     _uiState.update { it.copy(days = calendarMonth.days, loading = false) }
                 },

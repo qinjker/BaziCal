@@ -389,9 +389,10 @@ private fun CalendarGridFull(
     }
 
     // Add current month days
-    Log.d(TAG, "CalendarGridFull: days.size=${days.size}, first day: ${
-        if (days.isNotEmpty()) "date=${days[0].date}, ganzhi=${days[0].ganzhi}, shishen=${days[0].shishen}, branchShishen=${days[0].branchShishen}, lunarDate=${days[0].lunarDate}" else "empty"
-    }")
+    Log.d(TAG, "CalendarGridFull: days=${days.size} days, year=$year, month=$month")
+    if (days.isEmpty()) {
+        Log.w(TAG, "CalendarGridFull: days is EMPTY! Cannot add current month days.")
+    }
     for (day in days) {
         val date = try { LocalDate.parse(day.date) } catch (e: Exception) { null }
         val dayNum = date?.dayOfMonth ?: 0
