@@ -92,7 +92,7 @@ fun FeedbackCenterScreen(
                         feedbacks = uiState.feedbacks,
                         isLoading = uiState.isLoading,
                         onItemClick = onNavigateToDetail,
-                        onRetry = { viewModel.loadFeedbacks() }
+                        onRetry = { viewModel.selectTab(FeedbackTab.SUBMIT) }
                     )
                 }
                 FeedbackTab.SUBMIT -> {
